@@ -12,7 +12,7 @@ public class MyApp {
      * Main method for my application
      */
     public static void main(String[] args) throws Exception {
-        MyWindow window = new MyWindow("The Window");
+        MyWindow window = new MyWindow("New Window is awesome");
         window.setVisible(true);
         /*
         * Dette er en kommentar jeg (Fredrik) la til i ny og bedre branch.
@@ -21,5 +21,6 @@ public class MyApp {
         /**
          * Comment
          */
+
    }
 }
