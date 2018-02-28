@@ -17,6 +17,6 @@ public class MyApp {
         /*
         * Dette er en kommentar jeg (Fredrik) la til i ny og bedre branch.
         */
-        System.out.println("Dette er en testendring som er mye bedre");
-   }  
+        System.out.println("Dette er en testendring som er mye bedre enn den andre som var veldig bra");
+   }
 }
