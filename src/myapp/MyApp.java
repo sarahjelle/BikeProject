@@ -15,8 +15,8 @@ public class MyApp {
         MyWindow window = new MyWindow("The Window");
         window.setVisible(true);
         /*
-        * Dette er en kommentar jeg (Martin) la til i branchen TestBranch
+        * Dette er en kommentar jeg (Fredrik) la til i ny og bedre branch.
         */
-        System.out.println("Dette er en testendring");
+        System.out.println("Dette er en testendring som er mye bedre");
    }  
 }
