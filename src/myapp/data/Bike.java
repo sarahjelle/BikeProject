@@ -1,22 +1,30 @@
 package myapp.data;
 
+import java.util.*;
+
 public class Bike {
     private int id;
     private String make;
     private double batteryPercentage;
     private boolean available;
     private int distanceTraveled;
+    private Location location;
 
     public Bike(){
 
     }
 
-    public Bike(int id, String make, double batteryPercentage, boolean available, int parkingSpotId){
+    public Bike(int id, String make, double batteryPercentage, boolean available, int parkingSpotId, int distanceTraveled, Location location){
         this.id = id;
         this.make = make;
         this.batteryPercentage = batteryPercentage;
         this.available = available;
-        this.distanceTraveled = 0;
+        this.location = location;
+        if (distanceTraveled != 0){
+            this.distanceTraveled = distanceTraveled;
+        } else {
+            this.distanceTraveled = 0;
+        }
     }
 
     public int getId() {
@@ -44,7 +52,18 @@ public class Bike {
     }
 
     public int getDistanceTraveled(){
-        return 250; //getInfoFromKmReader;
+        return distanceTraveled; //getInfoFromKmReader;
     }
 
+    public void setLocation() {
+        this.location = location;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public Report getReport(int bikeID, int batteryPercentage, Location location, Date dateTime) {
+        return new Report(bikeID, batteryPercentage, location, dateTime);
+    }
 }
