@@ -22,21 +22,18 @@ public class FrameChange extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         initMenu();
         setLayout(new BorderLayout());
+        bike_reg.setBackground(Color.RED);
+        bike_edit.setBackground(Color.BLUE);
 
-        JLabel reg = new JLabel("Bike_reg");
-        JLabel edit = new JLabel("Bike_edit");
-        bike_reg.setBackground(Color.BLUE);
-        bike_edit.setBackground(Color.RED);
-        bike_reg.add(reg);
-        bike_edit.add(edit);
     }
+
 
     private class MenuAction implements ActionListener {
 
         private JPanel panel;
 
-        private MenuAction(JPanel pnl) {
-            this.panel = pnl;
+        private MenuAction(JPanel panel) {
+            this.panel = panel;
         }
 
         @Override
@@ -61,15 +58,18 @@ public class FrameChange extends JFrame {
     }
 
     private void changePanel(JPanel panel){
-        getContentPane().removeAll();
+        /*getContentPane().removeAll();
         getContentPane().add(panel, BorderLayout.CENTER);
         getContentPane().doLayout();
-        update(getGraphics());
+        update(getGraphics());*/
+        setContentPane(panel);
+        invalidate();
+        validate();
     }
 
     public static void main(String[] args) {
         FrameChange frame = new FrameChange();
-        frame.setBounds(200, 200, 300, 200);
+        frame.setBounds(200, 200, 500, 500);
         frame.setVisible(true);
 
     }
