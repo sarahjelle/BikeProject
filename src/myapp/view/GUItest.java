@@ -3,12 +3,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.*;
 
-public class GUItest {
+public class GUItest{
     private JFrame frame = null;
 
     public GUItest(){
-        JFrame frame = new JFrame("Bike rental");
+        frame = new JFrame("Bike rental");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(500,500);
 
@@ -82,7 +83,16 @@ public class GUItest {
 
     class MenuActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e){
-            frame = null;
+            JMenuItem frank =(JMenuItem)e.getSource();
+            String currentState = frank.getText();
+
+            //System.out.println(e.getSource());
+
+            if(true){
+                BikeRegisterPanel test = new BikeRegisterPanel();
+                frame.getContentPane().add(test.getBike_reg());
+                frame.repaint();
+            }
         }
     }
 
