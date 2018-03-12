@@ -1,9 +1,11 @@
+package myapp.data;
+
 public class Bike {
     private int id;
     private String make;
     private double batteryPercentage;
     private boolean available;
-    private int parkingSpotId;
+    private int distanceTraveled;
 
     public Bike(){
 
@@ -14,7 +16,7 @@ public class Bike {
         this.make = make;
         this.batteryPercentage = batteryPercentage;
         this.available = available;
-        this.parkingSpotId = parkingSpotId;
+        this.distanceTraveled = 0;
     }
 
     public int getId() {
@@ -41,7 +43,8 @@ public class Bike {
         this.available = available;
     }
 
-    public void parkingSpot(Docking parkingSpot){
-        parkingSpotId = parkingSpot.getId();
+    public int getDistanceTraveled(){
+        return 250; //getInfoFromKmReader;
     }
+
 }
