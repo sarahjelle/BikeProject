@@ -19,7 +19,7 @@ public class MyApp {
         */
         System.out.println("Dette er en testendring som er mye bedre enn den andre som var veldig bra");
         /**
-         * Comment
+         * This is another comment
          */
    }
 }
