@@ -46,12 +46,18 @@ public class FrameChange extends JFrame {
 
     private void initMenu() {
         JMenuBar menubar = new JMenuBar();
-        JMenu menu = new JMenu("Bike");
+        JMenu bike = new JMenu("Bike");
         JMenuItem reg_bike = new JMenuItem("Register");
         JMenuItem edit_bike = new JMenuItem("Edit");
-        menubar.add(menu);
-        menu.add(reg_bike);
-        menu.add(edit_bike);
+        menubar.add(bike);
+        bike.add(reg_bike);
+        bike.add(edit_bike);
+        JMenu dock_stat = new JMenu("Docking Station");
+        JMenuItem dock_reg = new JMenuItem("Register");
+        JMenuItem dock_edit = new JMenuItem("Edit");
+        menubar.add(dock_stat);
+        dock_stat.add(dock_reg);
+        dock_stat.add(dock_edit);
         setJMenuBar(menubar);
         reg_bike.addActionListener(new MenuAction(bike_reg));
         edit_bike.addActionListener(new MenuAction(bike_edit));

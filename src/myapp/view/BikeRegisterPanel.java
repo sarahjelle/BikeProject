@@ -40,11 +40,22 @@ public class BikeRegisterPanel {
             add(makeField);
             add(new JLabel("Date: ", JLabel.RIGHT));
             add(dateField);
-            add(new JLabel("Type: ", JLabel.RIGHT));
-            add(typeField);
+            add(new RadioButton(),BorderLayout.CENTER);
 
         }
     }
+
+    private class RadioButton extends JPanel{
+        private JRadioButton type1 = new JRadioButton("Type 1", true);
+        private JRadioButton type2 = new JRadioButton("Type 2", false);
+        public RadioButton(){
+            setLayout(new GridLayout(3,1, 1, 1));
+            add(new JLabel("Type: "));
+            add(type1);
+            add(type2);
+        }
+    }
+
     public JPanel getBike_reg() {
         return bike_reg;
     }
