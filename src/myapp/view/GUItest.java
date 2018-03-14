@@ -1,5 +1,6 @@
 package myapp.view;
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -85,13 +86,18 @@ public class GUItest{
         public void actionPerformed(ActionEvent e){
             JMenuItem frank =(JMenuItem)e.getSource();
             String currentState = frank.getText();
+            System.out.println(currentState);
 
             //System.out.println(e.getSource());
 
-            if(true){
+            if(currentState.equals("Register")){
                 BikeRegisterPanel test = new BikeRegisterPanel();
-                frame.getContentPane().add(test.getBike_reg());
-                frame.repaint();
+                //test.getBike_reg()
+                JLabel newLabel = new JLabel("TestLabel");
+                frame.getContentPane().add(newLabel, BorderLayout.CENTER);
+                frame.getContentPane().doLayout();
+                frame.update(frame.getGraphics());
+                //frame.getContentPane().repaint();
             }
         }
     }
