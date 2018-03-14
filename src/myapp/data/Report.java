@@ -5,12 +5,12 @@ import java.util.*;
 
 public class Report {
     private int bikeID;
-    private int batteryPercentage;
+    private Double batteryPercentage;
     private Location location;
     private Date dateTime;
 
 
-    public Report(int bikeID, int batteryPercentage, Location location, Date dateTime){
+    public Report(int bikeID, Double batteryPercentage, Location location, Date dateTime){
         this.bikeID = bikeID;
         this.batteryPercentage = batteryPercentage;
         this.location = location;
@@ -21,7 +21,7 @@ public class Report {
         return bikeID;
     }
 
-    public int getBatteryPercentage() {
+    public Double getBatteryPercentage() {
         return batteryPercentage;
     }
 

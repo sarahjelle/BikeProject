@@ -14,7 +14,7 @@ public class Bike {
 
     }
 
-    public Bike(int id, String make, double batteryPercentage, boolean available, int parkingSpotId, int distanceTraveled, Location location){
+    public Bike(int id, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location){
         this.id = id;
         this.make = make;
         this.batteryPercentage = batteryPercentage;
@@ -55,7 +55,7 @@ public class Bike {
         return distanceTraveled; //getInfoFromKmReader;
     }
 
-    public void setLocation() {
+    public void setLocation(Location location) {
         this.location = location;
     }
 
@@ -63,7 +63,7 @@ public class Bike {
         return location;
     }
 
-    public Report getReport(int bikeID, int batteryPercentage, Location location, Date dateTime) {
+    public Report getReport(int bikeID, Double batteryPercentage, Location location, Date dateTime) {
         return new Report(bikeID, batteryPercentage, location, dateTime);
     }
 }

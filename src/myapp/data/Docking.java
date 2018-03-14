@@ -9,14 +9,12 @@ import java.util.ArrayList;
 public class Docking {
     private int id;
     private String name;
-    private double km;
     private Location location;
     private int capacity;
     private ArrayList<Bike> bikes;
 
     public Docking(int id, String name, Location location, int capacity){
         this.id = id;
-        this.km = 0.;
         this.name = name;
         this.location = location;
         this.capacity = capacity;
@@ -26,12 +24,6 @@ public class Docking {
     public int getId() {
         return id;
     }
-
-    /*
-    public Location getLocation(){
-        return location;
-    }
-    */
 
     public String getName(){
         return name;
@@ -54,7 +46,7 @@ public class Docking {
     }
 
     public int getOpenSpaces(){
-        return bikes.size();
+        return getCapacity() - bikes.size();
     }
 
     public void addBike(Bike bike){
@@ -71,7 +63,7 @@ public class Docking {
 
     }
 
-    // Helpermethod to removeBike
+    // Helper-method to removeBike
     private int getBikePos(int bikeId) {
         for(int i = 0; i < bikes.size(); i++){
             if(bikeId == bikes.get(i).getId()){
@@ -81,8 +73,8 @@ public class Docking {
         return -1;
     }
 
-    public double getKm() {
-        return km;
+    public ArrayList<Bike> getBikes() {
+        return bikes;
     }
 
     /*
