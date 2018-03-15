@@ -11,11 +11,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import myapp.data.Bike;
 
-class DBH {
+public class DBH {
 
     Connection db = null;
 
@@ -24,7 +26,7 @@ class DBH {
     String password = "asdasd";
     String database = "bikerental";
 
-    DBH () {
+    public DBH () {
         try {
             db = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password);
 
@@ -36,40 +38,30 @@ class DBH {
         }
     }
 
-    public boolean addBike(Object bike) {
-        if (bike instanceof Bike) {
+    public boolean addBike(Bike bike) {
 
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String purchased = dateFormat.format(((Bike) bike).getPurchased());
+        LocalDate localDate = ((Bike) bike).getPurchased();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-LL-dd");
+        String purchased = localDate.format(formatter);
 
-            System.out.println("II: " + purchased);
+        System.out.println("II: " + purchased);
 
-            String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, bikeType, make) VALUES ("
-                    + ((Bike) bike).getPrice() + ", '"
-                    + purchased + "', "
-                    + ((Bike) bike).getTotalTrips() + ", "
-                    + ((Bike) bike).getDistanceTraveled() + ", '"
-                    + ((Bike) bike).getType() + "', '"
-                    + ((Bike) bike).getMake() + "')";
+        String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, bikeType, make) VALUES ("
+                + ((Bike) bike).getPrice() + ", '"
+                + purchased + "', "
+                + ((Bike) bike).getTotalTrips() + ", "
+                + ((Bike) bike).getDistanceTraveled() + ", '"
+                + ((Bike) bike).getType() + "', '"
+                + ((Bike) bike).getMake() + "')";
 
-            try {
-                Statement state = db.createStatement();
-                state.executeUpdate(sql);
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
-            }
+        try {
+            Statement state = db.createStatement();
+            state.executeUpdate(sql); // Check if this returns a value, then handle true false returns.
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+            return false;
         }
-        return true;
     }
 }
 
-// Just for testing purposes
-class DBTest {
-    public static void main(String[] args) {
-        DBH db = new DBH();
-
-        Date date = new Date();
-        Bike newB = new Bike(3000, date, "SuperBike", "DBS");
-        db.addBike(newB);
-    }
-}
