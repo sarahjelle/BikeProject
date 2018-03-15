@@ -16,7 +16,7 @@
                 <menus>
                     <Menu text="Bike">
                         <items>
-                            <MenuItem text = "Register" onAction="#"/>
+                            <MenuItem text = "Register" />
                             <MenuItem text = "Edit"/>
                             <MenuItem text = "Delete"/>
                         </items>

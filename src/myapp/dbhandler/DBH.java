@@ -11,11 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 import myapp.data.Bike;
 
-class DBH {
+public class DBH {
 
     Connection db = null;
 
@@ -24,7 +25,7 @@ class DBH {
     String password = "asdasd";
     String database = "bikerental";
 
-    DBH () {
+    public DBH () {
         try {
             db = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password);
 
@@ -60,16 +61,5 @@ class DBH {
             }
         }
         return true;
-    }
-}
-
-// Just for testing purposes
-class DBTest {
-    public static void main(String[] args) {
-        DBH db = new DBH();
-
-        Date date = new Date();
-        Bike newB = new Bike(3000, date, "SuperBike", "DBS");
-        db.addBike(newB);
     }
 }
