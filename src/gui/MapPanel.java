@@ -9,7 +9,7 @@ public class MapPanel extends JPanel {
 
     public MapPanel() {
         //-- MAP PANEL
-        setBackground(Color.BLACK);
+        setBackground(Color.BLUE);
         add(maplabel,border.CENTER);
         doLayout();
     }

@@ -29,7 +29,7 @@ public class BikePanel extends JPanel{
 
     public BikePanel() {
         //-- BIKE PANEL
-        setBackground(Color.BLUE);
+        //setBackground(Color.BLUE);
         setLayout(border);
         // Adding buttons to toolbar
         biketools.add(addbikeButton);
@@ -44,8 +44,9 @@ public class BikePanel extends JPanel{
         //repairButton.addActionListener(bikeListener);
         //statusbikeButton.addActionListener(bikeListener);
         // Setting look and feel of toolbar
-        biketools.setBackground(Color.BLUE);
+        //biketools.setBackground(Color.BLUE);
         biketools.setBorderPainted(false);
+        /*
         addbikeButton.setBackground(Color.LIGHT_GRAY);
         editbikeButton.setBackground(Color.LIGHT_GRAY);
         deletebikeButton.setBackground(Color.LIGHT_GRAY);
@@ -56,6 +57,7 @@ public class BikePanel extends JPanel{
         deletebikeButton.setForeground(Color.YELLOW);
         repairButton.setForeground(Color.YELLOW);
         statusbikeButton.setForeground(Color.YELLOW);
+        */
         addbikeButton.setFont(new Font("MONOSPACED", Font.BOLD, 20));
         editbikeButton.setFont(new Font("MONOSPACED", Font.BOLD, 20));
         deletebikeButton.setFont(new Font("MONOSPACED", Font.BOLD, 20));
@@ -65,9 +67,9 @@ public class BikePanel extends JPanel{
         add(biketools, border.LINE_START);
         // Adding the cards to the panel
         outputCardPanel.setLayout(card);
-        outputCardPanel.setBackground(Color.BLUE);
+        //outputCardPanel.setBackground(Color.BLUE);
         mainPanel = new JPanel();
-        mainPanel.setBackground(Color.BLUE);
+        //mainPanel.setBackground(Color.BLUE);
         outputCardPanel.add(mainPanel,"main");
         card.show(outputCardPanel,"main");
         // Adding to main panel

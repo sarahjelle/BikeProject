@@ -8,23 +8,26 @@ public class ToolBarPanel extends JPanel {
 
     public ToolBarPanel(Menu.PanelListener listener) {
         JToolBar tools = new JToolBar();
-        setBackground(Color.BLUE);
+        //setBackground(Color.BLUE);
         //Adding buttons
         buttonBike = new JButton("BIKE");
         buttonDock = new JButton("DOCKING STATION");
         buttonStat = new JButton("STATISTICS");
         buttonMap = new JButton("MAP");
         // Look and feel
-        tools.setBackground(Color.BLUE);
+        //tools.setBackground(Color.BLUE);
         tools.setBorderPainted(false);
+        /*
         buttonBike.setBackground(Color.LIGHT_GRAY);
         buttonDock.setBackground(Color.LIGHT_GRAY);
         buttonStat.setBackground(Color.LIGHT_GRAY);
         buttonMap.setBackground(Color.LIGHT_GRAY);
+
         buttonBike.setForeground(Color.YELLOW);
         buttonDock.setForeground(Color.YELLOW);
         buttonStat.setForeground(Color.YELLOW);
         buttonMap.setForeground(Color.YELLOW);
+        */
         buttonBike.setFont(new Font("MONOSPACED", Font.BOLD, 24));
         buttonDock.setFont(new Font("MONOSPACED", Font.BOLD, 24));
         buttonStat.setFont(new Font("MONOSPACED", Font.BOLD, 24));

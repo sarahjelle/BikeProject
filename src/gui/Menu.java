@@ -25,7 +25,7 @@ public class Menu extends JFrame {
         //-- CARD LAYOUT PANEL FOR SWITCHING BETWEEN BUTTON OPTIONS
 
         panelCardContainer.setLayout(card);
-        mainPanel.setBackground(Color.BLUE);
+        //mainPanel.setBackground(Color.BLUE);
         panelCardContainer.add(mainPanel,"main");
         panelCardContainer.add(panelBike, "bike");
         panelCardContainer.add(panelDock,"dock");

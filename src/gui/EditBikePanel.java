@@ -17,7 +17,7 @@ public class EditBikePanel extends JPanel {
     public EditBikePanel(){
         // Creating an edit bike panel
         setLayout(new GridBagLayout());
-        setBackground(Color.BLUE);
+        //setBackground(Color.BLUE);
         // Submit button with action listener
         editbikeSubmit = new JButton("SUBMIT");
         editbikeSubmit.setFont(new Font("MONOSPACED",Font.PLAIN,14));
@@ -34,7 +34,7 @@ public class EditBikePanel extends JPanel {
         // Adding header
         add(editbike,c);
         c.anchor=GridBagConstraints.CENTER;
-        c.insets=new Insets(100,0,0,0);
+        //c.insets=new Insets(100,0,0,0);
         c.gridwidth=1;
         c.gridx=0;
         c.gridy=1;

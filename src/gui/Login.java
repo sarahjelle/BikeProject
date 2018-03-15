@@ -11,36 +11,40 @@ public class Login extends JFrame {
 
     public Login() {
         submitListener = new LoginListener();
-        BorderLayout border = new BorderLayout();
-        GridLayout grid = new GridLayout(2,2);
+        GridBagLayout grid = new GridBagLayout();
+        GridBagConstraints c = new GridBagConstraints();
         JPanel loginPanel = new JPanel();
-        JPanel mainPanel = new JPanel();
-        loginPanel.setBackground(Color.ORANGE);
-        mainPanel.setBackground(Color.ORANGE);
-        mainPanel.setLayout(border);
+        //JPanel mainPanel = new JPanel();
+        //loginPanel.setBackground(Color.ORANGE);
+        //mainPanel.setBackground(Color.ORANGE);
+        //mainPanel.setLayout(border);
         loginPanel.setLayout(grid);
-
+        c.anchor=GridBagConstraints.ABOVE_BASELINE_LEADING;
+        c.gridx=0;
+        c.gridy=0;
         JLabel username = new JLabel("Username:");
+        loginPanel.add(username,c);
+        c.gridx=1;
+        c.gridy=0;
         JTextField userInput = new JTextField(20);
-
-        loginPanel.add(username);
-        loginPanel.add(userInput);
-
+        loginPanel.add(userInput,c);
+        c.gridx=0;
+        c.gridy=1;
         JLabel password = new JLabel("Password: ");
+        loginPanel.add(password,c);
         JPasswordField passwordInput = new JPasswordField(20);
-
-        loginPanel.add(password);
-        loginPanel.add(passwordInput);
-
-        //loginPanel.setPreferredSize(new Dimension(200,10));
+        c.gridx=1;
+        c.gridy=1;
+        loginPanel.add(passwordInput,c);
 
         submit = new JButton("SUBMIT");
         submit.addActionListener(submitListener);
-
-        mainPanel.add(loginPanel,border.NORTH);
-        mainPanel.add(submit,border.PAGE_END);
-
-        setContentPane(mainPanel);
+        c.gridy=10;
+        //c.gridwidth=2;
+        //mainPanel.add(loginPanel,border.NORTH);
+        //mainPanel.add(submit,border.PAGE_END);
+        loginPanel.add(submit,c);
+        setContentPane(loginPanel);
         pack();
     }
 

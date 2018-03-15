@@ -12,7 +12,7 @@ public class DockPanel extends JPanel{
     private BorderLayout border = new BorderLayout();
     public DockPanel(){
         //-- DOCK PANEL
-        setBackground(Color.BLUE);
+        //setBackground(Color.BLUE);
         setLayout(border);
         // Adding buttons to toolbar
         docktools.add(adddockButton);
@@ -20,8 +20,9 @@ public class DockPanel extends JPanel{
         docktools.add(deletedockButton);
         docktools.add(statusdockButton);
         // Changing look anf feel of toolbar
-        docktools.setBackground(Color.BLUE);
+        //docktools.setBackground(Color.BLUE);
         docktools.setBorderPainted(false);
+        /*
         adddockButton.setBackground(Color.LIGHT_GRAY);
         editdockButton.setBackground(Color.LIGHT_GRAY);
         deletedockButton.setBackground(Color.LIGHT_GRAY);
@@ -30,6 +31,7 @@ public class DockPanel extends JPanel{
         editdockButton.setForeground(Color.YELLOW);
         deletedockButton.setForeground(Color.YELLOW);
         statusdockButton.setForeground(Color.YELLOW);
+        */
         adddockButton.setFont(new Font("MONOSPACED",Font.BOLD,20));
         editdockButton.setFont(new Font("MONOSPACED",Font.BOLD,20));
         deletedockButton.setFont(new Font("MONOSPACED",Font.BOLD,20));

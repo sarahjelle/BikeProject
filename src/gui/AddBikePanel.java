@@ -17,7 +17,7 @@ public class AddBikePanel extends JPanel {
     public AddBikePanel(){
             // Creating an add bike panel
             setLayout(new GridBagLayout());
-            setBackground(Color.BLUE);
+            //
             // Submit button with action listener
             addbikeSubmit = new JButton("SUBMIT");
             addbikeSubmit.setFont(new Font("MONOSPACED",Font.PLAIN,14));
