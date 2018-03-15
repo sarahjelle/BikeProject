@@ -4,14 +4,21 @@ import java.util.*;
 
 public class Bike {
     private int id;
+    private Date purchased;
+    private String type;
     private String make;
+    private double price;
     private double batteryPercentage;
     private boolean available;
     private int distanceTraveled;
+    private int totalTrips;
     private Location location;
 
-    public Bike(){
-
+    public Bike(int price, Date purchased, String type, String make){
+        this.price = price;
+        this.purchased = purchased;
+        this.type = type;
+        this.make = make;
     }
 
     public Bike(int id, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location){
@@ -35,6 +42,18 @@ public class Bike {
         return make;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public Date getPurchased() {
+        return purchased;
+    }
+
+    public String getType() {
+        return type;
+    }
+
     public double getBatteryPercentage() {
         return batteryPercentage;
     }
@@ -53,6 +72,18 @@ public class Bike {
 
     public int getDistanceTraveled(){
         return distanceTraveled; //getInfoFromKmReader;
+    }
+
+    public void setDistanceTraveled(int dist){
+        this.distanceTraveled = distanceTraveled + dist;
+    }
+
+    public int getTotalTrips() {
+        return totalTrips;
+    }
+
+    public void setTotalTrips(){
+        this.totalTrips++;
     }
 
     public void setLocation(Location location) {
