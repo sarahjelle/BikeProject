@@ -1,10 +1,10 @@
 package myapp.data;
 
-import java.util.*;
+import java.time.LocalDate;
 
 public class Bike {
     private int id;
-    private Date purchased;
+    private LocalDate purchased;
     private String type;
     private String make;
     private double price;
@@ -14,7 +14,7 @@ public class Bike {
     private int totalTrips;
     private Location location;
 
-    public Bike(int price, Date purchased, String type, String make){
+    public Bike(int price, LocalDate purchased, String type, String make){
         this.price = price;
         this.purchased = purchased;
         this.type = type;
@@ -46,7 +46,7 @@ public class Bike {
         return price;
     }
 
-    public Date getPurchased() {
+    public LocalDate getPurchased() {
         return purchased;
     }
 
