@@ -4,21 +4,21 @@ package myapp.data;
 import myapp.data.Bike;
 
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Docking {
     private int id;
     private String name;
     private Location location;
     private int capacity;
-    private ArrayList<Bike> bikes;
+    private HashMap<Integer, Bike> bikes;
 
     public Docking(int id, String name, Location location, int capacity){
         this.id = id;
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.bikes = new ArrayList<Bike>(capacity);
+        this.bikes = new HashMap<>(capacity);
     }
 
     public int getId() {
@@ -50,9 +50,13 @@ public class Docking {
     }
 
     public void addBike(Bike bike){
-        bikes.add(bike);
+        bikes.put(bike.getId(), bike);
     }
 
+    public boolean removeBike(int bikeId){
+        return (bikes.remove(bikeId) != null);
+    }
+    /*
     public boolean removeBike(int bikeId) {
         int pos = getBikePos(bikeId);
         if (pos >= 0){
@@ -72,8 +76,9 @@ public class Docking {
         }
         return -1;
     }
+    */
 
-    public ArrayList<Bike> getBikes() {
+    public HashMap<Integer, Bike> getBikes() {
         return bikes;
     }
 

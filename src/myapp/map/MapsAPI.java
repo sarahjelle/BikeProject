@@ -35,29 +35,6 @@ public class MapsAPI {
         return instance;
     }
 
-
-    public Location getLocation(String where) {
-        if (where.equals("")){
-            return null;
-        }
-        Double[] lla = getLatLongAlt(where);
-
-        if (lla == null) {
-            return null;
-        }
-
-        return new Location(where, lla);
-    }
-
-    public Double getAltitude(String where) {
-        Double[] latlong = getLatLong(where);
-        if(latlong == null){
-            return null;
-        }
-        return getAltitude(latlong);
-    }
-
-
     public Double[] getLatLongAlt(String where){
         Double[] latlong = getLatLong(where);
         Double alt = getAltitude(latlong);
