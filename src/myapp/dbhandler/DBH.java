@@ -10,7 +10,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import myapp.instances.Bike;
+import myapp.data.Bike;
 
 class DBH {
 
@@ -32,17 +32,29 @@ class DBH {
             System.out.println("VendorError: " + e.getErrorCode());
         }
     }
-
-
+   /*
+    bikeID int NOT NULL AUTO_INCREMENT,
+    price int NOT NULL,
+    purchaseDate date NOT NULL,
+    totalTrips int NOT NULL,
+    totalKM decimal NOT NULL,
+    type varchar(25) NOT NULL,
+    make varchar(25) NOT NULL,
+   */
     public boolean addBike(Object bike) {
         if (bike instanceof Bike) {
             String make = ((Bike) bike).getMake();
-            int price = 10000;
-            double batteryPercentage = 0.00;
-            String purchaseDate = "01.01.2018"; // Test date until javas date NOW function is implemented
-            //int parkingSpotId = ((Bike) bike).getParkingSpotId(); - Does not exist yet
+            String type = ((Bike) bike).getType();
+            double price = ((Bike) bike).getPrice();
+            double batteryPercentage = ((Bike) bike).getBatteryPercentage();
+            String[] purchased = ((Bike) bike).getPurchased().toString().split(" ");
 
-            String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips) VALUES (" + price + ", '" + purchaseDate + "', " + "0)";
+            String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, type, make) VALUES ("
+                    + ((Bike) bike).getPrice() + ", '"
+                    + purchased[0] + "', "
+                    + ((Bike) bike).getTotalTrips() + ", "
+                    + ((Bike) bike).getType() + ", "
+                    + ((Bike) bike).getMake() + ")";
 
             try {
                 Statement state = db.createStatement();
