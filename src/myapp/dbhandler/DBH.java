@@ -9,6 +9,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import myapp.data.Bike;
 
@@ -32,29 +35,22 @@ class DBH {
             System.out.println("VendorError: " + e.getErrorCode());
         }
     }
-   /*
-    bikeID int NOT NULL AUTO_INCREMENT,
-    price int NOT NULL,
-    purchaseDate date NOT NULL,
-    totalTrips int NOT NULL,
-    totalKM decimal NOT NULL,
-    type varchar(25) NOT NULL,
-    make varchar(25) NOT NULL,
-   */
+
     public boolean addBike(Object bike) {
         if (bike instanceof Bike) {
-            String make = ((Bike) bike).getMake();
-            String type = ((Bike) bike).getType();
-            double price = ((Bike) bike).getPrice();
-            double batteryPercentage = ((Bike) bike).getBatteryPercentage();
-            String[] purchased = ((Bike) bike).getPurchased().toString().split(" ");
 
-            String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, type, make) VALUES ("
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String purchased = dateFormat.format(((Bike) bike).getPurchased());
+
+            System.out.println("II: " + purchased);
+
+            String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, bikeType, make) VALUES ("
                     + ((Bike) bike).getPrice() + ", '"
-                    + purchased[0] + "', "
+                    + purchased + "', "
                     + ((Bike) bike).getTotalTrips() + ", "
-                    + ((Bike) bike).getType() + ", "
-                    + ((Bike) bike).getMake() + ")";
+                    + ((Bike) bike).getDistanceTraveled() + ", '"
+                    + ((Bike) bike).getType() + "', '"
+                    + ((Bike) bike).getMake() + "')";
 
             try {
                 Statement state = db.createStatement();
@@ -71,7 +67,9 @@ class DBH {
 class DBTest {
     public static void main(String[] args) {
         DBH db = new DBH();
-        Bike newB = new Bike(10, "Merida", 100.00, false, 1);
+
+        Date date = new Date();
+        Bike newB = new Bike(3000, date, "SuperBike", "DBS");
         db.addBike(newB);
     }
 }
