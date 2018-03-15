@@ -14,7 +14,9 @@ public class Bike {
     private int totalTrips;
     private Location location;
 
-    public Bike(int price, LocalDate purchased, String type, String make){
+
+    public Bike(double price, LocalDate purchased, String type, String make) {
+
         this.price = price;
         this.purchased = purchased;
         this.type = type;
