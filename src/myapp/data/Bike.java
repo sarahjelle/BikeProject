@@ -62,8 +62,4 @@ public class Bike {
     public Location getLocation() {
         return location;
     }
-
-    public Report getReport(int bikeID, Double batteryPercentage, Location location, Date dateTime) {
-        return new Report(bikeID, batteryPercentage, location, dateTime);
-    }
 }
