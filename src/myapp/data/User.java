@@ -1,9 +1,9 @@
 package myapp.data;
 import java.util.Random;
 public class User {
-    final static int ADMINISTRATOR = 0;
-    final static int REPERATØR = 1;
-    final static int KUNDE = 2;
+    final static int ADMINISTRATOR = 1;
+    final static int REPERATØR = 2;
+    final static int KUNDE = 3;
 
     private final int UserID;
     private final int UserClass;
