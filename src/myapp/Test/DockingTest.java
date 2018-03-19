@@ -6,6 +6,7 @@ import myapp.data.Docking;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.Assert.*;
 
@@ -57,7 +58,7 @@ public class DockingTest {
         docking1.addBike(bike2);
         docking1.addBike(bike3);
         docking1.removeBike(bike1.getId());
-        ArrayList<Bike> bikes = docking1.getBikes();
+        HashMap<Integer, Bike> bikes = docking1.getBikes();
         System.out.println(docking1.getBikes().size());
         System.out.println(bikes);
         for(int i = 0; i < bikes.size(); i++){

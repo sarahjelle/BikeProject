@@ -11,7 +11,7 @@ public class HomeController {
     public BikePanelController bpController;
 
     @FXML private void regBike(){
-        bpController.registerBikeButton();
+        bpController.openPanel();
     }
 
     @FXML private void reg_bike(ActionEvent event){

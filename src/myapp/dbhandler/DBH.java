@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import myapp.data.Bike;
@@ -37,29 +38,30 @@ public class DBH {
         }
     }
 
-    public boolean addBike(Object bike) {
-        if (bike instanceof Bike) {
+    public boolean addBike(Bike bike) {
 
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String purchased = dateFormat.format(((Bike) bike).getPurchased());
+        LocalDate localDate = ((Bike) bike).getPurchased();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-LL-dd");
+        String purchased = localDate.format(formatter);
 
-            System.out.println("II: " + purchased);
+        System.out.println("II: " + purchased);
 
-            String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, bikeType, make) VALUES ("
-                    + ((Bike) bike).getPrice() + ", '"
-                    + purchased + "', "
-                    + ((Bike) bike).getTotalTrips() + ", "
-                    + ((Bike) bike).getDistanceTraveled() + ", '"
-                    + ((Bike) bike).getType() + "', '"
-                    + ((Bike) bike).getMake() + "')";
+        String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, bikeType, make) VALUES ("
+                + ((Bike) bike).getPrice() + ", '"
+                + purchased + "', "
+                + ((Bike) bike).getTotalTrips() + ", "
+                + ((Bike) bike).getDistanceTraveled() + ", '"
+                + ((Bike) bike).getType() + "', '"
+                + ((Bike) bike).getMake() + "')";
 
-            try {
-                Statement state = db.createStatement();
-                state.executeUpdate(sql);
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
-            }
+        try {
+            Statement state = db.createStatement();
+            state.executeUpdate(sql); // Check if this returns a value, then handle true false returns.
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+            return false;
         }
-        return true;
     }
 }
+

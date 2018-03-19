@@ -11,12 +11,12 @@
 <BorderPane fx:controller="myapp.JavaFx.HomeController"
             xmlns:fx="http://javafx.com/fxml">
     <top>
-        <VBox id = "menuBox" prefHeight="400" prefWidth="800">
+        <!--<VBox id = "menuBox" prefHeight="400" prefWidth="800">
             <MenuBar fx:id="menubar" onKeyPressed="#handleKey">
                 <menus>
                     <Menu text="Bike">
                         <items>
-                            <MenuItem text = "Register" />
+                            <MenuItem text = "Register"/>
                             <MenuItem text = "Edit"/>
                             <MenuItem text = "Delete"/>
                         </items>
@@ -42,13 +42,13 @@
                     </Menu>
                 </menus>
             </MenuBar>
-        </VBox>
-        <!--<HBox>
-            <Button id = "bike" text="Bike" fx:id="bikeButton" onAction="#bike"/>
+        </VBox>-->
+        <HBox>
+            <Button id = "bike" text="Bike" fx:id="bikeButton" onAction="#regBike"/>
             <Button id = "dock_station" text="Docking Station" fx:id="dock_station" onAction="#dock_station"/>
             <Button id = "statistic" text = "Statistic" fx:id="statistic" onAction="#statistic"/>
             <Button id = "map" text = "Map" fx:id="map" onAction="#map"/>
-        </HBox>-->
+        </HBox>
     </top>
     <left>
     </left>
