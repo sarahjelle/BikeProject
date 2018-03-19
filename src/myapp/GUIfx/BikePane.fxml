@@ -5,39 +5,38 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.BikePaneController">
    <top>
-      <GridPane BorderPane.alignment="CENTER">
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <TextField />
-            <Button mnemonicParsing="false" text="Search" GridPane.columnIndex="1" />
-            <Button mnemonicParsing="false" prefHeight="39.0" prefWidth="158.0" text="+ Register new" GridPane.columnIndex="3" />
-         </children>
-      </GridPane>
+      <HBox>
+          <TextField />
+          <Button text="Search" GridPane.columnIndex="1" />
+          <Region HBox.hgrow="ALWAYS"/>
+          <Button onAction="#openRegBike"  text="+ Register new" GridPane.columnIndex="3" />
+      </HBox>
    </top>
    <center>
-      <TableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <columns>
-          <TableColumn prefWidth="75.0" text="Bikeid" fx:id="bikeid"/>
-          <TableColumn prefWidth="105.0" text="Total trips" fx:id="trips"/>
-            <TableColumn prefWidth="96.0" text="Total km" fx:id="km"/>
-        </columns>
-      </TableView>
+      <AnchorPane BorderPane.alignment="CENTER">
+            <TableView fx:id="bikeTable" visible="true" BorderPane.alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0">
+              <columns>
+                <TableColumn fx:id="bikeId" text="Id" />
+                <TableColumn fx:id="totalTrips" text="Total trips" />
+                <TableColumn fx:id="totalKm" text="Total km" />
+              </columns>
+              <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+              </columnResizePolicy>
+            </TableView>
+            <fx:include fx:id="centerPane" source="BikeCenterPane.fxml" visible="true" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0"/>
+      </AnchorPane>
    </center>
-   <left>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-   </left>
-   <right>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-   </right>
+   <bottom>
+      <HBox>
+          <Region HBox.hgrow="ALWAYS"/>
+          <Button text = "+Register repair"/>
+      </HBox>
+   </bottom>
 </BorderPane>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.BikeCenterController">
+   <center>
+      <AnchorPane>
+         <children>
+             <VBox fx:id="regBikePane" spacing="10" visible="false" alignment="CENTER" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                 <GridPane alignment="CENTER">
+                        <Label text="Purchase date: " />
+                        <Label GridPane.rowIndex="1" />
+                        <DatePicker GridPane.columnIndex="1" />
+                        <Label text="Price" GridPane.rowIndex="1" />
+                        <Label text="Make: " GridPane.rowIndex="2" />
+                        <Label text="Type:" GridPane.rowIndex="3" />
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <ChoiceBox prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                 </GridPane>
+                 <HBox alignment="CENTER">
+                     <Button text="Submit" fx:id="regSubmit"/>
+                     <Button text="Cancel" fx:id="regCancel"/>
+                 </HBox>
+             </VBox>
+         </children>
+      </AnchorPane>
+   </center>
+</BorderPane>
