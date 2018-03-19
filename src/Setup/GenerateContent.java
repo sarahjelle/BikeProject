@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
 import java.util.Random;
+import myapp.map.MapsAPI;
 
 public class GenerateContent {
 
@@ -23,6 +24,15 @@ public class GenerateContent {
     private final int NumberOfBikes = 250;
     private final int NumberOfStations = 10;
     private final int MaxSlots = 25;
+
+    //(N), (E)
+    //NW : 63.441395, 10.344000
+    //NE : 63.446921, 10.510169
+    //SE : 63.394385, 10.506735
+    //SW : 63.392232, 10.345374
+    //Diff W-E : 10.510169 - 10.344000 = 0.166169
+    //Diff N-S : 63.446921 - 63.392232 = 0.054689
+
 
     public GenerateContent(){
         BufferedWriter bWriter = null;
@@ -68,7 +78,8 @@ public class GenerateContent {
                     slots = 10;
                 }
                 slotsOnStations[i] = slots;
-                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots) VALUES (\"" + name + "\", " + slots + ");\n";
+
+                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots) VALUES (\"" + name + ", Trondheim\", " + slots + ");\n";
             }
 
             //Create slots on dockingstations
