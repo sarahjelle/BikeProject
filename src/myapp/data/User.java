@@ -12,24 +12,26 @@ public class User {
     private final String lastname;
     private final int phone;
     private final String email;
-    //private final int landcode;
+    private final String landcode;
 
-    public User(int UserClass, int UserID, String firstname, String lastname, int phone, String email){
+    public User(int UserClass, int UserID, String firstname, String lastname, int phone, String email, String landcode){
         this.UserID = UserID;
         this.UserClass = UserClass;
         this.firstname = firstname;
         this.lastname = lastname;
         this.phone = phone;
         this.email = email;
+        this.landcode = landcode;
     }
 
-    public User(int UserID, String firstname, String lastname, int phone, String email){
+    public User(int UserID, String firstname, String lastname, int phone, String email, String landcode){
         this.UserID = UserID;
         this.UserClass = KUNDE;
         this.firstname = firstname;
         this.lastname = lastname;
         this.phone = phone;
         this.email = email;
+        this.landcode = landcode;
     }
 
     public int getUserID(){
@@ -54,6 +56,10 @@ public class User {
 
     public String getEmail(){
         return email;
+    }
+
+    public String getLandcode(){
+        return landcode;
     }
 
 
