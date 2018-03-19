@@ -5,71 +5,114 @@
 
 package myapp.dbhandler;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import myapp.data.Bike;
+import myapp.data.Docking;
+import myapp.hasher.Hasher;
 
 class DBH {
 
     Connection db = null;
 
-    String host     = "localhost";
-    String username = "root";
-    String password = "asdasd";
-    String database = "bikerental";
+    String host     = "mysql.stud.iie.ntnu.no";
+    String username = "fredrmed";
+    String password = "IOFa0YRq";
+    String database = "fredrmed";
 
-    DBH () {
+    public DBH() {
+
+    }
+
+    private Connection connect() {
         try {
-            db = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password);
-
+            return DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password);
         } catch (SQLException e) {
             // Handling any errors
             System.out.println("SQLException: " + e.getMessage());
             System.out.println("SQLState: " + e.getSQLState());
             System.out.println("VendorError: " + e.getErrorCode());
         }
+        return null;
     }
 
-    public boolean addBike(Object bike) {
-        if (bike instanceof Bike) {
+    private String dateTranslate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return date.format(formatter);
+    }
 
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String purchased = dateFormat.format(((Bike) bike).getPurchased());
+    // May not be necessary since LocalDate dont use time
+    private String dateTimeTranslate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+        return date.format(formatter);
+    }
 
-            System.out.println("II: " + purchased);
-
-            String sql = "INSERT INTO bikes (price, purchaseDate, totalTrips, totalKM, bikeType, make) VALUES ("
-                    + ((Bike) bike).getPrice() + ", '"
-                    + purchased + "', "
-                    + ((Bike) bike).getTotalTrips() + ", "
-                    + ((Bike) bike).getDistanceTraveled() + ", '"
-                    + ((Bike) bike).getType() + "', '"
-                    + ((Bike) bike).getMake() + "')";
-
-            try {
-                Statement state = db.createStatement();
-                state.executeUpdate(sql);
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
-            }
+    private String execSQL(PreparedStatement sql) {
+        try {
+            sql.executeUpdate();
+            sql.close();
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Error: " + e);
+            return e.toString();
         }
-        return true;
+    }
+
+    public String registerBike(Bike bike) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return "Unable to reach database. :(";
+            }
+            stmt = db.prepareStatement("INSERT INTO bikes (price, make, type) VALUES (?,?,?)");
+            stmt.setDouble(1, bike.getPrice());
+            stmt.setString(2, bike.getMake());
+            stmt.setString(3, bike.getType());
+
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+
+        return execSQL(stmt);
+    }
+
+    public String registerDocking(Docking dock) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return "Unable to reach database. :(";
+            }
+            stmt = db.prepareStatement("INSERT INTO dokcing_stations (name, maxSlots) VALUES (?,?)");
+            stmt.setString(1, dock.getName());
+            stmt.setInt(2, dock.getCapacity());
+
+
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+
+        return execSQL(stmt);
+    }
+
+
+    public String registerUser(User user) {
+
+        String password = "";
+        String salt = "";
+
+        String sql = "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+        return null;
     }
 }
 
 // Just for testing purposes
 class DBTest {
     public static void main(String[] args) {
-        DBH db = new DBH();
 
-        Date date = new Date();
-        Bike newB = new Bike(3000, date, "SuperBike", "DBS");
-        db.addBike(newB);
     }
 }
