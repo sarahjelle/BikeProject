@@ -101,11 +101,33 @@ class DBH {
 
 
     public String registerUser(User user) {
+        Hasher hasher = new Hasher();
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return "Unable to reach database. :(";
+            }
+            String salt = hasher.hashSalt(System.currentTimeMillis() + "");
 
-        String password = "";
-        String salt = "";
+            String password = hasher.hash(user.getPassword(), salt);
 
-        String sql = "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+            stmt = db.prepareStatement("INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+            stmt.setInt(1, user.getUserClass());
+            stmt.setString(2, user.getEmail());
+            stmt.setString(3, password);
+            stmt.setString(4, salt);
+            stmt.setString(5, user.getFirstname());
+            stmt.setString(6, user.getLastname());
+            stmt.setInt(7, user.getPhone());
+            stmt.setString(8, user.getLandcode());
+
+            user = null;
+            return execSQL(stmt);
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+
         return null;
     }
 }
