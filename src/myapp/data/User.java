@@ -41,7 +41,7 @@ public class User {
         this.password = pw;
     }
 
-    //To be used when an already user logs in
+    //To be used when an already registered user logs in
     public User(int UserID, int UserClass, String firstname, String lastname, int phone, String email, String landcode){
         this.UserID = UserID;
         this.UserClass = UserClass;
