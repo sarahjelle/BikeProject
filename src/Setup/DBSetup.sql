@@ -57,7 +57,7 @@ CREATE TABLE repair_options (
 CREATE TABLE users(
   userID int NOT NULL AUTO_INCREMENT,
   userTypeID int NOT NULL,
-  email varchar(30) NOT NULL,
+  email varchar(30) NOT NULL UNIQUE,
   password varchar(255) NOT NULL,
   salt varchar(255) NOT NULL,
   firstname varchar(50) NOT NULL,
