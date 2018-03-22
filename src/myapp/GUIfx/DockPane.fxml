@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.collections.FXCollections?>
-<?import myapp.GUIfx.*?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="myapp.GUIfx.DockPaneController" >
+<BorderPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.DockPaneController">
     <top>
         <GridPane BorderPane.alignment="CENTER">
             <columnConstraints>
@@ -24,18 +26,19 @@
                 <TextField />
                 <Button mnemonicParsing="false" text="Search" GridPane.columnIndex="1" />
                 <Button mnemonicParsing="false" prefHeight="39.0" prefWidth="158.0" text="+ Register new" GridPane.columnIndex="3" />
+                <!-- onAction="#regDockingStation" -->
             </children>
         </GridPane>
     </top>
     <center>
-        <TableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <TableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" visible="true">
             <columns>
-                <TableColumn prefWidth="75.0" text="DockID" fx:id="dockid"/>
-                <TableColumn prefWidth="75.0" text="Station name" fx:id="dockname"/>
-                <TableColumn prefWidth="75.0" text="Bike capacity" fx:id="dockcap"/>
-                <TableColumn prefWidth="75.0" text="Power usage" fx:id="dockpower"/>
-                <TableColumn prefWidth="75.0" text="Edit" fx:id="dockedit"/>
-                <TableColumn prefWidth="75.0" text="Delete" fx:id="dockdelete"/>
+                <TableColumn fx:id="dockid" prefWidth="60.0" text="DockID" />
+                <TableColumn fx:id="dockname" prefWidth="60.0" text="Station name" />
+                <TableColumn fx:id="dockcap" prefWidth="60.0" text="Bike capacity" />
+                <TableColumn fx:id="dockpower" prefWidth="60.0" text="Power usage" />
+                <TableColumn fx:id="dockedit" prefWidth="60.0" text="Edit" />
+                <TableColumn fx:id="dockdelete" prefWidth="60.0" text="Delete" />
             </columns>
         </TableView>
     </center>
