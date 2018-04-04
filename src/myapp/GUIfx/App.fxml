@@ -1,13 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
-  <tabs>
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.AppController">
+    <top>
+        <!--<MenuBar style="-fx-background-color: grey">
+            <menus>
+                <Menu style="-fx-font-size: 20; -fx-text-fill: white" text="Bike" />
+                <Menu style="-fx-font-size: 20; -fx-text-fill: white" text="Docking station" />
+                <Menu style="-fx-font-size: 20; -fx-text-fill: white" text="Map" />
+                <Menu style="-fx-font-size: 20; -fx-text-fill: white" text="Statistic" />
+            </menus>
+         <padding>
+            <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+         </padding>
+        </MenuBar>-->
+    </top>
+    <center>
+        <AnchorPane>
+           <children>
+               <fx:include fx:id="bike" source="BikePane.fxml" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
+               <fx:include fx:id="dock" source="DockCenterPane.fxml" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
+           </children>
+        </AnchorPane>
+    </center>
+   <left>
+      <VBox fillWidth="true">
+         <children>
+            <!--<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">-->
+                   <Button onAction="#bike" style="-fx-background-color: LIGHTGREEN; -fx-border-color: GREEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Bike" VBox.vgrow="ALWAYS" />
+                   <Button fx:id="Docking" onAction="#docking" style="-fx-background-color: LIGHTGREEN; -fx-border-color: GREEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Docking Station"  VBox.vgrow="ALWAYS"/>
+                   <Button fx:id="Map" onAction="#map" style="-fx-background-color: LIGHTGREEN; -fx-border-color: GREEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Map" VBox.vgrow="ALWAYS"/>
+                   <Button fx:id="Statistic" onAction="#statistic" style="-fx-background-color: LIGHTGREEN; -fx-border-color: GREEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Statistic" VBox.vgrow="ALWAYS"/>
+         </children>
+      </VBox>
+
+
+   </left>
+
+  <!--<tabs>
     <Tab text="Bike">
       <content>
         <fx:include source="BikePane.fxml" fx:id="bikePane"/>
@@ -15,7 +52,7 @@
     </Tab>
     <Tab text="Docking Station">
       <content>
-        <fx:include source="DockPane.fxml" fx:id="dockPane"/>
+        <fx:include source="DockCenterPane.fxml" fx:id="dockCenterPane"/>
       </content>
     </Tab>
     <Tab text="Map">
@@ -28,5 +65,5 @@
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
         </content>
       </Tab>
-  </tabs>
-</TabPane>
+  </tabs>-->
+</BorderPane>
