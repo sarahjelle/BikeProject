@@ -10,9 +10,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import myapp.data.Bike;
-import myapp.data.Docking;
-import myapp.hasher.Hasher;
+import myapp.data.*;
+import myapp.hasher.*;
 
 class DBH {
 
@@ -27,9 +26,14 @@ class DBH {
 
     }
 
+    /*
+     * CONNECTION METHOD.
+     */
     private Connection connect() {
         try {
-            return DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password);
+            Connection DBCon = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password);
+            DBCon.setAutoCommit(false);
+            return DBCon;
         } catch (SQLException e) {
             // Handling any errors
             System.out.println("SQLException: " + e.getMessage());
@@ -38,6 +42,10 @@ class DBH {
         }
         return null;
     }
+
+    /*
+     * TRANSLATION FOR TIME AND DATE.
+     */
 
     private String dateTranslate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -50,23 +58,38 @@ class DBH {
         return date.format(formatter);
     }
 
-    private String execSQL(PreparedStatement sql) {
+    /*
+     * EXECUTE SQL QUERIES.
+     */
+    private boolean execSQL(PreparedStatement sql, Connection db) {
         try {
             sql.executeUpdate();
             sql.close();
-            return null;
+            db.commit();
+            return true;
         } catch (SQLException e) {
             System.out.println("Error: " + e);
-            return e.toString();
+            try {
+                if (db != null) {
+                    db.rollback();
+                }
+            } catch (SQLException er) {
+                System.out.println("Error: " + er);
+            }
+            return false;
         }
     }
 
-    public String registerBike(Bike bike) {
+    /*
+     * METHODS BELONGING TO THE BIKE OBJECT.
+     */
+
+    public Boolean registerBike(Bike bike) {
         db = connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
-                return "Unable to reach database. :(";
+                return false;
             }
             stmt = db.prepareStatement("INSERT INTO bikes (price, make, type) VALUES (?,?,?)");
             stmt.setDouble(1, bike.getPrice());
@@ -77,15 +100,19 @@ class DBH {
             System.out.println("Error: " + e);
         }
 
-        return execSQL(stmt);
+        return execSQL(stmt, db);
     }
 
-    public String registerDocking(Docking dock) {
+    /*
+     * METHODS BELONING TO THE DOCKING OBJECT.
+     */
+
+    public Boolean registerDocking(Docking dock) {
         db = connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
-                return "Unable to reach database. :(";
+                return false;
             }
             stmt = db.prepareStatement("INSERT INTO dokcing_stations (name, maxSlots) VALUES (?,?)");
             stmt.setString(1, dock.getName());
@@ -96,17 +123,21 @@ class DBH {
             System.out.println("Error: " + e);
         }
 
-        return execSQL(stmt);
+        return execSQL(stmt, db);
     }
 
 
-    public String registerUser(User user) {
+    /*
+     * METHODS BELONING TO THE USER OBJECT.
+     */
+
+    public boolean registerUser(User user) {
         Hasher hasher = new Hasher();
         db = connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
-                return "Unable to reach database. :(";
+                return false;
             }
             String salt = hasher.hashSalt(System.currentTimeMillis() + "");
 
@@ -123,18 +154,19 @@ class DBH {
             stmt.setString(8, user.getLandcode());
 
             user = null;
-            return execSQL(stmt);
+            return execSQL(stmt, db);
         } catch(SQLException e) {
             System.out.println("Error: " + e);
+            return false;
         }
-
-        return null;
     }
 }
 
 // Just for testing purposes
 class DBTest {
     public static void main(String[] args) {
-
+        DBH dbh = new DBH();
+        LocalDate date = LocalDate.now();
+        System.out.println(dbh.registerBike(new Bike(100, date, "DBS", "SBD")));
     }
 }
