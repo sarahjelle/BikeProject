@@ -101,7 +101,7 @@ class Simulation implements Runnable{
                 double endY = EndLocations[i].getLongitude();
 
                 double distance = getDistance(startX, startY, endX, endY);
-                bikes[i].updateDistance(distance);
+                bikes[i].setDistanceTraveled((int) distance);
 
                 System.out.println(bikes[i].getLocation().getLatitude() + " " + bikes[i].getLocation().getLongitude());
                 // Update bikes locations in the database with the Database client class

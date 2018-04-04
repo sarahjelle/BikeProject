@@ -1,22 +1,39 @@
 package myapp.data;
 
+import java.time.LocalDate;
+
 public class Bike {
     private int id;
+    private LocalDate purchased;
+    private String type;
     private String make;
+    private double price;
     private double batteryPercentage;
     private boolean available;
     private int distanceTraveled;
+    private int totalTrips;
+    private Location location;
 
-    public Bike(){
 
+    public Bike(double price, LocalDate purchased, String type, String make) {
+
+        this.price = price;
+        this.purchased = purchased;
+        this.type = type;
+        this.make = make;
     }
 
-    public Bike(int id, String make, double batteryPercentage, boolean available, int parkingSpotId){
+    public Bike(int id, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location){
         this.id = id;
         this.make = make;
         this.batteryPercentage = batteryPercentage;
         this.available = available;
-        this.distanceTraveled = 0;
+        this.location = location;
+        if (distanceTraveled != 0){
+            this.distanceTraveled = distanceTraveled;
+        } else {
+            this.distanceTraveled = 0;
+        }
     }
 
     public int getId() {
@@ -25,6 +42,18 @@ public class Bike {
 
     public String getMake(){
         return make;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public LocalDate getPurchased() {
+        return purchased;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public double getBatteryPercentage() {
@@ -44,7 +73,26 @@ public class Bike {
     }
 
     public int getDistanceTraveled(){
-        return 250; //getInfoFromKmReader;
+        return distanceTraveled; //getInfoFromKmReader;
     }
 
+    public void setDistanceTraveled(int dist){
+        this.distanceTraveled = distanceTraveled + dist;
+    }
+
+    public int getTotalTrips() {
+        return totalTrips;
+    }
+
+    public void setTotalTrips(){
+        this.totalTrips++;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
 }
