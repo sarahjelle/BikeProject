@@ -14,6 +14,7 @@ public class BikePaneController {
     @FXML private TextField searchInput;
     @FXML private BorderPane bikePane;
 
+    //fiks så man kommer inn på listen hver gang man trykker
     public void openPane(){
         bikePane.setVisible(true);
     }
@@ -33,13 +34,14 @@ public class BikePaneController {
 
     @FXML private void openBike(){
         String id = searchInput.getText();
-        int bikeId = Integer.parseInt(id);
-        /*try{
-           int bikeId = Integer.parseInt(id);
+        int bikeId;
+        try{
+           bikeId = Integer.parseInt(id);
+            centerPaneController.search(bikeId);
         }
-        catch (Exception e){}*/
-
-        centerPaneController.search(bikeId);
+        catch (Exception e){
+            System.out.println("FEIL");
+        }
 
     }
 }

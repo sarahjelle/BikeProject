@@ -2,9 +2,7 @@ package myapp.GUIfx;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.util.*;
@@ -18,6 +16,8 @@ public class BikeCell extends ListCell<Bike>{
     private Label bikeid;
     private Label totalTrips;
     private Label totalKm;
+    private ProgressBar battery;
+    private ProgressIndicator pi;
 
 
     //klasse for å lage listview
@@ -27,7 +27,9 @@ public class BikeCell extends ListCell<Bike>{
         bikeid = new Label();
         totalTrips = new Label();
         totalKm = new Label();
-        hbox.getChildren().addAll(bikeid, totalTrips, totalKm);
+        battery = new ProgressBar();
+        pi = new ProgressIndicator();
+        hbox.getChildren().addAll(bikeid, totalTrips, totalKm, battery, pi);
     }
 
     @Override
@@ -38,6 +40,19 @@ public class BikeCell extends ListCell<Bike>{
             totalTrips.setText(Integer.toString(item.getTotalTrips()));
             totalKm.setText(Integer.toString(item.getDistanceTraveled()));
             setGraphic(hbox);
+
+            double batteri = item.getBatteryPercentage();
+            battery.setProgress(batteri);
+            if(batteri > 0.6) {
+                battery.setStyle("-fx-accent: green");
+            }
+            else if(batteri <= 0.6 && batteri > 0.3){
+                battery.setStyle("-fx-accent: #ffb812");
+            }
+            else{
+                battery.setStyle("-fx-accent: #c40000");
+            }
+            pi.setProgress(item.getBatteryPercentage());
         }
     }
 }

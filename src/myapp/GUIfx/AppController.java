@@ -7,6 +7,7 @@ public class AppController {
     @FXML private DockStationCenter dockController;
 
     @FXML private void bike(){
+        System.out.println(bikeController);
         closeAll();
         bikeController.openPane();
     }

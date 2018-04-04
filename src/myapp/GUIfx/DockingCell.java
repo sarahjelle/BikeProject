@@ -18,6 +18,7 @@ public class DockingCell extends ListCell<Docking>{
     public DockingCell(){
         hBox = new HBox(100);
         name = new Label();
+        name.setPrefWidth(100);
         //location = new Label();
         capacity = new Label();
         //numberOfBikes = new Label();
