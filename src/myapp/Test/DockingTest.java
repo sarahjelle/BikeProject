@@ -1,4 +1,4 @@
-/*package myapp.Test;
+package myapp.Test;
 
 import myapp.data.Bike;
 import myapp.data.Location;
@@ -68,5 +68,5 @@ public class DockingTest {
         }
         assertEquals(true, bol);
     }
-
-}*/
+*/
+}
