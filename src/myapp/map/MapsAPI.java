@@ -25,7 +25,7 @@ public class MapsAPI {
     // https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=YOUR_API_KEY
     // "adress=trondheim" returns the first search result for Trondheim on Google Maps
 
-    private MapsAPI(){}
+    public MapsAPI(){}
     private static MapsAPI instance;
 
     public static MapsAPI get(){
@@ -116,6 +116,19 @@ public class MapsAPI {
             e.printStackTrace();
         }
         return url;
+    }
+}
+
+class MapsTest{
+    public static void main(String[]args){
+        String loc = "Bautavegen 3, 7056 Trondheim";
+        MapsAPI map = new MapsAPI();
+        Double[] latlong = map.getLatLong(loc);
+        double lat = latlong[0];
+        double lng = latlong[1];
+        System.out.println(loc + " is at : lat: " + lat + " long: " + lng);
+
+        //Should be: Bautavegen 3 7056 Ranheim is at : lat: 63.420924 long: 10.527217
     }
 }
 
