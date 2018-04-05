@@ -1,10 +1,10 @@
 package myapp.data;
-import com.sun.tools.javadoc.Start;
 
-import javax.xml.ws.Endpoint;
 import java.text.DecimalFormat;
 import java.util.*;
-class Simulation implements Runnable{
+import myapp.map.MapsAPI;
+
+public class Simulation implements Runnable{
     private Bike[] bikes;
     private Docking[] docking_stations;
     private int updateInterval = 60;
@@ -36,6 +36,14 @@ class Simulation implements Runnable{
         Bike[] currentlyMovingBikes = getNewSubset();
         Location[] StartLocations = getStartLocations(currentlyMovingBikes); // Bikes move from these locations
         Location[] EndLocations = getEndLocations(currentlyMovingBikes, StartLocations); // Bikes move to these locations
+
+        Location[][] routes = new Location[currentlyMovingBikes.length][0];
+        MapsAPI map = new MapsAPI();
+        for (int i = 0; i < routes.length; i++) {
+            Location[] steps = map.getWayPoints(StartLocations[i], EndLocations[i]);
+            routes[i] = steps;
+        }
+
 
         while (!stop) {
             long startTime = System.currentTimeMillis();

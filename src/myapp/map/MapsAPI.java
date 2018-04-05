@@ -21,6 +21,7 @@ import java.util.ArrayList;
 public class MapsAPI {
 
     private static final String API_KEY = "AIzaSyA8jBARruH9LiUFxc-DQNLaKRrw6nmyHho";
+    private static final String ROADS_API_KEY = "AIzaSyDlJ5qke9-Dw-3-cpk1okWXSXWg3MIRSLc";
     // Sindre Toft Nordal API KEY:
     // https://maps.googleapis.com/maps/api/elevation/json?locations=LATITUDE,LONGITUDE&key=YOUR_API_KEY
     // https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=YOUR_API_KEY
@@ -227,6 +228,40 @@ public class MapsAPI {
         Location[] output = waypoints.toArray(new Location[waypoints.size()]);
         return output;
     }
+
+    public URL createSnapToRoadURL(Location where){
+        URL url = null;
+        try {
+            double lat = where.getLatitude();
+            double lng = where.getLongitude();
+            url = new URL("https://roads.googleapis.com/v1/snapToRoads?path=" + lat + "," + lng + "&key=" + ROADS_API_KEY);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public Location SnapToRoad(Location where){
+        URL url = createSnapToRoadURL(where);
+        Location snapped = null;
+
+        try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
+            JsonObject obj = rdr.readObject();
+
+            JsonArray snappedPoints = obj.getJsonArray("snappedPoints");
+            JsonObject location = snappedPoints.getJsonObject(0);
+            JsonObject location2 = location.getJsonObject("location");
+
+            double latitude = location2.getJsonNumber("latitude").doubleValue();
+            double longitude = location2.getJsonNumber("longitude").doubleValue();
+            String address = getAddress(latitude, longitude);
+            snapped = new Location(address, latitude, longitude);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return snapped;
+    }
 }
 
 class MapsTest{
@@ -241,9 +276,10 @@ class MapsTest{
         Double[] latlongEnd = map.getLatLong(end);
         Location endLoc = new Location(end, latlongEnd[0], latlongEnd[1]);
 
+
         Location[] waypoints = map.getWayPoints(startLoc, endLoc);
         for (int i = 0; i < waypoints.length; i++) {
-            System.out.println(waypoints[i].toString());
+            System.out.println(waypoints[i].getName());
         }
 
 
