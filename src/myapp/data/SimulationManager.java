@@ -21,7 +21,7 @@ public class SimulationManager {
 class ManagerTest{
     public static void main(String[]args){
         //int id, String make, double batteryPercentage, boolean available, int parkingSpotId
-        Bike[] bikes = new Bike[3];
+        /*Bike[] bikes = new Bike[3];
         bikes[0] = new Bike(1, "Trek", 100, true, 1);
         bikes[1] = new Bike(2, "Trek", 100, true, 2);
         bikes[2] = new Bike(3, "Trek", 100, true, 3);
@@ -40,5 +40,6 @@ class ManagerTest{
 
         }
         man.stop();
+        */
     }
 }

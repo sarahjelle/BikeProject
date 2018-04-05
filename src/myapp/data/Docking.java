@@ -68,7 +68,6 @@ public class Docking {
             return true;
         }
         return false;
-
     }
 
     // Helpermethod to removeBike
