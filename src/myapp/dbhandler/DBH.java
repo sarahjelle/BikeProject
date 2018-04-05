@@ -14,18 +14,16 @@ import static java.lang.Math.toIntExact;
 import myapp.data.*;
 import myapp.hasher.*;
 
-class DBH {
+public class DBH {
 
-    Connection db = null;
+    private Connection db = null;
 
-    String host     = "mysql.stud.iie.ntnu.no";
-    String username = "fredrmed";
-    String password = "IOFa0YRq";
-    String database = "fredrmed";
+    private String host     = "mysql.stud.iie.ntnu.no";
+    private String username = "fredrmed";
+    private String password = "IOFa0YRq";
+    private String database = "fredrmed";
 
-    public DBH() {
-
-    }
+    public DBH() { }
 
     /*
      * CONNECTION METHOD.
@@ -65,16 +63,13 @@ class DBH {
     private boolean execSQLBool(PreparedStatement sql, Connection db) {
         try {
             sql.executeUpdate();
-            sql.close();
             db.commit();
-            db.close();
             return true;
         } catch (SQLException e) {
             System.out.println("Error: " + e);
             try {
                 if (db != null) {
                     db.rollback();
-                    db.close();
                 }
             } catch (SQLException er) {
                 System.out.println("Error: " + er);
@@ -117,10 +112,9 @@ class DBH {
         }
     }
 
-    private ResultSet execSQLRS(PreparedStatement sql, Connection db) {
+    private ResultSet execSQLRS(PreparedStatement sql) {
         try {
-            ResultSet rs = sql.executeQuery();
-            return rs;
+            return sql.executeQuery();
         } catch (SQLException e) {
             System.out.println("Error: " + e);
             return null;
@@ -159,7 +153,7 @@ class DBH {
             }
             stmt = db.prepareStatement("SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.totalKM, b.make, b.type FROM bikes b");
             //stmt = db.prepareStatement("SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.totalKM, b.make, b.type, l.longitude, l.latitude, l.altitude, l.batteryPercentage FROM bikes b JOIN bike_logs l WHERE b.bikeID = l.bikeID");
-            ResultSet bikeset = execSQLRS(stmt, db);
+            ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
             while(bikeset.next()) {
                 bikes.add(new Bike(
@@ -183,6 +177,38 @@ class DBH {
             System.out.println("Error: " + e);
         }
         return null;
+    }
+
+    public Bike[] updateBikes(Bike[] bikes) {
+        db = connect();
+        PreparedStatement stmt = null;
+        ArrayList<Bike> bikesNotUpdated = new ArrayList<Bike>();
+        Bike[] toReturn = null;
+        try {
+            if(db == null) {
+                return bikes;
+            }
+            stmt = db.prepareStatement("INSERT INTO bike_logs (bikeID, longitude, latitude, altitude, batteryPercentage, totalKM) VALUES (?,?,?,?,?,?)");
+
+            for (int i = 0; i < bikes.length; i++) {
+                stmt.setDouble(1, bikes[i].getId());
+                stmt.setDouble(2, bikes[i].getLocation().getLongitude());
+                stmt.setDouble(3, bikes[i].getLocation().getLatitude());
+                stmt.setDouble(4, bikes[i].getLocation().getAltitude());
+                stmt.setDouble(5, bikes[i].getBatteryPercentage());
+                stmt.setDouble(6, bikes[i].getDistanceTraveled());
+
+                if(!execSQLBool(stmt, db)) {
+                    bikesNotUpdated.add(bikes[i]);
+                }
+            }
+            stmt.close();
+            db.close();
+            return bikesNotUpdated.toArray(new Bike[0]);
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return bikes;
     }
 
     /*
@@ -248,10 +274,14 @@ class DBH {
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        LocalDate date = LocalDate.now();
-        ArrayList<Bike> bikes = dbh.getBikes();
-        for(int i = 0; i < bikes.size(); i++) {
-            System.out.println(bikes.get(i).toString());
+        Bike[] bikes = new Bike[3];
+        bikes[0] = new Bike(1, 100.2, "DBS","Terreng",10.1, 10, new Location("Heime", 63.420924, 10.527217, 0.1));
+        bikes[1] = new Bike(2, 200.2, "DBSS","TerrengG",10.2, 20, new Location("Heime", 63.420924, 10.527217, 0.2));
+        bikes[2] = new Bike(3, 300.2, "DBSSS","TerrengGG",10.3, 30, new Location("Heime", 63.420924, 10.527217, 0.3));
+        bikes = dbh.updateBikes(bikes);
+        for (Bike bike : bikes) {
+            System.out.println(bike.toString());
         }
+        System.out.println("Finished " + bikes.length);
     }
 }
