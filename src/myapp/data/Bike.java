@@ -14,7 +14,6 @@ public class Bike {
     private int totalTrips;
     private Location location;
 
-
     public Bike(double price, LocalDate purchased, String type, String make) {
         this.price = price;
         this.purchased = purchased;
@@ -22,12 +21,27 @@ public class Bike {
         this.make = make;
     }
 
-    public Bike(int id, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location){
+    public Bike(int id, double price, String make, String type, double batteryPercentage, int distanceTraveled, Location location){
         this.id = id;
         this.make = make;
+        this.type = type;
+        this.price = price;
+        this.purchased = purchased;
         this.batteryPercentage = batteryPercentage;
-        this.available = available;
         this.location = location;
+        if (distanceTraveled != 0){
+            this.distanceTraveled = distanceTraveled;
+        } else {
+            this.distanceTraveled = 0;
+        }
+    }
+    public Bike(int id, double price, String make, String type, double batteryPercentage, int distanceTraveled){
+        this.id = id;
+        this.make = make;
+        this.type = type;
+        this.price = price;
+        this.batteryPercentage = batteryPercentage;
+        this.location = null;
         if (distanceTraveled != 0){
             this.distanceTraveled = distanceTraveled;
         } else {
@@ -93,5 +107,10 @@ public class Bike {
 
     public Location getLocation() {
         return location;
+    }
+
+    // Added by Mediå for testing. Needs to be more complex!
+    public String toString() {
+        return "ID: " + id + " Type: " + type + " Make: " + make;
     }
 }
