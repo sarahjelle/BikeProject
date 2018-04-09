@@ -56,40 +56,9 @@ public class Docking {
     public boolean removeBike(int bikeId){
         return (bikes.remove(bikeId) != null);
     }
-    /*
-    public boolean removeBike(int bikeId) {
-        int pos = getBikePos(bikeId);
-        if (pos >= 0){
-            bikes.remove(getBikePos(bikeId));
-            return true;
-        }
-        return false;
-
-    }
-
-    // Helper-method to removeBike
-    private int getBikePos(int bikeId) {
-        for(int i = 0; i < bikes.size(); i++){
-            if(bikeId == bikes.get(i).getId()){
-                return i;
-            }
-        }
-        return -1;
-    }
-    */
 
     public HashMap<Integer, Bike> getBikes() {
         return bikes;
     }
-
-    /*
-    public void inTrip(String user, int bikeId){
-        metode som registrer at sykkelen er på en tur og legger den inn i trips-tabellen i databasen.
-     */
-
-
-
-
-
 
 }
