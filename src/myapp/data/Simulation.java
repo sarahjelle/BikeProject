@@ -1,8 +1,16 @@
 package myapp.data;
 
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 import myapp.map.MapsAPI;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 public class Simulation implements Runnable{
     private Bike[] bikes;
@@ -11,6 +19,9 @@ public class Simulation implements Runnable{
     private Boolean stop = false;
     private static final double stepLength = 0.0000003; // DO NOT TOUCH!!!
     private static final double ERROR_TOLERANSE = 0.0000001;
+
+    private static final String API_KEY = "AIzaSyA8jBARruH9LiUFxc-DQNLaKRrw6nmyHho";
+    private static final String ROADS_API_KEY = "AIzaSyDlJ5qke9-Dw-3-cpk1okWXSXWg3MIRSLc";
 
     public Simulation(Bike[] bikes, Docking[] docking_stations){
         this.bikes = bikes;
@@ -40,7 +51,7 @@ public class Simulation implements Runnable{
         Location[][] routes = new Location[currentlyMovingBikes.length][0];
         MapsAPI map = new MapsAPI();
         for (int i = 0; i < routes.length; i++) {
-            Location[] steps = map.getWayPoints(StartLocations[i], EndLocations[i]);
+            Location[] steps = getWayPoints(StartLocations[i], EndLocations[i]);
             routes[i] = steps;
         }
 
@@ -62,6 +73,12 @@ public class Simulation implements Runnable{
                 currentlyMovingBikes = getNewSubset();
                 StartLocations = getStartLocations(currentlyMovingBikes);
                 EndLocations = getEndLocations(currentlyMovingBikes, StartLocations);
+
+                routes = new Location[currentlyMovingBikes.length][0];
+                for (int i = 0; i < routes.length; i++) {
+                    Location[] steps = map.getWayPoints(StartLocations[i], EndLocations[i]);
+                    routes[i] = steps;
+                }
             }
 
             long currentElapsedTime = System.currentTimeMillis() - startTime;
@@ -223,6 +240,128 @@ public class Simulation implements Runnable{
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double d = R * c;
         return d * 1000; // meters
+    }
+
+
+    //LEGG TIL DISSE I FERDIG PROSJEKT!!!
+    private URL createRevGeoCodeURL(Location where){
+        URL url = null;
+        try {
+            url = new URL("https://maps.google.com/maps/api/geocode/json?latlng="
+                    +where.getLatitude()+","+where.getLongitude()+"&sensor=false"+ "&key=" + API_KEY);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public String getAddress(Location where){
+        URL url = createRevGeoCodeURL(where);
+        String address = "";
+
+        try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
+            JsonObject obj = rdr.readObject();
+            JsonArray results = obj.getJsonArray("results");
+
+            if(obj.getJsonString("status").getString().equals("ZERO_RESULTS")){
+                return null;
+            }
+            JsonObject result = results.getJsonObject(0);
+            address = result.getString("formatted_address");
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return address;
+    }
+
+    public String getAddress(double lat, double lon){
+        Location loc = new Location(null, lat, lon);
+        return getAddress(loc);
+    }
+
+    private URL createWayPointsURL(Location start, Location end){
+        URL url = null;
+        try {
+            url = new URL("https://maps.google.com/maps/api/directions/json?origin="
+                    + start.getLatitude()+","+start.getLongitude()+"&destination="
+                    + end.getLatitude() + "," + end.getLongitude() + "&mode=bicycling"
+                    + "&key=" + API_KEY);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public Location[] getWayPoints(Location start, Location end){
+        MapsAPI map = new MapsAPI();
+        URL url = createWayPointsURL(start, end);
+        ArrayList<Location> waypoints = new ArrayList<>();
+
+        try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
+            JsonObject obj = rdr.readObject();
+
+            if(obj.getJsonString("status").getString().equals("ZERO_RESULTS")){
+                return null;
+            }
+            JsonArray routes = obj.getJsonArray("routes");
+            JsonObject routes0 = routes.getJsonObject(0);
+            JsonArray legs = routes0.getJsonArray("legs");
+            JsonObject legs0 = legs.getJsonObject(0);
+            JsonArray steps = legs0.getJsonArray("steps");
+
+            waypoints.add(start);
+            for (int i = 0; i < steps.size(); i++) {
+                JsonObject step = steps.getJsonObject(i);
+                JsonObject endLocation = step.getJsonObject("end_location");
+
+                double latitude = endLocation.getJsonNumber("lat").doubleValue();
+                double longitude = endLocation.getJsonNumber("lng").doubleValue();
+                double altitude = map.getAltitude(latitude, longitude);
+                String address = getAddress(latitude, longitude);
+                Location stepEndLocation = new Location(address, latitude, longitude, altitude);
+                waypoints.add(stepEndLocation);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Location[] output = waypoints.toArray(new Location[waypoints.size()]);
+        return output;
+    }
+
+    public URL createSnapToRoadURL(Location where){
+        URL url = null;
+        try {
+            double lat = where.getLatitude();
+            double lng = where.getLongitude();
+            url = new URL("https://roads.googleapis.com/v1/snapToRoads?path=" + lat + "," + lng + "&key=" + ROADS_API_KEY);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public Location SnapToRoad(Location where){
+        URL url = createSnapToRoadURL(where);
+        Location snapped = null;
+
+        try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
+            JsonObject obj = rdr.readObject();
+
+            JsonArray snappedPoints = obj.getJsonArray("snappedPoints");
+            JsonObject location = snappedPoints.getJsonObject(0);
+            JsonObject location2 = location.getJsonObject("location");
+
+            double latitude = location2.getJsonNumber("latitude").doubleValue();
+            double longitude = location2.getJsonNumber("longitude").doubleValue();
+            String address = getAddress(latitude, longitude);
+            snapped = new Location(address, latitude, longitude);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return snapped;
     }
 }
 

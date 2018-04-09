@@ -277,6 +277,7 @@ class MapsTest{
         Location endLoc = new Location(end, latlongEnd[0], latlongEnd[1]);
 
 
+
         Location[] waypoints = map.getWayPoints(startLoc, endLoc);
         for (int i = 0; i < waypoints.length; i++) {
             System.out.println(waypoints[i].getName());
