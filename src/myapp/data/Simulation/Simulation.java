@@ -15,13 +15,14 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.print.Doc;
 
 public class Simulation implements Runnable{
     private Bike[] bikes;
     private Docking[] docking_stations;
-    private int updateInterval = 60;
+    private int updateInterval = 60; //Seconds
+    private int sleepTime = 2; //Seconds
     private Boolean stop = false;
-    private static final double stepLength = 0.0000003; // DO NOT TOUCH!!!
     private static final double ERROR_TOLERANSE = 0.0000001;
 
     private static final String API_KEY = "AIzaSyA8jBARruH9LiUFxc-DQNLaKRrw6nmyHho";
@@ -52,52 +53,51 @@ public class Simulation implements Runnable{
             *
         * repeat
         */
-        Bike[] currentlyMovingBikes = getNewSubset();
-        Location[] StartLocations = getStartLocations(currentlyMovingBikes); // Bikes move from these locations
-        Location[] EndLocations = getEndLocations(currentlyMovingBikes, StartLocations); // Bikes move to these locations
 
-        Location[][] routes = new Location[currentlyMovingBikes.length][0];
-        MapsAPI map = new MapsAPI();
-        for (int i = 0; i < routes.length; i++) {
-            Location[] steps = getWayPoints(StartLocations[i], EndLocations[i]);
-            routes[i] = steps;
+        Bike[] currentlyMovingBikes = getNewSubset();
+        Location[] startLocations = getStartLocations(currentlyMovingBikes);
+        Docking[] endLocations = getEndLocations(currentlyMovingBikes, startLocations);
+
+        Router[] routers = new Router[currentlyMovingBikes.length];
+        for (int i = 0; i < routers.length; i++) {
+            routers[i] = new Router(currentlyMovingBikes[i], endLocations[i]);
         }
 
-
         while (!stop) {
-            long startTime = System.currentTimeMillis();
+            long StartTime = System.currentTimeMillis();
+            /*Bike[] currentlyMovingBikes = getNewSubset();
+            Docking[] EndLocations = getEndLocations(currentlyMovingBikes, docking_stations); // Bikes move to these locations
 
-            currentlyMovingBikes = moveBikes(currentlyMovingBikes, EndLocations); //Bikes are moved here
-
-            if(currentlyMovingBikes.length == 0){
-                // All bikes has arrived
-                System.out.println("All bikes have arrived");
-                try{
-                    Thread.sleep(3000); //Wait the remaining time until the update interval
-                } catch(InterruptedException ex){
-                    ex.printStackTrace();
+            */
+            boolean allBikesHaveArrived = true;
+            for (int i = 0; i < routers.length; i++) {
+                if(!routers[i].HasArrived()){
+                    allBikesHaveArrived = false;
                 }
-                updateDistances(bikes, StartLocations, EndLocations);
+            }
+            if(allBikesHaveArrived){
                 currentlyMovingBikes = getNewSubset();
-                StartLocations = getStartLocations(currentlyMovingBikes);
-                EndLocations = getEndLocations(currentlyMovingBikes, StartLocations);
-
-                routes = new Location[currentlyMovingBikes.length][0];
-                for (int i = 0; i < routes.length; i++) {
-                    Location[] steps = map.getWayPoints(StartLocations[i], EndLocations[i]);
-                    routes[i] = steps;
+                startLocations = getStartLocations(currentlyMovingBikes);
+                endLocations = getEndLocations(currentlyMovingBikes, startLocations);
+                routers = new Router[currentlyMovingBikes.length];
+                for (int i = 0; i < routers.length; i++) {
+                    routers[i] = new Router(currentlyMovingBikes[i], endLocations[i]);
                 }
             }
 
-            long currentElapsedTime = System.currentTimeMillis() - startTime;
-            try{
-                long sleeptime = updateInterval * 1000 - (currentElapsedTime);
-                if(sleeptime > 0){
-                    Thread.sleep(sleeptime); //Wait the remaining time until the update interval
+            while(System.currentTimeMillis() - StartTime <= updateInterval){
+                for (int i = 0; i < routers.length; i++) {
+                    routers[i].move();
                 }
-                //Update bike values in db
-            } catch(InterruptedException ex){
-                ex.printStackTrace();
+                try{
+                    Thread.sleep(sleepTime * 1000);
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+            //Update to DB
+            for (int i = 0; i < bikes.length; i++) {
+                System.out.println(currentlyMovingBikes[i].getLocation().getLatitude() + ", " + currentlyMovingBikes[i].getLocation().getLongitude());
             }
         }
     }
@@ -110,20 +110,18 @@ public class Simulation implements Runnable{
         return StartLocations;
     }
 
-    public Location[] getEndLocations(Bike[] currentlyMovingBikes, Location[] StartLocations){
-        Location[] EndLocations = new Location[currentlyMovingBikes.length];
+    public Docking[] getEndLocations(Bike[] currentlyMovingBikes, Location[] StartLocations){
+        Docking[] EndLocations = new Docking[currentlyMovingBikes.length];
         Random rand = new Random();
         for (int i = 0; i < currentlyMovingBikes.length; i++) {
             // Choose random start- and endpoint (docking_station locations) for all bikes
             double diffX = 1;
             double diffY = 1;
             do {
-                System.out.println("Getting ends");
-                EndLocations[i] = docking_stations[rand.nextInt(docking_stations.length)].getLocation();
-                EndLocations[i].setAltitude(0.0);
-                diffX = EndLocations[i].getLatitude() - StartLocations[i].getLatitude();
-                diffY = EndLocations[i].getLongitude()- StartLocations[i].getLongitude();
-            } while (EndLocations[i] == StartLocations[i] || (Math.abs(diffX) < ERROR_TOLERANSE && Math.abs(diffY) < ERROR_TOLERANSE )); // To make sure the bike actually moves
+                EndLocations[i] = docking_stations[rand.nextInt(docking_stations.length)];
+                diffX = EndLocations[i].getLocation().getLatitude() - StartLocations[i].getLatitude();
+                diffY = EndLocations[i].getLocation().getLongitude()- StartLocations[i].getLongitude();
+            } while (EndLocations[i].getLocation() == StartLocations[i] || (Math.abs(diffX) < ERROR_TOLERANSE && Math.abs(diffY) < ERROR_TOLERANSE )); // To make sure the bike actually moves
         }
         return EndLocations;
     }
@@ -170,56 +168,6 @@ public class Simulation implements Runnable{
         }
     }
 
-    public Bike[] moveBikes(Bike[] currentlyMovingBikes, Location[] EndLocations){
-        DecimalFormat dfLat = new DecimalFormat("###.#######");
-        DecimalFormat dfLong = new DecimalFormat("###.######");
-
-        for (int i = 0; i < currentlyMovingBikes.length; i++) {
-            // Move all the bikes in their respective directions, according to Google Maps API route,
-            // in some given step length (2m / 30cm etc). This movement is not drawn to screen here.
-
-            Double[] StartPoint = {currentlyMovingBikes[i].getLocation().getLatitude(), currentlyMovingBikes[i].getLocation().getLongitude()};
-            Double[] EndPoint = {EndLocations[i].getLatitude(), EndLocations[i].getLongitude()};
-
-            Double[] AB = {EndPoint[0] - StartPoint[0], EndPoint[1] - StartPoint[1]};
-
-            double ABLength = Math.sqrt(Math.pow(AB[0], 2) + Math.pow(AB[1], 2));
-
-
-            double k =  ABLength / stepLength;
-            double a = (AB[0] / k);
-            double b = (AB[1] / k);
-
-
-            Double[] ab = {a, b};
-            Double[] newPos = {StartPoint[0] + ab[0], StartPoint[1] + ab[1]};
-            //System.out.println(ab[0] + " " + ab[1]);
-
-            //currentlyMovingBikes[i].getLocation().setLatitude(Double.parseDouble(dfLat.format(newPos[0])));
-            //currentlyMovingBikes[i].getLocation().setLongitude(Double.parseDouble(dfLong.format(newPos[1])));
-            currentlyMovingBikes[i].getLocation().setLatitude(newPos[0]);
-            currentlyMovingBikes[i].getLocation().setLongitude(newPos[1]);
-            currentlyMovingBikes[i].getLocation().setAltitude(0.0);
-
-            //System.out.println(EndLocations[i]);
-            double diffX = currentlyMovingBikes[i].getLocation().getLatitude() - EndLocations[i].getLatitude();
-            double diffY = currentlyMovingBikes[i].getLocation().getLongitude() - EndLocations[i].getLongitude();
-            if (Math.abs(diffX) < ERROR_TOLERANSE && Math.abs(diffY) < ERROR_TOLERANSE) {
-                //Bike has finished moving
-                System.out.println("bikes[" + i + "] has arrived at " + EndLocations[i].getName());
-                currentlyMovingBikes = removeBikeFromSubset(currentlyMovingBikes, i);
-            } else {
-                System.out.println();
-                System.out.println("Bike[" + i + "] is at: ");
-                System.out.println(currentlyMovingBikes[i].getLocation());
-                System.out.println("Bike[" + i + "] is going to: ");
-                System.out.println(EndLocations[i]);
-                System.out.println();
-            }
-        }
-        return currentlyMovingBikes;
-    }
-
     public Boolean isStopped() {
         return stop;
     }
@@ -233,7 +181,7 @@ public class Simulation implements Runnable{
         this.updateInterval = newUpdateInterval;
     }
 
-    public static double getDistance(Location loc1, Location loc2){  // generally used geo measurement function
+    private static double getDistance(Location loc1, Location loc2){  // generally used geo measurement function
         double lat1 = loc1.getLatitude();
         double lon1 = loc1.getLongitude();
         double lat2 = loc2.getLatitude();
@@ -249,136 +197,14 @@ public class Simulation implements Runnable{
         double d = R * c;
         return d * 1000; // meters
     }
-
-
-    //LEGG TIL DISSE I FERDIG PROSJEKT!!!
-    private URL createRevGeoCodeURL(Location where){
-        URL url = null;
-        try {
-            url = new URL("https://maps.google.com/maps/api/geocode/json?latlng="
-                    +where.getLatitude()+","+where.getLongitude()+"&sensor=false"+ "&key=" + API_KEY);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
-    }
-
-    public String getAddress(Location where){
-        URL url = createRevGeoCodeURL(where);
-        String address = "";
-
-        try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
-            JsonObject obj = rdr.readObject();
-            JsonArray results = obj.getJsonArray("results");
-
-            if(obj.getJsonString("status").getString().equals("ZERO_RESULTS")){
-                return null;
-            }
-            JsonObject result = results.getJsonObject(0);
-            address = result.getString("formatted_address");
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return address;
-    }
-
-    public String getAddress(double lat, double lon){
-        Location loc = new Location(null, lat, lon);
-        return getAddress(loc);
-    }
-
-    private URL createWayPointsURL(Location start, Location end){
-        URL url = null;
-        try {
-            url = new URL("https://maps.google.com/maps/api/directions/json?origin="
-                    + start.getLatitude()+","+start.getLongitude()+"&destination="
-                    + end.getLatitude() + "," + end.getLongitude() + "&mode=bicycling"
-                    + "&key=" + API_KEY);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
-    }
-
-    public Location[] getWayPoints(Location start, Location end){
-        MapsAPI map = new MapsAPI();
-        URL url = createWayPointsURL(start, end);
-        ArrayList<Location> waypoints = new ArrayList<>();
-
-        try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
-            JsonObject obj = rdr.readObject();
-
-            if(obj.getJsonString("status").getString().equals("ZERO_RESULTS")){
-                return null;
-            }
-            JsonArray routes = obj.getJsonArray("routes");
-            JsonObject routes0 = routes.getJsonObject(0);
-            JsonArray legs = routes0.getJsonArray("legs");
-            JsonObject legs0 = legs.getJsonObject(0);
-            JsonArray steps = legs0.getJsonArray("steps");
-
-            waypoints.add(start);
-            for (int i = 0; i < steps.size(); i++) {
-                JsonObject step = steps.getJsonObject(i);
-                JsonObject endLocation = step.getJsonObject("end_location");
-
-                double latitude = endLocation.getJsonNumber("lat").doubleValue();
-                double longitude = endLocation.getJsonNumber("lng").doubleValue();
-                double altitude = map.getAltitude(latitude, longitude);
-                String address = getAddress(latitude, longitude);
-                Location stepEndLocation = new Location(address, latitude, longitude, altitude);
-                waypoints.add(stepEndLocation);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Location[] output = waypoints.toArray(new Location[waypoints.size()]);
-        return output;
-    }
-
-    public URL createSnapToRoadURL(Location where){
-        URL url = null;
-        try {
-            double lat = where.getLatitude();
-            double lng = where.getLongitude();
-            url = new URL("https://roads.googleapis.com/v1/snapToRoads?path=" + lat + "," + lng + "&key=" + ROADS_API_KEY);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
-    }
-
-    public Location SnapToRoad(Location where){
-        URL url = createSnapToRoadURL(where);
-        Location snapped = null;
-
-        try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
-            JsonObject obj = rdr.readObject();
-
-            JsonArray snappedPoints = obj.getJsonArray("snappedPoints");
-            JsonObject location = snappedPoints.getJsonObject(0);
-            JsonObject location2 = location.getJsonObject("location");
-
-            double latitude = location2.getJsonNumber("latitude").doubleValue();
-            double longitude = location2.getJsonNumber("longitude").doubleValue();
-            String address = getAddress(latitude, longitude);
-            snapped = new Location(address, latitude, longitude);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return snapped;
-    }
 }
 
 class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
         Docking[] docking_stations = new Docking[3];
-        docking_stations[0] = new Docking(1, "Kalvskinnet", new Location("NTNU Kalvskinnet", true), 50);
-        docking_stations[1] = new Docking(2, "Munkholmen", new Location("Munkholmen", true), 20);
+        docking_stations[0] = new Docking(1, "Rema 1000 Ranheim", new Location("Rema 1000 Ranheim", true), 50);
+        docking_stations[1] = new Docking(2, "Coop Prix Ranheim", new Location("Coop Prix Ranheim", true), 20);
         docking_stations[2] = new Docking(2, "Martin hjem", new Location("Bautavegen 3, 7056 Ranheim", true), 20);
 
         Bike[] bikes = new Bike[1];
@@ -386,10 +212,13 @@ class SimTest{
         bikes[0] = new Bike(1, "Trek", 100, true,0, docking_stations[0].getLocation());
 
         Simulation sim = new Simulation(bikes, docking_stations);
-        sim.setUpdateInterval(1);
+        sim.setUpdateInterval(3);
 
         Thread simThread = new Thread(sim);
         simThread.start();
+        while (true){
+            //System.out.println(bikes[0].getLocation().getLatitude() + ", " + bikes[0].getLocation().getLongitude());
+        }
     }
 }
 

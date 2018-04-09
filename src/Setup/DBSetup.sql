@@ -15,7 +15,7 @@ CREATE TABLE bikes (
   price int NOT NULL,
   purchaseDate DATETIME DEFAULT NOW(),
   totalTrips int DEFAULT 0,
-  totalKm int DEFAULT 0,
+  status int DEFAULT 1,
   make VARCHAR(25) NOT NULL,
   type VARCHAR(25) NOT NULL,
   PRIMARY KEY (bikeID)
@@ -81,6 +81,8 @@ CREATE TABLE docking_stations(
   stationID int NOT NULL AUTO_INCREMENT,
   stationName varchar(30) NOT NULL,
   maxSlots int NOT NULL DEFAULT 0,
+  longitude FLOAT( 10, 6 ) NOT NULL,
+  latitude FLOAT( 10, 6 ) NOT NULL,
   PRIMARY KEY(stationID)
 );
 
@@ -110,6 +112,7 @@ CREATE TABLE bike_logs(
   latitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
   batteryPercentage int NOT NULL,
+  totalKm int DEFAULT 0,
   PRIMARY KEY(bikeID, logTime)
 );
 

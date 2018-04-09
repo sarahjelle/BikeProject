@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class MapsAPI {
 
-    private static final String API_KEY = "AIzaSyA8jBARruH9LiUFxc-DQNLaKRrw6nmyHho";
+    private static final String API_KEY = "AIzaSyAeyJlGWV32rnHy6iqCBVR_XyWo1SNDk9Y";
     private static final String ROADS_API_KEY = "AIzaSyDlJ5qke9-Dw-3-cpk1okWXSXWg3MIRSLc";
     // Sindre Toft Nordal API KEY:
     // https://maps.googleapis.com/maps/api/elevation/json?locations=LATITUDE,LONGITUDE&key=YOUR_API_KEY
@@ -275,8 +275,6 @@ class MapsTest{
         String end = "Olav Tryggvasons gate 40, 7011 Trondheim";
         Double[] latlongEnd = map.getLatLong(end);
         Location endLoc = new Location(end, latlongEnd[0], latlongEnd[1]);
-
-
 
         Location[] waypoints = map.getWayPoints(startLoc, endLoc);
         for (int i = 0; i < waypoints.length; i++) {
