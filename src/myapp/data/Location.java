@@ -2,6 +2,7 @@ package myapp.data;
 
 import myapp.map.MapsAPI;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 
 public class Location implements Serializable {
@@ -10,6 +11,7 @@ public class Location implements Serializable {
     private Double latitude;
     private Double longitude;
     private Double altitude;
+    private LocalDate localDate;
 
     public Location(String name, boolean getCoords) {
         this.name = name;
@@ -24,10 +26,11 @@ public class Location implements Serializable {
         }
     }
 
-    public Location(Double latitude, Double longitude){
+    public Location(Double latitude, Double longitude, LocalDate ld){
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = 0.;
+        this.localDate = ld;
         this.name = "";
     }
 
