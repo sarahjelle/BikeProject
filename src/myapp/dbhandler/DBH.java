@@ -301,7 +301,7 @@ public class DBH {
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        Bike bike = new Bike(1, 100.2, "DBS","Terreng",10.1, 10, new Location("Heime", 63.420924, 10.527217, 0.1));
+        Bike bike = new Bike(1, "DBS", 78.10,"Terreng",10.1, 10, new Location("Heime", 63.420924, 10.527217, 0.1), 0);
         dbh.updateBike(bike);
         System.out.println(bike.toString());
     }
