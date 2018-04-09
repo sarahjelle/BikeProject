@@ -153,7 +153,7 @@ public class DBH {
                 return null;
             }
             //stmt = db.prepareStatement("SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.totalKM, b.make, b.type FROM bikes b");
-            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, max(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime");
+            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, max(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
             while(bikeset.next()) {
@@ -170,7 +170,8 @@ public class DBH {
                                 bikeset.getDouble("latitude"),
                                 bikeset.getDouble("longitude"),
                                 dateToLocation
-                        )
+                        ),
+                        bikeset.getInt("status")
                 ));
             }
             stmt.close();
@@ -198,6 +199,8 @@ public class DBH {
             stmt.setInt(5, bike.getId());
 
             if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
                 return false;
             }
             stmt.close();
