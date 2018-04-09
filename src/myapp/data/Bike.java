@@ -26,7 +26,7 @@ public class Bike {
         this.make = make;
         this.type = type;
         this.price = price;
-        this.purchased = purchased;
+        this.purchased = LocalDate.now();
         this.batteryPercentage = batteryPercentage;
         this.location = location;
         if (distanceTraveled != 0){
