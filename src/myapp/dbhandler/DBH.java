@@ -145,6 +145,43 @@ public class DBH {
         return execSQLPK(stmt, db);
     }
 
+    public ArrayList<Bike> getAllBikes() {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT * FROM bikes");
+            ResultSet bikeset = execSQLRS(stmt);
+            ArrayList<Bike> bikes = new ArrayList<Bike>();
+            while(bikeset.next()) {
+                String date[] = bikeset.getString("logTime").split(" ")[0].split("-");
+                bikes.add(new Bike(
+                        bikeset.getInt("bikeID"),
+                        bikeset.getString("make"),
+                        bikeset.getDouble("price"),
+                        bikeset.getString("type"),
+                        1,
+                        0,
+                        new Location(
+                                0.0,
+                                0.0,
+                                LocalDate.now()
+                        ),
+                        bikeset.getInt("status")
+                ));
+            }
+            stmt.close();
+            db.close();
+            return bikes;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
     public ArrayList<Bike> getBikes() {
         db = connect();
         PreparedStatement stmt = null;
