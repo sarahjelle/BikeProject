@@ -1,0 +1,18 @@
+.menuButton {
+    -fx-background-color: #515151;
+}
+
+#menuBar{
+    -fx-background-color: #b5cc18;
+}
+
+#menuBar Button{
+    -fx-background-color: transparent;
+    -fx-border-radius: 0px;
+}
+
+#menuBar Button:hover{
+    /*-fx-background-color: #cbcc70;*/
+    -fx-text-fill: white;
+}
+

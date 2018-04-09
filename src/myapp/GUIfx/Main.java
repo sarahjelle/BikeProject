@@ -28,7 +28,8 @@ public class Main extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        login(primaryStage);
+        //login(primaryStage);
+        loadApp(primaryStage);
     }
 
     public static void main(String[]args){
