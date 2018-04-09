@@ -21,6 +21,10 @@ public class Bike {
         this.make = make;
     }
 
+    /*
+     * IN USE:
+     * By DBH.getBikes()
+     */
     public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location){
         this.id = id;
         this.make = make;
@@ -35,6 +39,7 @@ public class Bike {
             this.distanceTraveled = 0;
         }
     }
+
     public Bike(int id, String make, double price, String type, double batteryPercentage, int distanceTraveled){
         this.id = id;
         this.make = make;

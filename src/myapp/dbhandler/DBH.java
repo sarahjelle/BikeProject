@@ -132,10 +132,11 @@ public class DBH {
             if(db == null) {
                 return -1;
             }
-            stmt = db.prepareStatement("INSERT INTO bikes (price, make, type) VALUES (?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            stmt = db.prepareStatement("INSERT INTO bikes (price, purchaseDate, make, type) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setDouble(1, bike.getPrice());
-            stmt.setString(2, bike.getMake());
-            stmt.setString(3, bike.getType());
+            stmt.setString(2, bike.getPurchased().toString());
+            stmt.setString(3, bike.getMake());
+            stmt.setString(4, bike.getType());
 
         } catch(SQLException e) {
             System.out.println("Error: " + e);
@@ -151,23 +152,25 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.totalKM, b.make, b.type FROM bikes b");
-            //stmt = db.prepareStatement("SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.totalKM, b.make, b.type, l.longitude, l.latitude, l.altitude, l.batteryPercentage FROM bikes b JOIN bike_logs l WHERE b.bikeID = l.bikeID");
+            //stmt = db.prepareStatement("SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.totalKM, b.make, b.type FROM bikes b");
+            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, max(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
             while(bikeset.next()) {
+                String date[] = bikeset.getString("logTime").split(" ")[0].split("-");
+                LocalDate dateToLocation = LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]);
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
-                        bikeset.getDouble("price"),
                         bikeset.getString("make"),
+                        bikeset.getDouble("price"),
                         bikeset.getString("type"),
-                        50,// bikeset.getDouble("batteryPercentage"),
-                        bikeset.getInt("totalKM")
-                        /*new Location("Coords",
+                        bikeset.getDouble("batteryPercentage"),
+                        bikeset.getInt("totalKM"),
+                        new Location(
                                 bikeset.getDouble("latitude"),
                                 bikeset.getDouble("longitude"),
-                                bikeset.getDouble("altitude")
-                        )*/
+                                dateToLocation
+                        )
                 ));
             }
             stmt.close();
@@ -301,8 +304,9 @@ public class DBH {
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        Bike bike = new Bike(1, 100.2, "DBS","Terreng",10.1, 10, new Location("Heime", 63.420924, 10.527217, 0.1));
-        dbh.updateBike(bike);
-        System.out.println(bike.toString());
+        ArrayList<Bike> bikes = dbh.getBikes();
+        for(Bike bike : bikes) {
+            System.out.println(bike.toString() + " Location: " + bike.getLocation().getLatitude() + " / " + bike.getLocation().getLongitude());
+        }
     }
 }
