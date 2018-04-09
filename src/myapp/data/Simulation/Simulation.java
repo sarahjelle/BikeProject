@@ -1,10 +1,14 @@
-package myapp.data;
+package myapp.data.Simulation;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
+
+import myapp.data.Bike;
+import myapp.data.Docking;
+import myapp.data.Location;
 import myapp.map.MapsAPI;
 
 import javax.json.Json;
@@ -23,6 +27,10 @@ public class Simulation implements Runnable{
     private static final String API_KEY = "AIzaSyA8jBARruH9LiUFxc-DQNLaKRrw6nmyHho";
     private static final String ROADS_API_KEY = "AIzaSyDlJ5qke9-Dw-3-cpk1okWXSXWg3MIRSLc";
 
+    /*
+    * Constructor should receive ONLY the bikes that will be moved.
+    * And ALL the docking stations available to move to (not repair etc)
+    */
     public Simulation(Bike[] bikes, Docking[] docking_stations){
         this.bikes = bikes;
         this.docking_stations = docking_stations;
