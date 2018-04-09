@@ -13,6 +13,14 @@ public class Bike {
     private int distanceTraveled;
     private int totalTrips;
     private Location location;
+    /*
+    Status:
+    1 = Available;
+    2 = In Trip;
+    3 = In Repair;
+    4 = Soft delete;
+     */
+    private int status;
 
     public Bike(double price, LocalDate purchased, String type, String make) {
         this.price = price;
@@ -21,7 +29,7 @@ public class Bike {
         this.make = make;
     }
 
-    public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location){
+    public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status){
         this.id = id;
         this.make = make;
         this.type = type;
@@ -29,11 +37,8 @@ public class Bike {
         this.purchased = LocalDate.now();
         this.batteryPercentage = batteryPercentage;
         this.location = location;
-        if (distanceTraveled != 0){
-            this.distanceTraveled = distanceTraveled;
-        } else {
-            this.distanceTraveled = 0;
-        }
+        this.distanceTraveled = distanceTraveled;
+        this.status = status;
     }
     public Bike(int id, String make, double price, String type, double batteryPercentage, int distanceTraveled){
         this.id = id;
@@ -99,6 +104,10 @@ public class Bike {
 
     public void setTotalTrips(){
         this.totalTrips++;
+    }
+
+    public int getStatus() {
+        return status;
     }
 
     public void setLocation(Location location) {
