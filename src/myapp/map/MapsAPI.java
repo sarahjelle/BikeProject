@@ -268,7 +268,7 @@ class MapsTest{
     public static void main(String[]args){
         MapsAPI map = new MapsAPI();
 
-        String start = "Bautavegen 3, 7056 Trondheim";
+        String start = "Dronningens gate 64, 7012 Trondheim";
         Double[] latlongStart = map.getLatLong(start);
         Location startLoc = new Location(start, latlongStart[0], latlongStart[1]);
 
@@ -284,7 +284,6 @@ class MapsTest{
         }
 
 
-        //Should be: Bautavegen 3 7056 Ranheim is at : lat: 63.420924 long: 10.527217
         //https://maps.google.com/maps/api/geocode/json?latlng=63.420937,10.527159&sensor=false&key=AIzaSyA8jBARruH9LiUFxc-DQNLaKRrw6nmyHho
         //Roseborg gate 1: 63.434365,10.414946
         //Sverresgate 15: 63.4290398,10.3893292
