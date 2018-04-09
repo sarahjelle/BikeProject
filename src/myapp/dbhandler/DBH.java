@@ -306,7 +306,7 @@ class DBTest {
         DBH dbh = new DBH();
         ArrayList<Bike> bikes = dbh.getBikes();
         for(Bike bike : bikes) {
-            System.out.println(bike.toString() + " Location: " + bike.getLocation().getLatitude() + " / " + bike.getLocation().getLongitude());
+            System.out.println(bike.toString() + " Location: \n" + bike.getLocation().toString());
         }
     }
 }
