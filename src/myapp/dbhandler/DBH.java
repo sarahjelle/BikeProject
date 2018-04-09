@@ -158,7 +158,7 @@ public class DBH {
             ArrayList<Bike> bikes = new ArrayList<Bike>();
             while(bikeset.next()) {
                 String date[] = bikeset.getString("logTime").split(" ")[0].split("-");
-                LocalDate dateToLocation = LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]);
+                LocalDate dateToLocation = LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
                         bikeset.getString("make"),
