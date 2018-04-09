@@ -351,6 +351,7 @@ public class DBH {
                         dockingSet.getInt("maxSlots")
                 ));
             }
+
             stmt.close();
             db.close();
             return docks;
