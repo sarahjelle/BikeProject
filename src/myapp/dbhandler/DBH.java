@@ -152,7 +152,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            //stmt = db.prepareStatement("SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.totalKM, b.make, b.type FROM bikes b");
+
             stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, max(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
@@ -265,6 +265,63 @@ public class DBH {
         }
 
         return execSQLPK(stmt, db);
+    }
+
+    public boolean dockBike(int id, int slot, Bike bike) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE slots SET bikeID = ? WHERE stationID = ? AND slotID = ?");
+
+            stmt.setInt(1, id);
+            stmt.setInt(2, slot);
+            stmt.setInt(3, bike.getId());
+
+            if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
+    public ArrayList<Docking> getDocking() {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+            stmt = db.prepareStatement("SELECT * FROM docking_stations");
+            ResultSet dockingSet = execSQLRS(stmt);
+            ArrayList<Docking> docks = new ArrayList<Docking>();
+            while(dockingSet.next()) {
+                docks.add(new Docking(
+                        dockingSet.getInt("stationID"),
+                        dockingSet.getString("stationName"),
+                        new Location(
+                                dockingSet.getDouble("latitude"),
+                                dockingSet.getDouble("longitude")
+                        ),
+                        dockingSet.getInt("maxSlots")
+                ));
+            }
+            stmt.close();
+            db.close();
+            return docks;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
     }
 
 

@@ -85,5 +85,4 @@ public class BikeTest {
     @Test
     public void getLocation() throws Exception {
     }
-
 }
