@@ -13,9 +13,9 @@ public class BikeTest {
     private static Location location1 = new Location("Sverres Gate 14", true);
     private static Location location2 = new Location("Dronningens Gate 64", true);
     private static Location location3 = new Location("Beddingen 4", true);
-    private static Bike bike1 = new Bike(1, "Merida", 97.0, "Electric", 100, 0, location1);
-    private static Bike bike2 = new Bike(2, "Kona", 30.0, "Electric", 200, 0, location2);
-    private static Bike bike3 = new Bike(3, "Merida", 48.0, "Electric", 300., 0, location3);
+    private static Bike bike1 = new Bike(1, "Merida", 97.0, "Electric", 100, 0, location1, 0);
+    private static Bike bike2 = new Bike(2, "Kona", 30.0, "Electric", 200, 0, location2, 0);
+    private static Bike bike3 = new Bike(3, "Merida", 48.0, "Electric", 300., 0, location3, 0);
 
     LocalDate time1 = LocalDate.now();
 
