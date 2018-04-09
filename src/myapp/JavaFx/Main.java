@@ -1,4 +1,4 @@
-package myapp.JavaFx;
+package myapp.GUIfx;
 
 import javafx.application.Application;
 import javafx.fxml.*;
@@ -7,8 +7,8 @@ import javafx.stage.*;
 
 
 public class Main extends Application{
-    private void login(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("LogIn.fxml"));
+    private void signin(Stage primaryStage) throws Exception{
+        Parent root = FXMLLoader.load(getClass().getResource("SignIn.fxml"));
 
         Scene scene = new Scene(root, 300, 300);
 
@@ -30,7 +30,7 @@ public class Main extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        login(primaryStage);
+        signin(primaryStage);
     }
 
     public static void main(String[]args){
