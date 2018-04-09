@@ -21,7 +21,7 @@ public class Bike {
         this.make = make;
     }
 
-    public Bike(int id, double price, String make, String type, double batteryPercentage, int distanceTraveled, Location location){
+    public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location){
         this.id = id;
         this.make = make;
         this.type = type;
@@ -35,7 +35,7 @@ public class Bike {
             this.distanceTraveled = 0;
         }
     }
-    public Bike(int id, double price, String make, String type, double batteryPercentage, int distanceTraveled){
+    public Bike(int id, String make, double price, String type, double batteryPercentage, int distanceTraveled){
         this.id = id;
         this.make = make;
         this.type = type;

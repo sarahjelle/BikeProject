@@ -14,9 +14,9 @@ public class DockingTest {
     private static Location location1 = new Location("Sverres Gate 14", true);
     private static Location location2 = new Location("Dronningens Gate 64", true);
     private static Location location3 = new Location("Beddingen 4", true);
-    private static Bike bike1 = new Bike(1, "Merida", 97.0, true, 100, location1);
-    private static Bike bike2 = new Bike(2, "Kona", 30.0, true, 200, location2);
-    private static Bike bike3 = new Bike(3, "Merida", 48.0, true, 300, location3);
+    private static Bike bike1 = new Bike(1, "Merida", 97.0, "Electric", 100, 0, location1);
+    private static Bike bike2 = new Bike(2, "Kona", 30.0, "Electric", 200, 0, location2);
+    private static Bike bike3 = new Bike(3, "Merida", 48.0, "Electric", 300, 0, location3);
 
     private static Docking docking1 = new Docking(1, "HiST Kalvskinnet", location1, 25);
     @Test
