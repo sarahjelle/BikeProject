@@ -179,7 +179,34 @@ public class DBH {
         return null;
     }
 
-    public Bike[] updateBikes(Bike[] bikes) {
+    public boolean updateBike(Bike bike) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE bikes SET price = ?, purchaseDate = ?, make = ?, type = ? WHERE bikeID = ?");
+
+            stmt.setDouble(1, bike.getPrice());
+            stmt.setString(2, bike.getPurchased().toString());
+            stmt.setString(3, bike.getMake());
+            stmt.setString(4, bike.getType());
+            stmt.setInt(5, bike.getId());
+
+            if(!execSQLBool(stmt, db)) {
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
+    public Bike[] logBikes(Bike[] bikes) {
         db = connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> bikesNotUpdated = new ArrayList<Bike>();
@@ -274,14 +301,8 @@ public class DBH {
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        Bike[] bikes = new Bike[3];
-        bikes[0] = new Bike(1, 100.2, "DBS","Terreng",10.1, 10, new Location("Heime", 63.420924, 10.527217, 0.1));
-        bikes[1] = new Bike(2, 200.2, "DBSS","TerrengG",10.2, 20, new Location("Heime", 63.420924, 10.527217, 0.2));
-        bikes[2] = new Bike(3, 300.2, "DBSSS","TerrengGG",10.3, 30, new Location("Heime", 63.420924, 10.527217, 0.3));
-        bikes = dbh.updateBikes(bikes);
-        for (Bike bike : bikes) {
-            System.out.println(bike.toString());
-        }
-        System.out.println("Finished " + bikes.length);
+        Bike bike = new Bike(1, 100.2, "DBS","Terreng",10.1, 10, new Location("Heime", 63.420924, 10.527217, 0.1));
+        dbh.updateBike(bike);
+        System.out.println(bike.toString());
     }
 }
