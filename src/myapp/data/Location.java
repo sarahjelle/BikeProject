@@ -54,6 +54,12 @@ public class Location implements Serializable {
         }
     }
 
+    public Location(double lat, double lng) {
+        this.latitude = lat;
+        this.longitude = lng;
+        this.name = "";
+    }
+
     public String getName() {
         return name;
     }
