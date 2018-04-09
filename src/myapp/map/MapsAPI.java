@@ -121,14 +121,13 @@ public class MapsAPI {
 
 class MapsTest{
     public static void main(String[]args){
-        String loc = "Bautavegen 3, 7056 Trondheim";
+        String loc = "Dronningens gate 64, 7012 Trondheim";
         MapsAPI map = new MapsAPI();
         Double[] latlong = map.getLatLong(loc);
         double lat = latlong[0];
         double lng = latlong[1];
         System.out.println(loc + " is at : lat: " + lat + " long: " + lng);
 
-        //Should be: Bautavegen 3 7056 Ranheim is at : lat: 63.420924 long: 10.527217
     }
 }
 
