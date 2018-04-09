@@ -16,7 +16,6 @@ public class Bike {
 
 
     public Bike(double price, LocalDate purchased, String type, String make) {
-
         this.price = price;
         this.purchased = purchased;
         this.type = type;
