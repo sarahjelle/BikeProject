@@ -1,4 +1,4 @@
-/*package myapp.Test;
+package myapp.Test;
 
 import myapp.data.*;
 import myapp.map.*;
@@ -71,4 +71,4 @@ public class BikeTest {
     public void getReport() throws Exception {
     }
 
-}*/
+}
