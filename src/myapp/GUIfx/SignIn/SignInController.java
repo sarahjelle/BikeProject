@@ -1,13 +1,14 @@
-package myapp.GUIfx;
+package myapp.GUIfx.SignIn;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import myapp.GUIfx.MainApp.Main;
 
 public class SignInController {
-    myapp.GUIfx.Main main = new Main();
+    Main main = new Main();
     @FXML private Text actiontarget;
 
     @FXML private TextField userId;

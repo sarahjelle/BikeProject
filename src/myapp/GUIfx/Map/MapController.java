@@ -1,4 +1,4 @@
-package myapp.map;
+package myapp.GUIfx.Map;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;

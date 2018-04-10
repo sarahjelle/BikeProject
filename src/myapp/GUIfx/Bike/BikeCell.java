@@ -1,4 +1,4 @@
-package myapp.GUIfx;
+package myapp.GUIfx.Bike;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
@@ -14,8 +14,8 @@ public class BikeCell extends ListCell<Bike>{
 
     private HBox hbox;
     private Label bikeid;
-    private Label totalTrips;
-    private Label totalKm;
+    private Label type;
+    private Label make;
     private ProgressBar battery;
     private ProgressIndicator pi;
 
@@ -25,11 +25,11 @@ public class BikeCell extends ListCell<Bike>{
     public BikeCell(){
         hbox = new HBox(100);
         bikeid = new Label();
-        totalTrips = new Label();
-        totalKm = new Label();
+        type = new Label();
+        make = new Label();
         battery = new ProgressBar();
-        pi = new ProgressIndicator();
-        hbox.getChildren().addAll(bikeid, totalTrips, totalKm, battery, pi);
+        //pi = new ProgressIndicator();
+        hbox.getChildren().addAll(bikeid, type, make, battery);
     }
 
     @Override
@@ -37,12 +37,13 @@ public class BikeCell extends ListCell<Bike>{
         super.updateItem(item, empty);
         if(item != null && !empty) {
             bikeid.setText("Bicycle " + Integer.toString(item.getId()));
-            totalTrips.setText(Integer.toString(item.getTotalTrips()));
-            totalKm.setText(Integer.toString(item.getDistanceTraveled()));
+            type.setText(item.getType());
+            make.setText(item.getMake());
             setGraphic(hbox);
 
             double batteri = item.getBatteryPercentage();
             battery.setProgress(batteri);
+            battery.setAccessibleText(Double.toString(item.getBatteryPercentage()));
             if(batteri > 0.6) {
                 battery.setStyle("-fx-accent: green");
             }
@@ -52,7 +53,7 @@ public class BikeCell extends ListCell<Bike>{
             else{
                 battery.setStyle("-fx-accent: #c40000");
             }
-            pi.setProgress(item.getBatteryPercentage());
+            //  pi.setProgress(item.getBatteryPercentage());
         }
     }
 }

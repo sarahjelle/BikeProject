@@ -20,8 +20,8 @@ function initMap() {
     function addMarker(coords){
         var marker = new google.maps.Marker({
             position: coords,
-            map: map,
-            icon: "Bike.png",
+            map: map
+            //icon: "Bike.png",
         });
     }
 }

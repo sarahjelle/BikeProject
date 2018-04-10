@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="dockPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="myapp.GUIfx.DockStationCenter">
+<BorderPane visible="false" fx:id="dockPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="myapp.GUIfx.DockingStation.DockStationCenter">
     <top>
         <HBox>
             <TextField fx:id="searchInput"/>

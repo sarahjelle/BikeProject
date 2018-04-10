@@ -1,4 +1,4 @@
-package myapp.GUIfx;
+package myapp.GUIfx.Bike;
 
 import javafx.beans.property.SimpleIntegerProperty;
 

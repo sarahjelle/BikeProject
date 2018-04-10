@@ -1,15 +1,10 @@
-package myapp.GUIfx;
+package myapp.GUIfx.DockingStation;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
-import com.sun.webkit.dom.DocumentImpl;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
-import myapp.data.Bike;
 import myapp.data.Docking;
 
 import java.net.URL;

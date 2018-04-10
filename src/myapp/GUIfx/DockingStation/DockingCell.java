@@ -1,4 +1,4 @@
-package myapp.GUIfx;
+package myapp.GUIfx.DockingStation;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;

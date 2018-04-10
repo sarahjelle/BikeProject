@@ -1,13 +1,8 @@
-package myapp.GUIfx;
+package myapp.GUIfx.Bike;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import myapp.data.Bike;
 import javafx.scene.control.*;
-
-
-import java.time.LocalDate;
 
 public class BikePaneController {
     @FXML private BikeCenterController centerPaneController;
@@ -40,7 +35,8 @@ public class BikePaneController {
             centerPaneController.search(bikeId);
         }
         catch (Exception e){
-            System.out.println("FEIL");
+            searchInput.setText("Write a number");
+            searchInput.setStyle("-fx-text-fill: #9f0000");
         }
 
     }
