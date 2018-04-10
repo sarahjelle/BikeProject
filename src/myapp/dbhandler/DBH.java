@@ -145,6 +145,11 @@ public class DBH {
         return execSQLPK(stmt, db);
     }
 
+    public Bike[] getAllBikesDummyLocationOA() {
+        ArrayList<Bike> bikes = getAllBikesDummyLocation();
+        return bikes.toArray(new Bike[bikes.size()]);
+    }
+
     public ArrayList<Bike> getAllBikesDummyLocation() {
         db = connect();
         PreparedStatement stmt = null;
@@ -179,6 +184,11 @@ public class DBH {
             System.out.println("Error: " + e);
         }
         return null;
+    }
+
+    public Bike[] getLoggedBikesOA() {
+        ArrayList<Bike> bikes = getLoggedBikes();
+        return bikes.toArray(new Bike[bikes.size()]);
     }
 
     public ArrayList<Bike> getLoggedBikes() {
@@ -251,7 +261,7 @@ public class DBH {
     public Bike[] logBikes(Bike[] bikes) {
         db = connect();
         PreparedStatement stmt = null;
-        ArrayList<Bike> bikesNotUpdated = new ArrayList<Bike>();
+        ArrayList<Bike> bikesNotUpdated = new ArrayList<>();
         Bike[] toReturn = null;
         try {
             if(db == null) {
@@ -273,7 +283,7 @@ public class DBH {
             }
             stmt.close();
             db.close();
-            return bikesNotUpdated.toArray(new Bike[0]);
+            return bikesNotUpdated.toArray(new Bike[bikesNotUpdated.size()]);
         } catch(SQLException e) {
             System.out.println("Error: " + e);
         }
@@ -330,7 +340,7 @@ public class DBH {
         return false;
     }
 
-    public ArrayList<Docking> getDocking() {
+    public ArrayList<Docking> getAllDockingStations() {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -339,7 +349,7 @@ public class DBH {
             }
             stmt = db.prepareStatement("SELECT * FROM docking_stations");
             ResultSet dockingSet = execSQLRS(stmt);
-            ArrayList<Docking> docks = new ArrayList<Docking>();
+            ArrayList<Docking> docks = new ArrayList<>();
             while(dockingSet.next()) {
                 docks.add(new Docking(
                         dockingSet.getInt("stationID"),
