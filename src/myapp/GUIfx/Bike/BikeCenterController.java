@@ -1,23 +1,24 @@
-package myapp.GUIfx;
+package myapp.GUIfx.Bike;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.ComboBox.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.util.Callback;
 import myapp.data.Bike;
-import myapp.dbhandler.DBH;
 
+import javax.swing.text.html.ImageView;
+import java.awt.*;
+import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class BikeCenterController implements Initializable{
@@ -29,7 +30,7 @@ public class BikeCenterController implements Initializable{
 
     //attributes for bike registration
     @FXML VBox regBikePane;
-    @FXML private ComboBox<String> type;
+    @FXML private ComboBox<String> typeInput;
     @FXML private DatePicker purchaseDate;
     @FXML private TextField priceInput;
     @FXML private TextField makeInput;
@@ -38,7 +39,7 @@ public class BikeCenterController implements Initializable{
     @FXML private VBox repairBikePane;
 
     //attributes for info
-    @FXML private BorderPane bikeInfo;
+    @FXML private VBox bikeInfo;
     @FXML private Text bikeidOutput;
     @FXML private Text typeOutput;
     @FXML private Text makeOutput;
@@ -47,10 +48,13 @@ public class BikeCenterController implements Initializable{
     @FXML private Text batteryOutput;
     @FXML private Text availableOutput;
     @FXML private Text distanceOutput;
+    @FXML private BorderPane bikeInfoEdit;
 
 
     //listview
     @FXML private ListView listView;
+    //private DBH dbh = new DBH();
+    //private ArrayList<Bike> bikes = dbh.getBikes();
 
     public void initialize(URL url, ResourceBundle rb) {
         //for tableview
@@ -68,11 +72,16 @@ public class BikeCenterController implements Initializable{
 
         listView.setCellFactory(e -> new BikeCell());
 
-        for(int i = 0; i < 25; i++) {
-            Bike a = new Bike(1, "Electric", 899.90, LocalDate.now(), "Trek", 0.5, true, 100, null);
-            Bike b = new Bike(2, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
-            Bike c = new Bike(3, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
-            Bike d = new Bike(4, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
+        /*databaser
+        for(int i = 0; i < bikes.size(); i++) {
+            listView.getItems().add(bikes.get(i));
+        }*/
+
+        for(int i = 0; i < 25; i++){
+            Bike a = new Bike(i, "Electric", 899.90, LocalDate.now(), "Trek", 0.5, true, 100, null);
+            Bike b = new Bike(i+1, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
+            Bike c = new Bike(i+2, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
+            Bike d = new Bike(i+3, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
             //addBikeData(b); //hører til tabell
             listView.getItems().addAll(a, b, c, d);
         }
@@ -81,9 +90,9 @@ public class BikeCenterController implements Initializable{
         System.out.println("Initialize Done");
     }
 
-    /*public void addBikeData(Bike bike){
+    public void addBikeData(Bike bike){
        listView.getItems().add(bike);
-    }*/
+    }
 
     //opens the registration pane
     public void openRegisterPane(){
@@ -102,33 +111,63 @@ public class BikeCenterController implements Initializable{
 
     //choose and add a type (in register new bike)
     public void typeSelected(){
-        String selected = type.getSelectionModel().getSelectedItem();
+        //String selected = typeInput.getValue();
+        String selected = typeInput.getSelectionModel().getSelectedItem();
         System.out.println(selected);
 
         if(selected.equals("New type")){
             TextInputDialog newType = new TextInputDialog();
             newType.setHeaderText("New type");
             newType.setGraphic(null);
+
             try {
                 String type2 = newType.showAndWait().get();
-                System.out.println(type);
-                type.getItems().add(type2);
+                System.out.println(typeInput);
+                typeInput.getItems().add(type2);
             }
             catch(Exception e){
+                newType.close();
                 e.printStackTrace();
             }
         }
     }
 
+
+    @FXML private Label priceError;
+    public boolean regInfoOk(){
+        if(typeInput.getSelectionModel().isEmpty()){
+
+            return false;
+        }
+        if(priceInput.getText().trim().equals("")){
+            priceError.setVisible(true);
+            return false;
+        }
+
+        if(makeInput == null){
+            makeInput.setText("Missing make");
+            return false;
+        }
+
+        if(purchaseDate.getValue() == null){
+            return false;
+        }
+
+        regBike();
+        return true;
+    }
+
     //Register new bike
     public void regBike(){
-        DBH dbh = new DBH();
-        String typeSelected = type.getSelectionModel().getSelectedItem();
+        //DBH dbh = new DBH();
+        String typeSelected = typeInput.getSelectionModel().getSelectedItem();
         double price = Double.parseDouble(priceInput.getText());
         LocalDate date = purchaseDate.getValue();
         String make = makeInput.getText();
         Bike bike = new Bike(price, date, make, typeSelected);
-        dbh.addBike(bike);
+        addBikeData(bike);
+        System.out.println("Vellykket registrering");
+        //dbh.addBike(bike);
     }
 
     /*@FXML private void getItemsFromDatabase(){
@@ -139,10 +178,9 @@ public class BikeCenterController implements Initializable{
 
     //Goes back to main page
     public void cancel(){
+
+        closeAll();
         listView.setVisible(true);
-        regBikePane.setVisible(false);
-        repairBikePane.setVisible(false);
-        bikeInfo.setVisible(false);
     }
 
     //register repair
@@ -150,8 +188,10 @@ public class BikeCenterController implements Initializable{
     }
 
     //
+    //@FXML private ImageView image1;
     @ FXML private void showInfo(Bike bike){
-        listView.setVisible(false);
+        closeAll();
+        bikeInfoEdit.setVisible(true);
         bikeInfo.setVisible(true);
         bikeidOutput.setText(Integer.toString(bike.getId()));
         typeOutput.setText(bike.getType());
@@ -203,6 +243,39 @@ public class BikeCenterController implements Initializable{
         else{
             System.out.println("Unvalid search");
         }
+    }
+
+    public void closeAll(){
+        listView.setVisible(false);
+        regBikePane.setVisible(false);
+        bikeInfo.setVisible(false);
+        bikeEditPane.setVisible(false);
+        bikeInfoEdit.setVisible(false);
+    }
+
+    @FXML private VBox bikeEditPane;
+    @FXML private TextField typeEdit;
+    @FXML private TextField makeEdit;
+    @FXML private TextField priceEdit;
+    @FXML private DatePicker dateEdit;
+    @FXML private TextField batteryEdit;
+    @FXML private ComboBox statusEdit;
+    @FXML private TextField distanceEdit;
+
+
+    @FXML private void openEdit(){
+        closeAll();
+        bikeInfoEdit.setVisible(true);
+        bikeEditPane.setVisible(true);
+       String bikeId = bikeidOutput.getText();
+       int id = Integer.parseInt(bikeId);
+       Bike bike = bikeById(id);
+       typeEdit.setText(bike.getType());
+       makeEdit.setText(bike.getMake());
+       priceEdit.setText(Double.toString(bike.getPrice()));
+       dateEdit.setValue(bike.getPurchased());
+       batteryEdit.setText(Double.toString(bike.getBatteryPercentage()));
+       //statusEdit.setValue(1);
     }
 }
 

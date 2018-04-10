@@ -1,19 +1,15 @@
-package myapp.GUIfx;
+package myapp.GUIfx.Bike;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import myapp.data.Bike;
 import javafx.scene.control.*;
-
-
-import java.time.LocalDate;
 
 public class BikePaneController {
     @FXML private BikeCenterController centerPaneController;
     @FXML private TextField searchInput;
     @FXML private BorderPane bikePane;
 
+    //fiks så man kommer inn på listen hver gang man trykker
     public void openPane(){
         bikePane.setVisible(true);
     }
@@ -33,13 +29,15 @@ public class BikePaneController {
 
     @FXML private void openBike(){
         String id = searchInput.getText();
-        int bikeId = Integer.parseInt(id);
-        /*try{
-           int bikeId = Integer.parseInt(id);
+        int bikeId;
+        try{
+           bikeId = Integer.parseInt(id);
+            centerPaneController.search(bikeId);
         }
-        catch (Exception e){}*/
-
-        centerPaneController.search(bikeId);
+        catch (Exception e){
+            searchInput.setText("Write a number");
+            searchInput.setStyle("-fx-text-fill: #9f0000");
+        }
 
     }
 }
