@@ -56,9 +56,12 @@ public class Docking {
 
     public void addBike(Bike bike) {
         int spot = firstOpen();
+        bikes.add(bike);
+        System.out.println(spot);
         if(spot >= 0){
+            System.out.println("Spot:" + spot);
             bikes.add(spot, bike);
-            dbh.dockBike(id, spot, bike);
+            //dbh.dockBike(id, spot, bike);
         }
     }
 
@@ -72,22 +75,21 @@ public class Docking {
 
     //Helper function for finding first open spot
     public int firstOpen() {
-        for(int i = 0; i < bikes.size(); i++){
-            if(bikes.get(i) == null){
-                return i;
+        if(bikes.size() == 0){
+            return 0;
+        } else {
+            for(int i = 0; i < bikes.size(); i++) {
+                if (bikes.get(i) == null) {
+                    System.out.println("I =" + i);
+                    return i;
+                }
             }
         }
         return -1;
     }
 
     public int openSpaces() {
-        int count = 0;
-        for (int i = 0; i < bikes.size(); i++){
-            if(bikes.get(i) == null){
-                count++;
-            }
-        }
-        return count;
+        return capacity - bikes.size();
     }
 
     public boolean removeBike(int bikeId) {

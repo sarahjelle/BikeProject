@@ -23,6 +23,8 @@ public class DockingTest {
     public void addBikes(){
         docking1.addBike(bike1);
         docking1.addBike(bike2);
+        assertEquals(docking1.getBikes().get(0), bike1);
+        assertEquals(docking1.getBikes().get(1), bike2);
     }
 
     @Test
@@ -50,9 +52,10 @@ public class DockingTest {
     public void getOpenSpaces() throws Exception {
         docking1.addBike(bike1);
         docking1.addBike(bike2);
-        assertEquals(23, docking1.getOpenSpaces());
+        assertEquals(23, docking1.openSpaces());
     }
-/*
+
+    /*
     @Test
     public void removeBike() throws Exception {
         boolean bol = true;
@@ -60,7 +63,7 @@ public class DockingTest {
         docking1.addBike(bike2);
         docking1.addBike(bike3);
         docking1.removeBike(bike1.getId());
-        HashMap<Integer, Bike> bikes = docking1.getBikes();
+        ArrayList<Bike> bikes = docking1.getBikes();
         System.out.println(docking1.getBikes().size());
         System.out.println(bikes);
         for(int i = 0; i < bikes.size(); i++){
@@ -70,5 +73,5 @@ public class DockingTest {
         }
         assertEquals(true, bol);
     }
-*/
+    */
 }
