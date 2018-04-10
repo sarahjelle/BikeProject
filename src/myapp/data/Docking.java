@@ -1,9 +1,12 @@
 package myapp.data;
 
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import myapp.data.Bike;
+import myapp.dbhandler.DBH;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Docking {
@@ -11,25 +14,27 @@ public class Docking {
     private String name;
     private Location location;
     private int capacity;
-    private HashMap<Integer, Bike> bikes;
+    private ArrayList<Bike> bikes;
 
-    public Docking(int id, String name, Location location, int capacity){
+    DBH dbh = new DBH();
+
+    public Docking(int id, String name, Location location, int capacity) {
         this.id = id;
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.bikes = new HashMap<>(capacity);
+        this.bikes = new ArrayList<>(capacity);
     }
 
     public int getId() {
         return id;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public void setName(String newName){
+    public void setName(String newName) {
         this.name = newName;
     }
 
@@ -41,55 +46,64 @@ public class Docking {
         this.location = location;
     }
 
-    public int getCapacity(){
+    public int getCapacity() {
         return capacity;
     }
 
-    public int getOpenSpaces(){
-        return getCapacity() - bikes.size();
+    public int getOpenSpaces() {
+        return getCapacity() - openSpaces();
     }
 
-    public void addBike(Bike bike){
-        bikes.put(bike.getId(), bike);
-    }
-
-    public boolean removeBike(int bikeId){
-        return (bikes.remove(bikeId) != null);
-    }
-    /*
-    public boolean removeBike(int bikeId) {
-        int pos = getBikePos(bikeId);
-        if (pos >= 0){
-            bikes.remove(getBikePos(bikeId));
-            return true;
+    public void addBike(Bike bike) {
+        int spot = firstOpen();
+        if(spot >= 0){
+            bikes.add(spot, bike);
+            dbh.dockBike(id, spot, bike);
         }
-        return false;
-
     }
 
-    // Helper-method to removeBike
-    private int getBikePos(int bikeId) {
-        for(int i = 0; i < bikes.size(); i++){
-            if(bikeId == bikes.get(i).getId()){
-                return i;
-            }
+    // To use when creating docking station from DB
+    public void forceAddBike(Bike bike, int spot) {
+        spot--;
+        if(spot >= 0){
+            bikes.add(spot, bike);
+        }
+    }
+
+    //Helper function for finding first open spot
+    public int firstOpen() {
+        int i = 0;
+        while(bikes.get(i) != null){
+            i++;
+        }
+        if (i <= bikes.size()){
+            return i;
         }
         return -1;
     }
-    */
 
-    public HashMap<Integer, Bike> getBikes() {
-        return bikes;
+    public int openSpaces() {
+        int count = 0;
+        for (int i = 0; i < bikes.size(); i++){
+            if(bikes.get(i) == null){
+                count++;
+            }
+        }
+        return count;
     }
 
-    /*
-    public void inTrip(String user, int bikeId){
-        metode som registrer at sykkelen er på en tur og legger den inn i trips-tabellen i databasen.
-     */
+    public boolean removeBike(int bikeId) {
+        for(int i = 0; i < bikes.size(); i++) {
+            if(bikes.get(i).getId() == bikeId) {
+                bikes.add(i, null);
+                return true;
+            }
+        }
+        return false;
+    }
 
-
-
-
-
+    public ArrayList<Bike> getBikes() {
+        return bikes;
+    }
 
 }

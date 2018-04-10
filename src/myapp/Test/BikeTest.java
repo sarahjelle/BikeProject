@@ -1,74 +1,89 @@
 package myapp.Test;
 
-import myapp.data.*;
-import myapp.map.*;
+import myapp.data.Location;
 import org.junit.Test;
+import myapp.data.Bike;
+import myapp.data.Docking;
+
+import java.time.LocalDate;
 
 import static org.junit.Assert.*;
 
 public class BikeTest {
-    private Location location1 = new Location("Sverres Gate 14", true);
-    private Location location2 = new Location("Dronningens Gate 64", true);
-    private Location location3 = new Location("Beddingen 4", true);
-    private Bike bike1 = new Bike(1, "Merida", 97.0, true, 100, location1);
-    private Bike bike2 = new Bike(2, "Kona", 30.0, true, 200, location2);
-    private Bike bike3 = new Bike(3, "Merida", 48.0, true, 300, location3);
+    private static Location location1 = new Location("Sverres Gate 14", true);
+    private static Location location2 = new Location("Dronningens Gate 64", true);
+    private static Location location3 = new Location("Beddingen 4", true);
+    private static Bike bike1 = new Bike(1, "Merida", 97.0, "Electric", 100, 0, location1, 0);
+    private static Bike bike2 = new Bike(2, "Kona", 30.0, "Electric", 200, 0, location2, 0);
+    private static Bike bike3 = new Bike(3, "Merida", 48.0, "Electric", 300., 0, location3, 0);
+
+    LocalDate time1 = LocalDate.now();
+
+    private static Docking docking1 = new Docking(1, "HiST Kalvskinnet", location1, 25);
 
     @Test
     public void getId() throws Exception {
-        int id = bike1.getId();
-        assertEquals(id, 1);
+        assertEquals(1, docking1.getId());
     }
 
     @Test
     public void getMake() throws Exception {
-        String make = bike2.getMake();
-        assertEquals(make, "Kona");
+        assertEquals("Merida", bike1.getMake());
+    }
+
+    @Test
+    public void getPrice() throws Exception {
+        assertEquals((Double) 97.0, (Double) bike1.getPrice());
+    }
+
+    @Test
+    public void getPurchased() throws Exception {
+        assertEquals(time1, bike1.getPurchased());
+    }
+
+    @Test
+    public void getType() throws Exception {
+        assertEquals("Electric", bike2.getType());
     }
 
     @Test
     public void getBatteryPercentage() throws Exception {
-        Double bp = bike3.getBatteryPercentage();
-        assertEquals(Double.valueOf(bp), Double.valueOf(48.0));
+        assertEquals((Double) 300., (Double)bike3.getBatteryPercentage());
     }
 
     @Test
     public void setBatteryPercentage() throws Exception {
-        bike1.setBatteryPercentage(100.0);
-        assertEquals(Double.valueOf(bike1.getBatteryPercentage()), (Double)100.0);
-    }
-
-    @Test
-    public void isAvailable() throws Exception {
-        assertEquals(true, bike1.isAvailable());
-    }
-
-    @Test
-    public void setAvailable() throws Exception {
-        bike1.setAvailable(false);
-        assertEquals(bike1.isAvailable(), false);
+        bike3.setBatteryPercentage(70.);
+        assertEquals((Double) 70., (Double) bike3.getBatteryPercentage());
     }
 
     @Test
     public void getDistanceTraveled() throws Exception {
-        assertEquals(bike2.getDistanceTraveled(), 200);
+        assertEquals(0, bike2.getDistanceTraveled());
+    }
+
+    @Test
+    public void setDistanceTraveled() throws Exception {
+        bike2.setDistanceTraveled(300);
+        assertEquals(300, bike2.getDistanceTraveled());
+    }
+
+    @Test
+    public void getTotalTrips() throws Exception {
+        assertEquals(0, bike1.getTotalTrips());
+    }
+
+    @Test
+    public void setTotalTrips() throws Exception {
+        bike1.setTotalTrips();
     }
 
     @Test
     public void setLocation() throws Exception {
-        Location l = new Location("Falsensvei 26", true);
-        bike2.setLocation(l);
-        assertEquals(l, bike2.getLocation());
     }
 
     @Test
     public void getLocation() throws Exception {
-        Location loc = bike1.getLocation();
-        //assertEquals((String)loc, "Sverres Gate 14 = { latitute=59.91116349999999, longitute=10.7754596, altitude=24.63603591918945}");
-    }
-
-    @Test
-    public void getReport() throws Exception {
     }
 
 }
