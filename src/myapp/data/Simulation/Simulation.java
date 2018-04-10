@@ -1,21 +1,12 @@
 package myapp.data.Simulation;
 
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.*;
-
+import myapp.dbhandler.*;
 import myapp.data.Bike;
 import myapp.data.Docking;
 import myapp.data.Location;
 import myapp.map.MapsAPI;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.print.Doc;
 
 public class Simulation implements Runnable{
     private Bike[] bikes;
@@ -54,6 +45,7 @@ public class Simulation implements Runnable{
         * repeat
         */
 
+        DBH handler = new DBH();
         Bike[] currentlyMovingBikes = getNewSubset();
         Location[] startLocations = getStartLocations(currentlyMovingBikes);
         Docking[] endLocations = getEndLocations(currentlyMovingBikes, startLocations);
@@ -64,6 +56,7 @@ public class Simulation implements Runnable{
         }
 
         while (!stop) {
+            System.out.println("WORKING");
             long StartTime = System.currentTimeMillis();
             /*Bike[] currentlyMovingBikes = getNewSubset();
             Docking[] EndLocations = getEndLocations(currentlyMovingBikes, docking_stations); // Bikes move to these locations
@@ -96,8 +89,9 @@ public class Simulation implements Runnable{
                 }
             }
             //Update to DB
-            for (int i = 0; i < bikes.length; i++) {
-                System.out.println(currentlyMovingBikes[i].getLocation().getLatitude() + ", " + currentlyMovingBikes[i].getLocation().getLongitude());
+            handler.logBikes(currentlyMovingBikes);
+            for (int i = 0; i < currentlyMovingBikes.length; i++) {
+                //System.out.println(currentlyMovingBikes[i].getLocation().getLatitude() + ", " + currentlyMovingBikes[i].getLocation().getLongitude());
             }
         }
     }
@@ -143,9 +137,10 @@ public class Simulation implements Runnable{
     }
 
     public Bike[] getNewSubset(){
-        Bike[] currentlyMovingBikes = new Bike[bikes.length];
+        Bike[] currentlyMovingBikes = new Bike[(int)(bikes.length * 0.10)];
+        Random rand = new Random();
         for (int i = 0; i < currentlyMovingBikes.length; i++) {
-            currentlyMovingBikes[i] = bikes[i];
+            currentlyMovingBikes[i] = bikes[rand.nextInt(bikes.length)];
         }
         return currentlyMovingBikes;
     }
@@ -202,23 +197,31 @@ public class Simulation implements Runnable{
 class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
-        Docking[] docking_stations = new Docking[3];
-        docking_stations[0] = new Docking(1, "Rema 1000 Ranheim", new Location("Rema 1000 Ranheim", true), 50);
-        docking_stations[1] = new Docking(2, "Coop Prix Ranheim", new Location("Coop Prix Ranheim", true), 20);
-        docking_stations[2] = new Docking(2, "Martin hjem", new Location("Bautavegen 3, 7056 Ranheim", true), 20);
+        DBH handler = new DBH();
 
-        Bike[] bikes = new Bike[1];
-        //int id, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location
-        bikes[0] = new Bike(1, "Trek", 100, true,0, docking_stations[0].getLocation());
+        ArrayList<Docking> list = handler.getDocking();
+        Docking[] docking_stations = new Docking[list.size()];
+        docking_stations = list.toArray(docking_stations);
+
+        ArrayList<Bike> bike_list = handler.getAllBikes();
+        Bike[] bikes = new Bike[bike_list.size()];
+        bikes = bike_list.toArray(bikes);
+
+        for (int i = 0; i < bikes.length; i++) {
+            System.out.println(bikes[i].toString() + bikes[i].getLocation().toString());
+        }
+
+        System.out.println();
+        for (int i = 0; i < docking_stations.length; i++) {
+            System.out.println(docking_stations[i].getName());
+        }
 
         Simulation sim = new Simulation(bikes, docking_stations);
-        sim.setUpdateInterval(3);
+        sim.setUpdateInterval(30);
 
         Thread simThread = new Thread(sim);
         simThread.start();
-        while (true){
-            //System.out.println(bikes[0].getLocation().getLatitude() + ", " + bikes[0].getLocation().getLongitude());
-        }
+
     }
 }
 

@@ -23,6 +23,13 @@ public class Router{
         this.start = bikeToMove.getLocation();
         this.end = end;
         this.WayPoints = map.getWayPoints(start, end.getLocation());
+        if(WayPoints == null){
+            hasArrived = true;
+        } else {
+            for (int i = 0; i < WayPoints.length; i++) {
+                System.out.println(WayPoints[i]);
+            }
+        }
     }
 
     public void move(){
@@ -31,6 +38,8 @@ public class Router{
         }
         if(!hasArrived){
             //Move bike
+            System.out.println(end.getLocation());
+            System.out.println(start);
             if(WayPointsIterator < WayPoints.length && WayPointsIterator >= 0){
                 Location atNow = bikeToMove.getLocation();
                 Location nextLocation = WayPoints[WayPointsIterator];
@@ -122,7 +131,7 @@ public class Router{
         return d * 1000; // meters
     }
 }
-
+/*
 class RouterTest{
     public static void main(String[]args){
         MapsAPI map = new MapsAPI();
@@ -192,3 +201,4 @@ class PrinterThread implements Runnable{
         this.stop = stop;
     }
 }
+*/

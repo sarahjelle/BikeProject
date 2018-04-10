@@ -79,7 +79,7 @@ CREATE TABLE user_types(
 
 CREATE TABLE docking_stations(
   stationID int NOT NULL AUTO_INCREMENT,
-  stationName varchar(30) NOT NULL,
+  stationName varchar(255) NOT NULL,
   maxSlots int NOT NULL DEFAULT 0,
   longitude FLOAT( 10, 6 ) NOT NULL,
   latitude FLOAT( 10, 6 ) NOT NULL,

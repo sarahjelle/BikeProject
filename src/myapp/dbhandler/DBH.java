@@ -157,7 +157,6 @@ public class DBH {
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
             while(bikeset.next()) {
-                String date[] = bikeset.getString("logTime").split(" ")[0].split("-");
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
                         bikeset.getString("make"),
@@ -166,8 +165,8 @@ public class DBH {
                         1,
                         0,
                         new Location(
-                                0.0,
-                                0.0,
+                                63.40949879999999,
+                                63.40949879999999,
                                 LocalDate.now()
                         ),
                         bikeset.getInt("status")

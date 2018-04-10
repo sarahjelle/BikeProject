@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
 import java.util.Random;
+
+import myapp.data.Location;
 import myapp.map.MapsAPI;
 
 public class GenerateContent {
@@ -69,6 +71,9 @@ public class GenerateContent {
             String[] stationNames = {"Moholt", "Lade", "Kalvskinnet", "Gløshaugen", "Øya", "Tyholt", "Persaunet", "Charlottenlund", "Bakklandet", "Ila"};
             int[] slotsOnStations = new int[NumberOfStations];
 
+            MapsAPI map = new MapsAPI();
+
+
             String docking_stations = "\n";
             for (int i = 0; i < NumberOfStations; i++) {
                 //name, maxSlots
@@ -78,8 +83,9 @@ public class GenerateContent {
                     slots = 10;
                 }
                 slotsOnStations[i] = slots;
-
-                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots) VALUES (\"" + name + ", Trondheim\", " + slots + ");\n";
+                Double[] latlong = map.getLatLong(name + ", Trondheim");
+                String address = map.getAddress(latlong[0], latlong[1]);
+                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots, latitude, longitude) VALUES (\"" + address + "\", " + slots + ", " + latlong[0] + ", " + latlong[0] + ");\n";
             }
 
             //Create slots on dockingstations
