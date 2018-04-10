@@ -11,8 +11,8 @@ import myapp.map.MapsAPI;
 public class Simulation implements Runnable{
     private Bike[] bikes;
     private Docking[] docking_stations;
-    private int updateInterval = 60; //Seconds
-    private int sleepTime = 2; //Seconds
+    private int updateInterval = 60000; //milliseconds
+    private int sleepTime = 2000; //millieconds
     private Boolean stop = false;
     private static final double ERROR_TOLERANSE = 0.0000001;
 
@@ -28,6 +28,89 @@ public class Simulation implements Runnable{
         this.docking_stations = docking_stations;
     }
 
+    public void run(){
+        while(!stop){
+            // Get subset of bikes
+            Bike[] subset = getNewSubset();
+            // Choose random end docking stations, no matter where the bikes are
+            Docking[] endStations = getEndDockingStations(subset);
+            // Get Router objects for all bikes that will move
+            Router[] routers = getRouters(subset, endStations);
+
+            boolean allBikesHasArrived = false;
+            while(!allBikesHasArrived){
+                for (int i = 0; i < routers.length; i++) {
+                    if(routers[i].hasValidRoute()){
+                        if(!routers[i].hasArrived()){
+                            allBikesHasArrived = false;
+                            routers[i].move();
+                        }
+                    }
+                }
+                try{
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException ex){
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private Bike[] getNewSubset(){
+        Bike[] subset = new Bike[(int)(bikes.length * 0.10)]; // 10% of bikes will move;
+        Random rand = new Random();
+        for (int i = 0; i < subset.length; i++) {
+            boolean presentMoreThanOnce = false;
+            Bike lookingAt = null;
+            do{
+                //Choose random bike from "bikes"
+                lookingAt = bikes[rand.nextInt(bikes.length)];
+
+                //Check that the bike is not present in the subset more than once
+                for (int j = 0; j < subset.length; j++) {
+                    if(j != i){
+                        if(subset[j] != null){
+                            if(subset[i] == lookingAt){
+                                presentMoreThanOnce = true;
+                            }
+                        }
+                    }
+                }
+            } while(!presentMoreThanOnce);
+            if(!presentMoreThanOnce){
+                subset[i] = lookingAt;
+            } else{
+                System.out.println("Do-while loop did not work...");
+            }
+        }
+        return subset;
+    }
+
+    private Docking[] getEndDockingStations(Bike[] workingSubSet){
+        Docking[] endStations = new Docking[workingSubSet.length];
+        Random rand = new Random();
+        for (int i = 0; i < workingSubSet.length; i++) {
+            //Choose random end station from all available docking stations
+            endStations[i] = docking_stations[rand.nextInt(docking_stations.length)];
+            //Does not matter if several bikes has same end station
+        }
+        return endStations;
+    }
+
+    public Router[] getRouters(Bike[] workingSubSet, Docking[] endStations){
+        if(workingSubSet.length == endStations.length){
+            Router[] routers = new Router[workingSubSet.length];
+            for (int i = 0; i < routers.length; i++) {
+                routers[i] = new Router(workingSubSet[i], endStations[i]);
+            }
+            return routers;
+        } else{
+            return null;
+        }
+    }
+
+
+    /*
     public void run() {
         /*
         * create subset of bikes
@@ -43,7 +126,7 @@ public class Simulation implements Runnable{
             * wait remaining update interval
             *
         * repeat
-        */
+
 
         DBH handler = new DBH();
         Bike[] currentlyMovingBikes = getNewSubset();
@@ -61,7 +144,7 @@ public class Simulation implements Runnable{
             /*Bike[] currentlyMovingBikes = getNewSubset();
             Docking[] EndLocations = getEndLocations(currentlyMovingBikes, docking_stations); // Bikes move to these locations
 
-            */
+
             boolean allBikesHaveArrived = true;
             for (int i = 0; i < routers.length; i++) {
                 if(!routers[i].HasArrived()){
@@ -192,7 +275,9 @@ public class Simulation implements Runnable{
         double d = R * c;
         return d * 1000; // meters
     }
+    */
 }
+
 
 class SimTest{
     public static void main(String[]args){

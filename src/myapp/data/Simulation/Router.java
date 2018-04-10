@@ -110,8 +110,18 @@ public class Router{
         }
     }
 
-    public boolean HasArrived(){
+    public boolean hasArrived(){
         return hasArrived;
+    }
+
+    public boolean hasValidRoute(){
+        if(WayPoints == null){
+            return false;
+        } else if(WayPoints.length == 0){
+            return false;
+        } else{
+            return true;
+        }
     }
 
     private static double getDistance(Location loc1, Location loc2){  // generally used geo measurement function
