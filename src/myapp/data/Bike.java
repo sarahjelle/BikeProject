@@ -1,6 +1,7 @@
 package myapp.data;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 
 public class Bike {
     private int id;
@@ -121,6 +122,13 @@ public class Bike {
 
     public Location getLocation() {
         return location;
+    }
+
+    public boolean equals(Bike bike) {
+        if (bike.getId() == id) {
+            return true;
+        }
+        return false;
     }
 
     // Added by Mediå for testing. Needs to be more complex!
