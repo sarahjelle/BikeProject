@@ -5,7 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
-import myapp.map.MapsAPI;
+import myapp.GUIfx.Map.MapsAPI;
 
 import javax.json.Json;
 import javax.json.JsonArray;

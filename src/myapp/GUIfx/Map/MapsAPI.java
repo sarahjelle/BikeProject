@@ -22,8 +22,8 @@ public class MapsAPI {
     // https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=YOUR_API_KEY
     // "adress=trondheim" returns the first search result for Trondheim on Google Maps
 
-    private MapsAPI(){}
-    private static MapsAPI instance;
+    public MapsAPI(){}
+    public static MapsAPI instance;
 
     public static MapsAPI get(){
         if (instance == null){
