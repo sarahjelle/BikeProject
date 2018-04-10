@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.web.WebView?>
+
+<BorderPane stylesheets="@app.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.MainApp.AppController">
+    <top>
+        <HBox alignment="CENTER" fx:id="menuBar">
+            <Button onAction="#bike" text="Bike" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button onAction="#docking" text="Docking Station" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button onAction="#map"  text="Map" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button onAction="#statistic" text="Statistic" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        </HBox>
+    </top>
+    <center>
+        <AnchorPane>
+            <WebView fx:id="mapPane" visible="false" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"/>
+            <fx:include source="../Statistic/Statistic.fxml"  fx:id="stat" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0"/>
+            <fx:include fx:id="bike" source="../Bike/BikePane.fxml" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
+            <fx:include fx:id="dock" source="../DockingStation/DockCenterPane.fxml"  AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
+        </AnchorPane>
+    </center>
+</BorderPane>

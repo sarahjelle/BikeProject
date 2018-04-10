@@ -1,0 +1,8 @@
+#buttonWithImage {
+    -fx-background-image: url("edit-button.png");
+}
+
+#edit{
+    -fx-text-fill: blue;
+
+}

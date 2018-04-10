@@ -1,6 +1,6 @@
 package myapp.data;
 
-import myapp.map.MapsAPI;
+import myapp.GUIfx.Map.MapsAPI;
 import java.io.Serializable;
 import java.time.LocalDate;
 
