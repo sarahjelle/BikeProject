@@ -1,0 +1,11 @@
+#bottomMenu{
+    -fx-background-color: rgba(225, 248, 24, 0.57);
+}
+
+#bottomMenu Button{
+    -fx-background-color: transparent;
+}
+
+#bottomMenu Button:hover{
+    -fx-text-fill: white;
+}
