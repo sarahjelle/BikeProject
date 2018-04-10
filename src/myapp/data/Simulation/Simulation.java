@@ -5,7 +5,7 @@ import myapp.dbhandler.*;
 import myapp.data.Bike;
 import myapp.data.Docking;
 import myapp.data.Location;
-import myapp.map.MapsAPI;
+import myapp.GUIfx.Map.MapsAPI;
 
 
 public class Simulation implements Runnable{
@@ -284,11 +284,11 @@ class SimTest{
         //int id, String name, Location location, int capacity
         DBH handler = new DBH();
 
-        ArrayList<Docking> list = handler.getDocking();
+        ArrayList<Docking> list = handler.getAllDockingStations();
         Docking[] docking_stations = new Docking[list.size()];
         docking_stations = list.toArray(docking_stations);
 
-        ArrayList<Bike> bike_list = handler.getAllBikes();
+        ArrayList<Bike> bike_list = handler.getAllBikesDummyLocation();
         Bike[] bikes = new Bike[bike_list.size()];
         bikes = bike_list.toArray(bikes);
 
@@ -302,7 +302,7 @@ class SimTest{
         }
 
         Simulation sim = new Simulation(bikes, docking_stations);
-        sim.setUpdateInterval(30);
+        //sim.setUpdateInterval(30);
 
         Thread simThread = new Thread(sim);
         simThread.start();
