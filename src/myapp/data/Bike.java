@@ -1,5 +1,4 @@
 package myapp.data;
-
 import java.time.LocalDate;
 
 public class Bike {

@@ -1,6 +1,4 @@
 package myapp.data;
-
-
 import myapp.data.Bike;
 
 

@@ -60,6 +60,7 @@ public class DBH {
     /*
      * EXECUTE SQL QUERIES.
      */
+
     private boolean execSQLBool(PreparedStatement sql, Connection db) {
         try {
             sql.executeUpdate();
