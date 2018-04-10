@@ -1,4 +1,4 @@
-package myapp.map;
+package myapp.GUIfx.Map;
 
 import myapp.data.Location;
 
