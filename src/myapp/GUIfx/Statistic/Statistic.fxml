@@ -12,32 +12,28 @@
 <BorderPane  stylesheets="@Statistic.css" visible="false" fx:id="statPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.Statistic.StatController2">
     <center>
         <AnchorPane>
-            <BorderPane fx:id="statPane1" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
-                <top>
-                    <HBox>
-                        <Label text="BikeID: "/>
-                        <TextField fx:id="bikeIdInput"/>
-                        <Button text="Get statistic" onAction="#stat1"/>
-                    </HBox>
-                </top>
-            </BorderPane>
-            <FlowPane fx:id="stat2Pane" visible="false">
-                <BarChart fx:id="dockStat">
+            <BorderPane fx:id="stat1Pane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+            <BorderPane fx:id="stat2Pane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+            <BorderPane fx:id="stat3Pane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+            <!--<FlowPane fx:id="stat2Pane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                &lt;!&ndash;<BarChart fx:id="dockStat">
                     <xAxis>
                         <CategoryAxis fx:id="xAxis" side="BOTTOM"/>
                     </xAxis>
                     <yAxis>
                         <NumberAxis fx:id="yAxis" side="LEFT"/>
                     </yAxis>
-                </BarChart>
+                </BarChart>&ndash;&gt;
             </FlowPane>
+            <FlowPane fx:id="stat3Pane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
+        -->
         </AnchorPane>
     </center>
     <bottom>
         <HBox fx:id="bottomMenu">
-            <Button text="Bike location overview" onAction="#openStat1" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-            <Button text="Number of bikes at each docking" onAction="#openStat2" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-            <Button text="How many bikes were active this week" onAction="#openStat1" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button text="Bike availability" onAction="#openStat1" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+            <Button text="Docking statistics" onAction="#openStat2" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button text="Bike statistics" onAction="#openStat3" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
         </HBox>
     </bottom>
 </BorderPane>
