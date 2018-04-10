@@ -253,7 +253,7 @@ class SimTest{
 
         Bike[] bikes = new Bike[1];
         //int id, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location
-        bikes[0] = new Bike(1, "Trek", 100, "Electric",0, 0, docking_stations[0].getLocation());
+        bikes[0] = new Bike(1, "Trek", 100, "Electric",0, 0, docking_stations[0].getLocation(), 0);
 
         Simulation sim = new Simulation(bikes, docking_stations);
         sim.setUpdateInterval(1);
