@@ -1,6 +1,7 @@
 package myapp.data;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 
 public class Bike {
     private int id;
@@ -23,9 +24,9 @@ public class Bike {
     private int status;
 
     public static int   AVAILABLE   = 1,
-                        TRIP        = 2,
-                        REPAIR      = 3,
-                        DELETE      = 4;
+            TRIP        = 2,
+            REPAIR      = 3,
+            DELETE      = 4;
 
     public Bike(double price, LocalDate purchased, String type, String make) {
         this.price = price;
