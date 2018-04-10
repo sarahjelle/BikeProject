@@ -58,7 +58,7 @@ public class DockingTest {
         docking1.addBike(bike2);
         docking1.addBike(bike3);
         docking1.removeBike(bike1.getId());
-        HashMap<Integer, Bike> bikes = docking1.getBikes();
+        ArrayList<Bike> bikes = docking1.getBikes();
         for(int i = 0; i < bikes.size(); i++){
             if(bikes.get(i) != null) {
                 if (bikes.get(i).getId() == bike1.getId()) {

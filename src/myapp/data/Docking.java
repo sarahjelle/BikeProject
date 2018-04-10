@@ -1,7 +1,12 @@
 package myapp.data;
+
+
+import com.sun.org.apache.xpath.internal.SourceTree;
 import myapp.data.Bike;
+import myapp.dbhandler.DBH;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Docking {
@@ -9,14 +14,16 @@ public class Docking {
     private String name;
     private Location location;
     private int capacity;
-    private HashMap<Integer, Bike> bikes;
+    private ArrayList<Bike> bikes;
+
+    DBH dbh = new DBH();
 
     public Docking(int id, String name, Location location, int capacity){
         this.id = id;
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.bikes = new HashMap<>(capacity);
+        this.bikes = new ArrayList<>(capacity);
     }
 
     public int getId() {
@@ -48,14 +55,40 @@ public class Docking {
     }
 
     public void addBike(Bike bike){
-        bikes.put(bike.getId(), bike);
+        int spot = firstOpen();
+        if(spot >= 0){
+            bikes.add(spot, bike);
+            //dbh.dockBike(id, spot, bike);
+        }
+    }
+
+    //Helper function for finding first open spot
+    public int firstOpen(){
+        int i = 0;
+        while(bikes.get(i) != null){
+            i++;
+        }
+        if (i <= bikes.size()){
+            return i;
+        }
+        return -1;
+    }
+
+    public int openSpaces(){
+        int count = 0;
+        for (int i = 0; i < bikes.size(); i++){
+            if(bikes.get(i) == null){
+                count++;
+            }
+        }
+        return count;
     }
 
     public boolean removeBike(int bikeId){
         return (bikes.remove(bikeId) != null);
     }
 
-    public HashMap<Integer, Bike> getBikes() {
+    public ArrayList<Bike> getBikes() {
         return bikes;
     }
 
