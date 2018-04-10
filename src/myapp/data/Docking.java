@@ -23,7 +23,7 @@ public class Docking {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.bikes = new ArrayList<>(capacity);
+        this.bikes = new ArrayList<Bike>(capacity);
     }
 
     public int getId() {
@@ -72,12 +72,10 @@ public class Docking {
 
     //Helper function for finding first open spot
     public int firstOpen() {
-        int i = 0;
-        while(bikes.get(i) != null){
-            i++;
-        }
-        if (i <= bikes.size()){
-            return i;
+        for(int i = 0; i < bikes.size(); i++){
+            if(bikes.get(i) == null){
+                return i;
+            }
         }
         return -1;
     }
