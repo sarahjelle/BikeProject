@@ -12,9 +12,9 @@ import java.util.*;
 import static java.lang.Math.toIntExact;
 
 import myapp.data.*;
-import myapp.hasher.*;
+//import myapp.hasher.*;
 
-class DBH {
+public class DBH {
 
     Connection db = null;
 
@@ -212,7 +212,7 @@ class DBH {
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
-
+    /*
     public int registerUser(User user) {
         Hasher hasher = new Hasher();
         db = connect();
@@ -242,6 +242,7 @@ class DBH {
             return -1;
         }
     }
+    */
 }
 
 // Just for testing purposes
