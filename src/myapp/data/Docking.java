@@ -58,7 +58,7 @@ public class Docking {
         int spot = firstOpen();
         if(spot >= 0){
             bikes.add(spot, bike);
-            dbh.dockBike(id, spot, bike);
+            //dbh.dockBike(id, spot, bike);
         }
     }
 
