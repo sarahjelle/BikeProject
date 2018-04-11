@@ -430,7 +430,7 @@ public class DBH {
                             rs.getInt("phone"),
                             rs.getString("email"),
                             rs.getString("landcode")
-                    );
+                            );
                     stmt.close();
                     db.close();
                     return correctUser;
