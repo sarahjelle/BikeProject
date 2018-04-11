@@ -41,7 +41,7 @@ public class GenerateContent {
         FileWriter fWriter = null;
         try{
             //Setup file, and writer
-            String fileName = "database_content.sql";
+            String fileName = "/setup/database_content.sql";
             File outputFile = new File(fileName);
             fWriter = new FileWriter(outputFile);
             bWriter = new BufferedWriter(fWriter);
