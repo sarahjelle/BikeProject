@@ -1,5 +1,5 @@
 package myapp.data.Simulation;
-import myapp.map.*;
+import myapp.GUIfx.Map.*;
 import myapp.data.*;
 
 public class Router{

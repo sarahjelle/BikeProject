@@ -3,10 +3,11 @@ package Setup;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
+import java.time.LocalDate;
 import java.util.Random;
 
 import myapp.data.Location;
-import myapp.map.MapsAPI;
+import myapp.GUIfx.Map.MapsAPI;
 
 public class GenerateContent {
 
@@ -63,7 +64,7 @@ public class GenerateContent {
                 int price = rand.nextInt(4500) + 500;
                 String make = bikeMakes[rand.nextInt(bikeMakes.length)];
                 String type = bikeTypes[rand.nextInt(bikeTypes.length)];
-                bikes += "INSERT INTO "+  bikesTableName + " (price, make, type) VALUES ("+ price + ", \"" + make + "\", \"" + type + "\");\n";
+                bikes += "INSERT INTO "+  bikesTableName + " (price, purchaseDate, make, type) VALUES ("+ price + ", \"" + LocalDate.now().toString() + "\", \"" + make + "\", \"" + type + "\");\n";
             }
 
 

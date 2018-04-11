@@ -288,7 +288,7 @@ class SimTest{
         Docking[] docking_stations = new Docking[list.size()];
         docking_stations = list.toArray(docking_stations);
 
-        ArrayList<Bike> bike_list = handler.getAllBikesDummyLocation();
+        ArrayList<Bike> bike_list = handler.getAllBikes();
         Bike[] bikes = new Bike[bike_list.size()];
         bikes = bike_list.toArray(bikes);
 
