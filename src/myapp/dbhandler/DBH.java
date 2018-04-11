@@ -6,7 +6,9 @@
 package myapp.dbhandler;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import static java.lang.Math.toIntExact;
@@ -14,6 +16,9 @@ import static java.lang.Math.toIntExact;
 import myapp.data.*;
 import myapp.hasher.*;
 
+import javax.print.Doc;
+
+import static myapp.data.User.*;
 public class DBH {
 
     private Connection db = null;
@@ -383,7 +388,7 @@ public class DBH {
         return execSQLPK(stmt, db);
     }
 
-    public boolean dockBike(int id, int slot, Bike bike) {
+    public boolean dockBike(int stationId, int slotId, Bike bike) {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -392,9 +397,10 @@ public class DBH {
             }
             stmt = db.prepareStatement("UPDATE slots SET bikeID = ? WHERE stationID = ? AND slotID = ?");
 
-            stmt.setInt(1, id);
-            stmt.setInt(2, slot);
-            stmt.setInt(3, bike.getId());
+            stmt.setInt(1, bike.getId());
+            stmt.setInt(2, stationId);
+            stmt.setInt(3, slotId);
+
 
             if(!execSQLBool(stmt, db)) {
                 stmt.close();
@@ -514,6 +520,215 @@ public class DBH {
             System.out.println("Error: " + e);
         }
         return null;
+    }
+
+    //Martin
+    public User[] getAllCustomers(){
+        db = connect();
+        PreparedStatement stmt = null;
+        ArrayList<User> usersList = new ArrayList<>();
+        User[] users = null;
+        try {
+            if(db == null) {
+                return users;
+            }
+            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.phone, users.landcode FROM users WHERE users.userTypeID = 3");
+
+            ResultSet resultSet = execSQLRS(stmt);
+            while(resultSet.next()){
+                usersList.add(new User(
+                        resultSet.getInt("userID"),
+                        resultSet.getInt("userTypeID"),
+                        resultSet.getString("firstname"),
+                        resultSet.getString("lastname"),
+                        resultSet.getInt("phone"),
+                        resultSet.getString("email"),
+                        resultSet.getString("landcode")
+                ));
+            }
+            stmt.close();
+            db.close();
+            users = usersList.toArray(users);
+            return users;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return users;
+    }
+    //Martin
+    public Docking[] getAllDockingStationsWithBikes(){
+        Docking[] stations = null;
+        stations = getAllDockingStations().toArray(stations);
+
+        db = connect();
+        PreparedStatement stmt = null;
+        for (int i = 0; i < stations.length; i++) {
+            try {
+                if(db == null) {
+                    return null;
+                }
+                stmt = db.prepareStatement("SELECT slots.bikeID, slots.slotID, slots.stationID FROM slots WHERE slots.stationID = ?");
+                stmt.setInt(1, stations[i].getId());
+
+                ResultSet resultSet = execSQLRS(stmt);
+                ArrayList<BikeSlotPair> slotPairs = new ArrayList<>();
+
+
+                while(resultSet.next()){
+                    slotPairs.add(new BikeSlotPair(resultSet.getInt("bikeID"), resultSet.getInt("slotID"), resultSet.getInt("stationID")));
+                }
+
+
+                stmt.close();
+                db.close();
+
+                ArrayList<Docking> docking_stations = getAllDockingStations();
+                ArrayList<Bike> bikes = new ArrayList<>();
+
+                db = connect();
+                for (int j = 0; j < slotPairs.size(); j++) {
+                    stmt = db.prepareStatement("SELECT bikes.bikeID, bikes.price, bikes.purchaseDate, bikes.totalTrips, bikes.totalKm, bikes.make, bikes.type, bikes.status FROM bikes WHERE bikes.bikeID = ?");
+                    stmt.setInt(1, slotPairs.get(i).getBike_id());
+                    int stationID = slotPairs.get(i).getStation_id();
+                    ResultSet set = execSQLRS(stmt);
+                    while(set.next()){
+                        Docking station = null;
+                        for (int k = 0; k < docking_stations.size(); k++) {
+                            if(docking_stations.get(k).getId() == stationID){
+                                station = docking_stations.get(k);
+                            }
+                        }
+                        Double[] locArr = {station.getLocation().getLatitude(), station.getLocation().getLongitude(), station.getLocation().getAltitude()};
+                        bikes.add(new Bike(
+                           set.getInt("bikeID"),
+                           set.getString("make"),
+                           set.getDouble("price"),
+                           set.getString("type"),
+                           0.0,
+                            set.getInt("totalKm"),
+                           new Location("", locArr),
+                           set.getInt("status"),
+                           dateTimeToDateOnly(set.getString("purchaseDate"))
+                        ));
+                    }
+                }
+
+                for (int j = 0; j < slotPairs.size(); j++) {
+                    int stationID = slotPairs.get(j).getStation_id();
+                    int slotID = slotPairs.get(j).getSlot_id();
+                    int bikeID = slotPairs.get(j).getBike_id();
+
+                    for (int k = 0; k < docking_stations.size(); k++) {
+                        if(docking_stations.get(k).getId() == stationID){
+                            Bike bikeToDockHere = null;
+                            for (int l = 0; l < bikes.size(); l++) {
+                                if(bikes.get(l).getId() == bikeID){
+                                    bikeToDockHere = bikes.get(l);
+                                }
+                            }
+                            docking_stations.get(k).forceAddBike(bikeToDockHere, slotID);
+                        }
+                    }
+                }
+                stations = docking_stations.toArray(stations);
+                return stations;
+            } catch(SQLException e) {
+                System.out.println("Error: " + e);
+            }
+        }
+        return stations;
+    }
+    //Martin
+    public boolean undockBike(Bike bike, Docking dock){
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.stationID = ? AND slots.bikeID = ?");
+            stmt.setInt(1, dock.getId());
+            stmt.setInt(2, bike.getId());
+            boolean output = execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
+            return output;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return false;
+    }
+    //Martin
+    public boolean rentBike(User userRentingBike, Bike bikeToRent, Docking start){
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+            stmt = db.prepareStatement("INSERT INTO trips (bikeID, startStation, startTime, userID) VALUES (?, ?, ?, ?)");
+            stmt.setInt(1, bikeToRent.getId());
+            stmt.setInt(2, start.getId());
+            java.util.Date utilDate = new java.util.Date();
+            stmt.setDate(3, new java.sql.Date(utilDate.getTime()));
+            stmt.setInt(4, userRentingBike.getUserID());
+            boolean output = execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
+            return output;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return false;
+    }
+    //Martin
+    public boolean endTrip(User user, Bike bike, Docking end){
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE trips SET endTime = ?, endStation = ? WHERE bikeID = ? AND trips.userID = ? AND endStation IS NULL AND endTime IS NULL");
+            java.util.Date jutilDate = new java.util.Date();
+            stmt.setDate(1, new java.sql.Date(jutilDate.getTime()));
+            stmt.setInt(2, end.getId());
+            stmt.setInt(3, bike.getId());
+            stmt.setInt(4, user.getUserID());
+
+            boolean output = execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
+            return output;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return false;
+    }
+}
+
+class BikeSlotPair{
+    private final int bike_id;
+    private final int slot_id;
+    private final int station_id;
+
+    public BikeSlotPair(int bike_id, int slot_id, int station_id){
+        this.bike_id = bike_id;
+        this.slot_id = slot_id;
+        this.station_id = station_id;
+    }
+
+    public int getBike_id(){
+        return bike_id;
+    }
+
+    public int getSlot_id(){
+        return slot_id;
+    }
+
+    public int getStation_id(){
+        return station_id;
     }
 }
 

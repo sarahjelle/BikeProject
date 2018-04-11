@@ -3,10 +3,14 @@ import myapp.GUIfx.Map.*;
 import myapp.data.*;
 import myapp.dbhandler.*;
 
+import javax.print.Doc;
+
 public class Router implements Runnable{
     private Boolean stop = false;
+    private final User customer;
     private final Bike bikeToMove;
     private Location start;
+    private Docking startStation;
     private Docking end;
     private Location[] WayPoints; //WayPoints[0] = start, WayPoints[WayPoints.length -1] = end
     private boolean hasArrived = false;
@@ -22,11 +26,16 @@ public class Router implements Runnable{
     private long TotalStartTime = -1;
     private long TotalTime = -1;
 
-    public Router(Bike bikeToMove, Docking end){
+    public Router(User customer, Bike bikeToMove, Docking start, Docking end){
+        this.customer = customer;
         this.bikeToMove = bikeToMove;
         this.start = bikeToMove.getLocation();
         this.end = end;
         this.WayPoints = getWayPoints();
+
+        DBH handler = new DBH();
+        handler.rentBike(customer, bikeToMove, start);
+        this.startStation = start;
     }
 
     public void run(){
@@ -137,16 +146,7 @@ public class Router implements Runnable{
                 System.out.println();
                 hasArrived = true;
                 //Dock to endStation
-                int slotNumber = end.getCapacity() - end.getOpenSpaces();
-                if(slotNumber >= 1){
-                    //Station has open space
-                    int stationID = end.getId();
-                    DBH handler = new DBH();
-                    isDocked = handler.dockBike(stationID, slotNumber, bikeToMove);
-                    end.addBike(bikeToMove);
-                } else{
-                    isDocked = false;
-                }
+                isDocked = end.dockBike(bikeToMove);
             }
         }
     }
@@ -183,6 +183,10 @@ public class Router implements Runnable{
         return bikeToMove;
     }
 
+    public User getUser(){
+        return customer;
+    }
+
     public Location[] getWayPoints(){
         Location[] WP = map.getWayPoints(start, end.getLocation());
         if(WP == null){
@@ -205,6 +209,10 @@ public class Router implements Runnable{
 
     public void setRunnable(){
         this.stop = false;
+    }
+
+    public Docking getStartStation(){
+        return startStation;
     }
 
     private static double getDistance(Location loc1, Location loc2){  // generally used geo measurement function
