@@ -1,13 +1,17 @@
 package myapp.data.Simulation;
 import myapp.map.*;
 import myapp.data.*;
+import myapp.dbhandler.*;
 
-public class Router{
+public class Router implements Runnable{
+    private Boolean stop = false;
     private final Bike bikeToMove;
-    private final Location start;
-    private final Docking end;
-    private final Location[] WayPoints; //WayPoints[0] = start, WayPoints[WayPoints.length -1] = end
+    private Location start;
+    private Docking end;
+    private Location[] WayPoints; //WayPoints[0] = start, WayPoints[WayPoints.length -1] = end
     private boolean hasArrived = false;
+    private boolean isDocked = false;
+    private static int updateInterval = 60000; //milliseconds
 
     private MapsAPI map = new MapsAPI();
     private final double AVRG_BIKE_SPEED = 0.4305; // m/s
@@ -22,14 +26,42 @@ public class Router{
         this.bikeToMove = bikeToMove;
         this.start = bikeToMove.getLocation();
         this.end = end;
-        this.WayPoints = map.getWayPoints(start, end.getLocation());
-        if(WayPoints == null){
-            hasArrived = true;
-        } else {
-            for (int i = 0; i < WayPoints.length; i++) {
-                System.out.println(WayPoints[i]);
+        this.WayPoints = getWayPoints();
+    }
+
+    public void run(){
+        if(!hasArrived){
+            long StartTime = System.currentTimeMillis();
+            while(!stop){
+                if(!hasArrived){
+                    move();
+                    try{
+                        Thread.sleep(2000);
+                    } catch(InterruptedException ex){
+                        ex.printStackTrace();
+                    }
+                    if((System.currentTimeMillis() - StartTime) >= updateInterval){
+                        //Update bike location to DB
+                        DBH handler = new DBH();
+                        Bike[] bikes = new Bike[1];
+                        bikes[0] = bikeToMove;
+                        Bike[] updatedBikes = handler.logBikes(bikes);
+                        if(updatedBikes.length != bikes.length){
+                            //Error updating
+                            System.out.println("Problem updating bike to DB: " + bikeToMove.toString());
+                        }
+                        //reset starttime
+                        StartTime = System.currentTimeMillis();
+                    }
+                } else {
+                    stop();
+                }
             }
         }
+    }
+
+    public void stop(){
+        this.stop = true;
     }
 
     public void move(){
@@ -105,7 +137,16 @@ public class Router{
                 System.out.println();
                 hasArrived = true;
                 //Dock to endStation
-                end.addBike(bikeToMove);
+                int slotNumber = end.getCapacity() - end.getOpenSpaces();
+                if(slotNumber >= 1){
+                    //Station has open space
+                    int stationID = end.getId();
+                    DBH handler = new DBH();
+                    isDocked = handler.dockBike(stationID, slotNumber, bikeToMove);
+                    end.addBike(bikeToMove);
+                } else{
+                    isDocked = false;
+                }
             }
         }
     }
@@ -122,6 +163,48 @@ public class Router{
         } else{
             return true;
         }
+    }
+
+    public boolean isDocked(){
+        return isDocked;
+    }
+
+    public void setEnd(Docking station){
+        this.start = bikeToMove.getLocation();
+        this.end = station;
+        this.WayPoints = getWayPoints();
+    }
+
+    public Docking getEnd(){
+        return end;
+    }
+
+    public Bike getBike(){
+        return bikeToMove;
+    }
+
+    public Location[] getWayPoints(){
+        Location[] WP = map.getWayPoints(start, end.getLocation());
+        if(WP == null){
+            hasArrived = true;
+        } else {
+            for (int i = 0; i < WP.length; i++) {
+                System.out.println(WP[i]);
+            }
+        }
+        return WP;
+    }
+
+    public void resetStartLocation(){
+        this.start = bikeToMove.getLocation();
+    }
+
+    public void resetHasArrived(){
+        this.hasArrived = false;
+    }
+
+    public void setRunnable(){
+        this.stop = false;
     }
 
     private static double getDistance(Location loc1, Location loc2){  // generally used geo measurement function

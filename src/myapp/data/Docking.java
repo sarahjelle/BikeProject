@@ -53,6 +53,7 @@ public class Docking {
         return capacity;
     }
 
+    //Feil navn her....
     public int getOpenSpaces(){
         return bikes.size();
     }
