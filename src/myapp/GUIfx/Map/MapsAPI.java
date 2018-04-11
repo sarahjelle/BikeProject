@@ -1,4 +1,4 @@
-package myapp.map;
+package myapp.GUIfx.Map;
 
 import myapp.data.Location;
 
@@ -198,10 +198,10 @@ public class MapsAPI {
         URL url = createWayPointsURL(start, end);
         System.out.println(url);
         ArrayList<Location> waypoints = new ArrayList<>();
-        
+
         try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
             JsonObject obj = rdr.readObject();
-            
+
             if(obj.getJsonString("status").getString().equals("ZERO_RESULTS")){
                 return null;
             }

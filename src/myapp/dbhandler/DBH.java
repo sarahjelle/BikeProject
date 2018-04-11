@@ -145,7 +145,12 @@ public class DBH {
         return execSQLPK(stmt, db);
     }
 
-    public ArrayList<Bike> getAllBikes() {
+    public Bike[] getAllBikesDummyLocationOA() {
+        ArrayList<Bike> bikes = getAllBikesDummyLocation();
+        return bikes.toArray(new Bike[bikes.size()]);
+    }
+
+    public ArrayList<Bike> getAllBikesDummyLocation() {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -165,8 +170,8 @@ public class DBH {
                         1,
                         0,
                         new Location(
-                                63.40949879999999,
-                                63.40949879999999,
+                                0.0,
+                                0.0,
                                 LocalDate.now()
                         ),
                         bikeset.getInt("status")
@@ -181,7 +186,12 @@ public class DBH {
         return null;
     }
 
-    public ArrayList<Bike> getBikes() {
+    public Bike[] getLoggedBikesOA() {
+        ArrayList<Bike> bikes = getLoggedBikes();
+        return bikes.toArray(new Bike[bikes.size()]);
+    }
+
+    public ArrayList<Bike> getLoggedBikes() {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -251,7 +261,7 @@ public class DBH {
     public Bike[] logBikes(Bike[] bikes) {
         db = connect();
         PreparedStatement stmt = null;
-        ArrayList<Bike> bikesNotUpdated = new ArrayList<Bike>();
+        ArrayList<Bike> bikesNotUpdated = new ArrayList<>();
         Bike[] toReturn = null;
         try {
             if(db == null) {
@@ -273,7 +283,7 @@ public class DBH {
             }
             stmt.close();
             db.close();
-            return bikesNotUpdated.toArray(new Bike[0]);
+            return bikesNotUpdated.toArray(new Bike[bikesNotUpdated.size()]);
         } catch(SQLException e) {
             System.out.println("Error: " + e);
         }
@@ -330,7 +340,7 @@ public class DBH {
         return false;
     }
 
-    public ArrayList<Docking> getDocking() {
+    public ArrayList<Docking> getAllDockingStations() {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -339,7 +349,7 @@ public class DBH {
             }
             stmt = db.prepareStatement("SELECT * FROM docking_stations");
             ResultSet dockingSet = execSQLRS(stmt);
-            ArrayList<Docking> docks = new ArrayList<Docking>();
+            ArrayList<Docking> docks = new ArrayList<>();
             while(dockingSet.next()) {
                 docks.add(new Docking(
                         dockingSet.getInt("stationID"),
@@ -351,6 +361,7 @@ public class DBH {
                         dockingSet.getInt("maxSlots")
                 ));
             }
+
             stmt.close();
             db.close();
             return docks;
@@ -394,13 +405,52 @@ public class DBH {
             return -1;
         }
     }
+
+    public User loginUser(String email, String password) {
+        db = connect();
+        Hasher hasher = new Hasher();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ?");
+            stmt.setString(1, email);
+
+            ResultSet rs =execSQLRS(stmt);
+            User correctUser = null;
+
+            if(rs.next()) {
+                if(hasher.hash(password, rs.getString("salt")).equals(rs.getString("password"))) {
+                    correctUser = new User(
+                            rs.getInt("userID"),
+                            rs.getInt("userTypeID"),
+                            rs.getString("firstname"),
+                            rs.getString("lastname"),
+                            rs.getInt("phone"),
+                            rs.getString("email"),
+                            rs.getString("landcode")
+                    );
+                    stmt.close();
+                    db.close();
+                    return correctUser;
+                } else {
+                    stmt.close();
+                    db.close();
+                }
+            }
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
 }
 
 // Just for testing purposes
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        ArrayList<Bike> bikes = dbh.getBikes();
+        ArrayList<Bike> bikes = dbh.getAllBikesDummyLocation();
         for(Bike bike : bikes) {
             System.out.println(bike.toString() + " Location: \n" + bike.getLocation().toString());
         }

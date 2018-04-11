@@ -1,0 +1,38 @@
+/* Menucolor: #b5cc18*/
+
+#topMenu{
+    -fx-background-color: rgba(181, 204, 24, 0.44);
+}
+
+#topMenu TextField{
+    -fx-text-fill: #828282;
+}
+
+#topMenu Button{
+    -fx-background-color: transparent;
+    -fx-border-radius: 50;
+    /*-fx-border-color: #b5cc18;*/
+}
+
+#topMenu Button:hover{
+    -fx-border-color: white;
+}
+
+#topMenu Button:hover{
+    -fx-text-fill: white;
+
+}
+
+#buttomBar{
+    -fx-background-color: rgba(181, 204, 24, 0.44);
+}
+
+#buttomBar Button{
+    -fx-background-color: transparent;
+}
+
+#buttomBar Button:hover{
+    -fx-text-fill: white;
+    -fx-png-on-the-button-color: white;
+}
+

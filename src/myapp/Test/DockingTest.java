@@ -48,9 +48,11 @@ public class DockingTest {
 
     @Test
     public void getOpenSpaces() throws Exception {
+        docking1.addBike(bike1);
+        docking1.addBike(bike2);
         assertEquals(23, docking1.getOpenSpaces());
     }
-    /*
+/*
     @Test
     public void removeBike() throws Exception {
         boolean bol = true;
@@ -59,15 +61,14 @@ public class DockingTest {
         docking1.addBike(bike3);
         docking1.removeBike(bike1.getId());
         HashMap<Integer, Bike> bikes = docking1.getBikes();
+        System.out.println(docking1.getBikes().size());
+        System.out.println(bikes);
         for(int i = 0; i < bikes.size(); i++){
-            if(bikes.get(i) != null) {
-                if (bikes.get(i).getId() == bike1.getId()) {
-                    bol = false;
-                }
+            if(bikes.get(i).getId() == bike1.getId()){
+                 bol = false;
             }
         }
         assertEquals(true, bol);
     }
-    */
-
+*/
 }

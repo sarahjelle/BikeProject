@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.Random;
 
 import myapp.data.Location;
-import myapp.map.MapsAPI;
+import myapp.GUIfx.Map.MapsAPI;
 
 public class GenerateContent {
 

@@ -1,6 +1,7 @@
 package myapp.data;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 
 public class Bike {
     private int id;
@@ -23,9 +24,9 @@ public class Bike {
     private int status;
 
     public static int   AVAILABLE   = 1,
-                        TRIP        = 2,
-                        REPAIR      = 3,
-                        DELETE      = 4;
+            TRIP        = 2,
+            REPAIR      = 3,
+            DELETE      = 4;
 
     public Bike(double price, LocalDate purchased, String type, String make) {
         this.price = price;
@@ -52,6 +53,22 @@ public class Bike {
         this.price = price;
         this.batteryPercentage = batteryPercentage;
         this.location = null;
+        if (distanceTraveled != 0){
+            this.distanceTraveled = distanceTraveled;
+        } else {
+            this.distanceTraveled = 0;
+        }
+    }
+
+    public Bike(int id, String type, double price, LocalDate purchased, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location){
+        this.id = id;
+        this.type = type;
+        this.price = price;
+        this.purchased = purchased;
+        this.make = make;
+        this.batteryPercentage = batteryPercentage;
+        this.available = available;
+        this.location = location;
         if (distanceTraveled != 0){
             this.distanceTraveled = distanceTraveled;
         } else {
@@ -121,6 +138,13 @@ public class Bike {
 
     public Location getLocation() {
         return location;
+    }
+
+    public boolean equals(Bike bike) {
+        if (bike.getId() == id) {
+            return true;
+        }
+        return false;
     }
 
     // Added by Mediå for testing. Needs to be more complex!
