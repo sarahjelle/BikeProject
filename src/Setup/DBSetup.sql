@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS bikes;
 CREATE TABLE bikes (
   bikeID int NOT NULL AUTO_INCREMENT,
   price int NOT NULL,
-  purchaseDate DATETIME DEFAULT NOW(),
+  purchaseDate DATE NOT NULL,
   totalTrips int DEFAULT 0,
   status int DEFAULT 1,
   make VARCHAR(25) NOT NULL,

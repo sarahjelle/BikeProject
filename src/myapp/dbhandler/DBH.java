@@ -57,6 +57,13 @@ public class DBH {
         return date.format(formatter);
     }
 
+    private LocalDate dateTimeToDateOnly(String datetime) {
+        String date[] = datetime.split(" ")[0].split("-");
+        return LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+    }
+
+
+
     /*
      * EXECUTE SQL QUERIES.
      */
@@ -121,9 +128,27 @@ public class DBH {
         }
     }
 
+
+
     /*
      * METHODS BELONGING TO THE BIKE OBJECT.
      */
+
+    public void updateBikeArray(ArrayList<Bike> arrayToUpdate) {
+        arrayToUpdate = getAllBikes();
+    }
+
+    public void updateBikeArray(Bike[] arrayToUpdate) {
+        arrayToUpdate = getAllBikesOA();
+    }
+
+    public void updateLoggedBikeArray(ArrayList<Bike> arrayToUpdate) {
+        arrayToUpdate = getLoggedBikes();
+    }
+
+    public void updateLoggedBikeArray(Bike[] arrayToUpdate) {
+        arrayToUpdate = getLoggedBikesOA();
+    }
 
     public int registerBike(Bike bike) {
         db = connect();
@@ -132,9 +157,12 @@ public class DBH {
             if(db == null) {
                 return -1;
             }
+
+            String purchased = (bike.getPurchased() == null) ? purchased = LocalDate.now().toString() : bike.getPurchased().toString();
+
             stmt = db.prepareStatement("INSERT INTO bikes (price, purchaseDate, make, type) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setDouble(1, bike.getPrice());
-            stmt.setString(2, bike.getPurchased().toString());
+            stmt.setString(2, purchased);
             stmt.setString(3, bike.getMake());
             stmt.setString(4, bike.getType());
 
@@ -145,12 +173,12 @@ public class DBH {
         return execSQLPK(stmt, db);
     }
 
-    public Bike[] getAllBikesDummyLocationOA() {
-        ArrayList<Bike> bikes = getAllBikesDummyLocation();
+    public Bike[] getAllBikesOA() {
+        ArrayList<Bike> bikes = getAllBikes();
         return bikes.toArray(new Bike[bikes.size()]);
     }
 
-    public ArrayList<Bike> getAllBikesDummyLocation() {
+    public ArrayList<Bike> getAllBikes() {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -158,7 +186,7 @@ public class DBH {
                 return null;
             }
 
-            stmt = db.prepareStatement("SELECT * FROM bikes");
+            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, b.purchasedDate, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN  bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime UNION SELECT bikeID,  make, type, price, status, NULL AS logTime, '0' AS batteryPercentage, '0' AS latitude, '0' AS longitude, '0' AS totalKM FROM bikes c WHERE c.bikeID NOT IN (SELECT bikeID FROM bike_logs)");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
             while(bikeset.next()) {
@@ -167,14 +195,14 @@ public class DBH {
                         bikeset.getString("make"),
                         bikeset.getDouble("price"),
                         bikeset.getString("type"),
-                        1,
-                        0,
+                        bikeset.getDouble("batteryPercentage"),
+                        bikeset.getInt("totalKM"),
                         new Location(
-                                0.0,
-                                0.0,
-                                LocalDate.now()
+                                bikeset.getDouble("latitude"),
+                                bikeset.getDouble("longitude")
                         ),
-                        bikeset.getInt("status")
+                        bikeset.getInt("status"),
+                        dateTimeToDateOnly(bikeset.getString("purchasedDate"))
                 ));
             }
             stmt.close();
@@ -199,12 +227,13 @@ public class DBH {
                 return null;
             }
 
-            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, max(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime");
+            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN  bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
+
             while(bikeset.next()) {
-                String date[] = bikeset.getString("logTime").split(" ")[0].split("-");
-                LocalDate dateToLocation = LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+
+
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
                         bikeset.getString("make"),
@@ -215,9 +244,10 @@ public class DBH {
                         new Location(
                                 bikeset.getDouble("latitude"),
                                 bikeset.getDouble("longitude"),
-                                dateToLocation
+                                dateTimeToDateOnly(bikeset.getString("logTime"))
                         ),
-                        bikeset.getInt("status")
+                        bikeset.getInt("status"),
+                        dateTimeToDateOnly(bikeset.getString("purchasedDate"))
                 ));
             }
             stmt.close();
@@ -229,6 +259,35 @@ public class DBH {
         return null;
     }
 
+    public boolean deleteBike(int id) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE bikes SET status = 4 WHERE bikeID = ?");
+
+            stmt.setInt(1, id);
+
+            if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
+    public boolean deleteBike(Bike bike) {
+        return deleteBike(bike.getId());
+    }
+
     public boolean updateBike(Bike bike) {
         db = connect();
         PreparedStatement stmt = null;
@@ -236,13 +295,23 @@ public class DBH {
             if(db == null) {
                 return false;
             }
-            stmt = db.prepareStatement("UPDATE bikes SET price = ?, purchaseDate = ?, make = ?, type = ? WHERE bikeID = ?");
 
-            stmt.setDouble(1, bike.getPrice());
-            stmt.setString(2, bike.getPurchased().toString());
-            stmt.setString(3, bike.getMake());
-            stmt.setString(4, bike.getType());
-            stmt.setInt(5, bike.getId());
+            if(bike.getPurchased() == null) {
+                stmt = db.prepareStatement("UPDATE bikes SET price = ?, make = ?, type = ?, status = ? WHERE bikeID = ?");
+                stmt.setDouble(1, bike.getPrice());
+                stmt.setString(2, bike.getMake());
+                stmt.setString(3, bike.getType());
+                stmt.setInt(4, bike.getStatus());
+                stmt.setInt(5, bike.getId());
+            } else {
+                stmt = db.prepareStatement("UPDATE bikes SET price = ?, purchaseDate = ?, make = ?, type = ?, status = ? WHERE bikeID = ?");
+                stmt.setDouble(1, bike.getPrice());
+                stmt.setString(2, bike.getPurchased().toString());
+                stmt.setString(3, bike.getMake());
+                stmt.setString(4, bike.getType());
+                stmt.setInt(5, bike.getStatus());
+                stmt.setInt(6, bike.getId());
+            }
 
             if(!execSQLBool(stmt, db)) {
                 stmt.close();
@@ -289,6 +358,7 @@ public class DBH {
         }
         return bikes;
     }
+
 
     /*
      * METHODS BELONGING TO THE DOCKING OBJECT.
@@ -372,6 +442,7 @@ public class DBH {
     }
 
 
+
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
@@ -450,7 +521,7 @@ public class DBH {
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        ArrayList<Bike> bikes = dbh.getAllBikesDummyLocation();
+        Bike[] bikes = dbh.getAllBikesOA();
         for(Bike bike : bikes) {
             System.out.println(bike.toString() + " Location: \n" + bike.getLocation().toString());
         }

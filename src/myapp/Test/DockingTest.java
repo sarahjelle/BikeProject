@@ -11,6 +11,9 @@ import java.util.HashMap;
 import static org.junit.Assert.*;
 
 public class DockingTest {
+/*  KOMMENTERT UT FORDI DEN MÅ ENDRES NÅ SOM DOCKING OGSÅ SENDER VIDERE TIL DBH OBS OBS RESULTAT FRA DB KAN VARIERE
+ * MÅ SJEKKES!!!!!
+ *
     private static Location location1 = new Location("Sverres Gate 14", true);
     private static Location location2 = new Location("Dronningens Gate 64", true);
     private static Location location3 = new Location("Beddingen 4", true);
@@ -21,8 +24,8 @@ public class DockingTest {
     private static Docking docking1 = new Docking(1, "HiST Kalvskinnet", location1, 25);
     @Test
     public void addBikes(){
-        docking1.addBike(bike1);
-        docking1.addBike(bike2);
+        docking1.dockBike(bike1);
+        docking1.dockBike(bike2);
     }
 
     @Test
@@ -52,7 +55,6 @@ public class DockingTest {
         docking1.addBike(bike2);
         assertEquals(23, docking1.getOpenSpaces());
     }
-/*
     @Test
     public void removeBike() throws Exception {
         boolean bol = true;
