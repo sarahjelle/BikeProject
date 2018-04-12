@@ -1,13 +1,21 @@
 package myapp.data.Simulation;
 import myapp.GUIfx.Map.*;
 import myapp.data.*;
+import myapp.dbhandler.*;
 
-public class Router{
+import javax.print.Doc;
+
+public class Router implements Runnable{
+    private Boolean stop = false;
+    private final User customer;
     private final Bike bikeToMove;
-    private final Location start;
-    private final Docking end;
-    private final Location[] WayPoints; //WayPoints[0] = start, WayPoints[WayPoints.length -1] = end
+    private Location start;
+    private Docking startStation;
+    private Docking end;
+    private Location[] WayPoints; //WayPoints[0] = start, WayPoints[WayPoints.length -1] = end
     private boolean hasArrived = false;
+    private boolean isDocked = false;
+    private static int updateInterval = 60000; //milliseconds
 
     private MapsAPI map = new MapsAPI();
     private final double AVRG_BIKE_SPEED = 0.4305; // m/s
@@ -18,18 +26,51 @@ public class Router{
     private long TotalStartTime = -1;
     private long TotalTime = -1;
 
-    public Router(Bike bikeToMove, Docking end){
+    public Router(User customer, Bike bikeToMove, Docking start, Docking end){
+        this.customer = customer;
         this.bikeToMove = bikeToMove;
         this.start = bikeToMove.getLocation();
         this.end = end;
-        this.WayPoints = map.getWayPoints(start, end.getLocation());
-        if(WayPoints == null){
-            hasArrived = true;
-        } else {
-            for (int i = 0; i < WayPoints.length; i++) {
-                System.out.println(WayPoints[i]);
+        this.WayPoints = getWayPoints();
+
+        DBH handler = new DBH();
+        handler.rentBike(customer, bikeToMove, start);
+        this.startStation = start;
+    }
+
+    public void run(){
+        if(!hasArrived){
+            long StartTime = System.currentTimeMillis();
+            while(!stop){
+                if(!hasArrived){
+                    move();
+                    try{
+                        Thread.sleep(2000);
+                    } catch(InterruptedException ex){
+                        ex.printStackTrace();
+                    }
+                    if((System.currentTimeMillis() - StartTime) >= updateInterval){
+                        //Update bike location to DB
+                        DBH handler = new DBH();
+                        Bike[] bikes = new Bike[1];
+                        bikes[0] = bikeToMove;
+                        Bike[] updatedBikes = handler.logBikes(bikes);
+                        if(updatedBikes.length != bikes.length){
+                            //Error updating
+                            System.out.println("Problem updating bike to DB: " + bikeToMove.toString());
+                        }
+                        //reset starttime
+                        StartTime = System.currentTimeMillis();
+                    }
+                } else {
+                    stop();
+                }
             }
         }
+    }
+
+    public void stop(){
+        this.stop = true;
     }
 
     public void move(){
@@ -105,7 +146,7 @@ public class Router{
                 System.out.println();
                 hasArrived = true;
                 //Dock to endStation
-                end.dockBike(bikeToMove);
+                isDocked = end.dockBike(bikeToMove);
             }
         }
     }
@@ -122,6 +163,56 @@ public class Router{
         } else{
             return true;
         }
+    }
+
+    public boolean isDocked(){
+        return isDocked;
+    }
+
+    public void setEnd(Docking station){
+        this.start = bikeToMove.getLocation();
+        this.end = station;
+        this.WayPoints = getWayPoints();
+    }
+
+    public Docking getEnd(){
+        return end;
+    }
+
+    public Bike getBike(){
+        return bikeToMove;
+    }
+
+    public User getUser(){
+        return customer;
+    }
+
+    public Location[] getWayPoints(){
+        Location[] WP = map.getWayPoints(start, end.getLocation());
+        if(WP == null){
+            hasArrived = true;
+        } else {
+            for (int i = 0; i < WP.length; i++) {
+                System.out.println(WP[i]);
+            }
+        }
+        return WP;
+    }
+
+    public void resetStartLocation(){
+        this.start = bikeToMove.getLocation();
+    }
+
+    public void resetHasArrived(){
+        this.hasArrived = false;
+    }
+
+    public void setRunnable(){
+        this.stop = false;
+    }
+
+    public Docking getStartStation(){
+        return startStation;
     }
 
     private static double getDistance(Location loc1, Location loc2){  // generally used geo measurement function
@@ -141,74 +232,3 @@ public class Router{
         return d * 1000; // meters
     }
 }
-/*
-class RouterTest{
-    public static void main(String[]args){
-        MapsAPI map = new MapsAPI();
-
-        String start = "Bautavegen 3, 7056 Trondheim";
-        Location startLoc = new Location(start, map.getLatLong(start));
-
-        String end = "Rema 1000 Ranheim";
-        Location endLoc = new Location(end, map.getLatLong(end));
-
-        Docking dock = new Docking(1, end, endLoc, 1);
-
-        Bike bikeToMove = new Bike(1, "Trek", 100, true,0, startLoc);
-
-        System.out.println();
-        System.out.println();
-        System.out.println();
-
-
-        Router rout = new Router(bikeToMove, dock);
-
-
-        PrinterThread printer = new PrinterThread(bikeToMove);
-        Thread printThread = new Thread(printer);
-        printThread.start();
-        while(!rout.HasArrived()){
-            rout.move();
-            try{
-                Thread.sleep(2000);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        printer.stop(true);
-
-
-
-    }
-}
-
-class PrinterThread implements Runnable{
-    private Boolean stop = false;
-    private Bike bikeToPrint;
-    public PrinterThread(Bike toPrint){
-        this.bikeToPrint = toPrint;
-    }
-
-    public void run(){
-        String lastString = bikeToPrint.getLocation().getLatitude() + ", " + bikeToPrint.getLocation().getLongitude();
-        while(!stop){
-            String currentString = bikeToPrint.getLocation().getLatitude() + ", " + bikeToPrint.getLocation().getLongitude();
-            if(lastString.equals(currentString)){
-
-            } else{
-                System.out.println(currentString);
-                lastString = currentString;
-            }
-            try{
-                //Thread.sleep(1000);
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void stop(boolean stop){
-        this.stop = stop;
-    }
-}
-*/

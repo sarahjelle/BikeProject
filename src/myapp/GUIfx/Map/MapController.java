@@ -17,6 +17,7 @@ import myapp.data.*;
 import myapp.dbhandler.DBH;
 
 import java.net.URL;
+import java.time.LocalDate;
 
 
 public class MapController extends Application implements Runnable{
@@ -28,7 +29,10 @@ public class MapController extends Application implements Runnable{
 
     public MapController(){
         DBH handler = new DBH();
-        this.bikes = handler.getAllBikesDummyLocationOA(); // Must be changed
+        this.bikes = new Bike[1];
+        //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
+        bikes[0] = new Bike(1, "Trek", 100.0, "Sykkel", 100.0, 0, new Location("NTNU Kalvskinnet", true), Bike.AVAILABLE, LocalDate.now());
+        //this.bikes = handler.getAllBikes().toArray(bikes);
         this.updateFromDB = true;
         this.browser = new WebView();
         URL url = getClass().getResource("map.html");
@@ -64,7 +68,7 @@ public class MapController extends Application implements Runnable{
             if(updateFromDB){
                 if((System.currentTimeMillis() - startTime) <= 60000){
                     DBH handler = new DBH();
-                    bikes = handler.getAllBikesDummyLocationOA(); //Must be changed
+                    bikes = handler.getAllBikes().toArray(bikes);
                 }
             }
 
@@ -98,10 +102,9 @@ public class MapController extends Application implements Runnable{
                 engine = browser.getEngine();
                 root.getChildren().add(browser);
                 //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status
-                Bike myBike = new Bike(1, "DBS", 1000.0, "El", 100, 0, new Location("NTNU Kalvskinnet", true), 1);
+                //Bike myBike = new Bike(1, "DBS", 1000.0, "El", 100, 0, new Location("NTNU Kalvskinnet", true), 1);
 
-
-                addBike(myBike);
+                //addBike(myBike);
                 primaryStage.show();
             }
         });
