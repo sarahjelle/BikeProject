@@ -7,6 +7,10 @@ import myapp.GUIfx.DockingStation.DockStationCenter;
 import myapp.GUIfx.Map.MapController;
 import myapp.GUIfx.Statistic.StatController2;
 
+import java.awt.image.BufferedImage;
+import java.io.FileReader;
+import java.io.BufferedReader;
+
 
 import java.net.URL;
 
