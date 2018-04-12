@@ -176,45 +176,10 @@ public class Simulation implements Runnable{
         if(numberOfBikes < 1){
             numberOfBikes = 1;
         }
-        Bike[] subset = new Bike[numberOfBikes]; // 10% of users will move;
+        Bike[] subset = new Bike[numberOfBikes];
         Random rand = new Random();
-        for (int i = 0; i < subset.length; i++) {
-            boolean presentMoreThanOnce = false;
-            Bike lookingAt = null;
-            do{
-                //Choose random bike from "bikes"
-                lookingAt = null;
-                do{
-                    lookingAt = bikes[rand.nextInt(bikes.length)];
-                } while(lookingAt.getStatus() != Bike.AVAILABLE);
-
-                //Check that the bike is not present in the subset more than once
-                for (int j = 0; j < subset.length; j++) {
-                    if(j != i){
-                        if(subset[j] != null){
-                            if(subset[i] == lookingAt){
-                                presentMoreThanOnce = true;
-                            }
-                        }
-                    }
-                }
-            } while(!presentMoreThanOnce);
-            if(!presentMoreThanOnce){
-                subset[i] = lookingAt;
-                //Find what station bike is docked at and undock
-                for (int j = 0; j < docking_stations.length; j++) {
-                    Bike[] bikesHere = docking_stations[j].getBikes();
-                    for (int k = 0; k < bikesHere.length; k++) {
-                        if(bikesHere[k].getId() == lookingAt.getId()){
-                            docking_stations[j].undockBike(lookingAt.getId());
-                            DBH handler = new DBH();
-                            handler.undockBike(lookingAt, docking_stations[j]);
-                        }
-                    }
-                }
-            } else{
-                System.out.println("Do-while loop did not work...");
-            }
+        for (int i = 0; i < numberOfBikes; i++) {
+            subset[i] = docking_stations[rand.nextInt(docking_stations.length)].rentBike(users[rand.nextInt(users.length)]);
         }
         return subset;
     }
@@ -230,6 +195,20 @@ public class Simulation implements Runnable{
         return endStations;
     }
 
+    private Router[] getRouters(User[] userSubSet){
+        Router[] routers = new Router[userSubSet.length];
+        Random rand = new Random();
+        for (int i = 0; i < routers.length; i++) {
+            Docking start = docking_stations[rand.nextInt(docking_stations.length)];
+            Docking end = docking_stations[rand.nextInt(docking_stations.length)];
+            User customer = userSubSet[i];
+            Bike bike = start.rentBike(customer);
+            routers[i] = new Router(customer, bike, start, end);
+        }
+        return routers;
+    }
+
+    /*
     public Router[] getRouters(User[] userSubset, Bike[] bikeSubset, Docking[] endStations){
         if(bikeSubset.length == endStations.length && bikeSubset.length == userSubset.length){
             Router[] routers = new Router[userSubset.length];
@@ -246,6 +225,7 @@ public class Simulation implements Runnable{
             return null;
         }
     }
+    */
 
     private Docking getStationIDForBike(Bike bike){
         for (int i = 0; i < docking_stations.length; i++) {
