@@ -105,7 +105,7 @@ public class Router{
                 System.out.println();
                 hasArrived = true;
                 //Dock to endStation
-                end.addBike(bikeToMove);
+                end.dockBike(bikeToMove);
             }
         }
     }
