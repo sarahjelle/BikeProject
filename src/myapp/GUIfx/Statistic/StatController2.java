@@ -106,8 +106,8 @@ public class StatController2 {
         int[][] bStats = stats.bikeStats();
         for (int i=0; i<10; i++){
             distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[1][i]));
-            distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[2][i]));
-            distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[3][i]));
+            totTrips.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[2][i]));
+            battery.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[3][i]));
            /* distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
             distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
             distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[3][i]));*/

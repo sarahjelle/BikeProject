@@ -18,11 +18,11 @@ import myapp.dbhandler.DBH;
 
 import java.net.URL;
 import java.time.LocalDate;
-
+import javafx.fxml.FXML;
 
 public class MapController extends Application implements Runnable{
     private Boolean stop = false;
-    private WebView browser;
+    @FXML private WebView browser;
     private WebEngine engine;
     private Bike[] bikes;
     private boolean updateFromDB;
@@ -34,7 +34,6 @@ public class MapController extends Application implements Runnable{
         bikes[0] = new Bike(1, "Trek", 100.0, "Sykkel", 100.0, 0, new Location("NTNU Kalvskinnet", true), Bike.AVAILABLE, LocalDate.now());
         //this.bikes = handler.getAllBikes().toArray(bikes);
         this.updateFromDB = true;
-        this.browser = new WebView();
         URL url = getClass().getResource("map.html");
         browser.getEngine().load(url.toExternalForm());
         browser.getEngine().setJavaScriptEnabled(true);

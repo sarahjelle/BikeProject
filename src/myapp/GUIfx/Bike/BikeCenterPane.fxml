@@ -67,9 +67,9 @@
 
          <BorderPane fx:id="bikeInfoEdit" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
              <top>
-                 <HBox>
-                     <Label text="Bikeid: " style="-fx-font-size: 20"/>
-                     <Text fx:id="bikeidOutput" style="-fx-font-size: 20"/>
+                 <HBox fx:id="infoTop">
+                     <Label text="Bikeid: "/>
+                     <Text fx:id="bikeidOutput" />
                      <Region HBox.hgrow="ALWAYS"/>
                      <Button text="Back" onAction="#cancel"/>
                  </HBox>
@@ -109,7 +109,7 @@
                                      </ImageView>
                                  </graphic>
                              </Button>
-                             <Button text="Delete"/>
+                             <Button text="Delete" onAction="#deleteBike"/>
                              <Button text="Cancel" onAction="#cancel"/>
                          </HBox>
                      </VBox>
