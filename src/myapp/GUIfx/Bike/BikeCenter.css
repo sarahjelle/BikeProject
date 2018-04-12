@@ -6,3 +6,7 @@
     -fx-text-fill: blue;
 
 }
+
+#infoTop{
+    -fx-font-size: 20;
+}
