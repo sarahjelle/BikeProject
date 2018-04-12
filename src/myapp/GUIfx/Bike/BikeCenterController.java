@@ -20,8 +20,11 @@ import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import myapp.dbhandler.DBH;
 
 public class BikeCenterController implements Initializable{
     //attributes for the tableview:

@@ -193,7 +193,7 @@ public class DBH {
 
             stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, b.purchaseDate, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime UNION SELECT bikeID, make, type, price, status, purchaseDate, NULL AS logTime, '0' AS batteryPercentage, '0' AS latitude, '0' AS longitude, '0' AS totalKM FROM bikes c WHERE c.bikeID NOT IN (SELECT bikeID FROM bike_logs)");
             ResultSet bikeset = execSQLRS(stmt);
-            ArrayList<Bike> bikes = new ArrayList<Bike>();
+            ArrayList<Bike> bikes = new ArrayList<>();
             while(bikeset.next()) {
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
@@ -212,6 +212,19 @@ public class DBH {
             }
             stmt.close();
             db.close();
+            Docking[] docks = getAllDockingStationsWithBikes();
+            for (int i = 0; 0 < docks.length; i++) {
+                Bike[] bks = docks[i].getBikes();
+                for (int j = 0; j < bks.length; i++) {
+                    if (bks[j] != null) {
+                        for (int k = 0; k < bikes.size(); i++) {
+                            if (bks[j].getId() == bikes.get(k).getId()) {
+                                bikes.set(k, bks[j]);
+                            }
+                        }
+                    }
+                }
+            }
             return bikes;
         } catch(SQLException e) {
             System.out.println("Error: " + e);

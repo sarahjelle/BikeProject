@@ -1,7 +1,9 @@
 package myapp.GUIfx.MainApp;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.*;
+import javafx.event.*;
 import javafx.scene.*;
 import javafx.stage.*;
 
@@ -28,6 +30,13 @@ public class Main extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent e) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
         //login(primaryStage);
         loadApp(primaryStage);
     }
