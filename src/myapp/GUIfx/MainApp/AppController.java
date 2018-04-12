@@ -168,21 +168,33 @@ public class AppController {
         }
 
         public void addBike(Bike bike, WebEngine engine){
-            engine.getLoadWorker().stateProperty().addListener((e) -> {
-                engine.executeScript("document.addBike({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
-                        + ", lng: " + bike.getLocation().getLongitude() + "});");
-            });
+            try{
+                engine.getLoadWorker().stateProperty().addListener((e) -> {
+                    engine.executeScript("document.addBike({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
+                            + ", lng: " + bike.getLocation().getLongitude() + "});");
+                });
+            } catch (netscape.javascript.JSException e){
+
+            }
         }
 
         public void updateBike(Bike bike, WebEngine engine) {
-            engine.executeScript("document.updateBike({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
-                    + ", lng: " + bike.getLocation().getLongitude() + "});");
+            try{
+                engine.executeScript("document.updateBike({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
+                        + ", lng: " + bike.getLocation().getLongitude() + "});");
+            } catch (netscape.javascript.JSException e){
+
+            }
         }
 
         public void removeAll(WebEngine engine){
-            Platform.runLater(() ->{
-                engine.executeScript("document.removeAll();");
-            });
+            try{
+                Platform.runLater(() ->{
+                    engine.executeScript("document.removeAll();");
+                });
+            } catch (netscape.javascript.JSException e){
+
+            }
         }
     }
 }
