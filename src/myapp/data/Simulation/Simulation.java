@@ -19,7 +19,7 @@ public class Simulation implements Runnable{
     private int sleepTime = 2000; //millieconds
     private Boolean stop = false;
     private static final double ERROR_TOLERANSE = 0.0000001;
-    private final double percentageOfBikesToMove = 0.10;
+    private final double percentageOfUsersToMove = 0.10;
 
     /*
         Simulate that users pay and check out a bike at a docking station.
@@ -125,7 +125,7 @@ public class Simulation implements Runnable{
     }
 
     public User[] getUserSubset(){
-        User[] subset = new User[(int)(users.length * percentageOfBikesToMove)];
+        User[] subset = new User[(int)(users.length * percentageOfUsersToMove )];
         Random rand = new Random();
         for (int i = 0; i < subset.length; i++) {
             boolean precentMoreThanOnceInSubset = false;
@@ -172,7 +172,11 @@ public class Simulation implements Runnable{
     * All the bikes are un-docked from their docking_stations before being returned (both in database and in object).
     */
     private Bike[] getNewSubset(){
-        Bike[] subset = new Bike[(int)(users.length * percentageOfBikesToMove)]; // 10% of users will move;
+        int numberOfBikes = (int)(users.length * percentageOfUsersToMove );
+        if(numberOfBikes < 1){
+            numberOfBikes = 1;
+        }
+        Bike[] subset = new Bike[numberOfBikes]; // 10% of users will move;
         Random rand = new Random();
         for (int i = 0; i < subset.length; i++) {
             boolean presentMoreThanOnce = false;

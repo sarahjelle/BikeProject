@@ -184,7 +184,6 @@ public class DBH {
     }
 
     public ArrayList<Bike> getAllBikes() {
-        /*
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -192,7 +191,7 @@ public class DBH {
                 return null;
             }
 
-            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, b.purchaseDate, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN  bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime UNION SELECT bikeID,  make, type, price, status, NULL AS logTime, '0' AS batteryPercentage, '0' AS latitude, '0' AS longitude, '0' AS totalKM FROM bikes c WHERE c.bikeID NOT IN (SELECT bikeID FROM bike_logs)");
+            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, b.purchaseDate, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime UNION SELECT bikeID, make, type, price, status, purchaseDate, NULL AS logTime, '0' AS batteryPercentage, '0' AS latitude, '0' AS longitude, '0' AS totalKM FROM bikes c WHERE c.bikeID NOT IN (SELECT bikeID FROM bike_logs)");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
             while(bikeset.next()) {
@@ -208,7 +207,7 @@ public class DBH {
                                 bikeset.getDouble("longitude")
                         ),
                         bikeset.getInt("status"),
-                        dateTimeToDateOnly(bikeset.getString("purchasedDate"))
+                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
                 ));
             }
             stmt.close();
@@ -218,11 +217,12 @@ public class DBH {
             System.out.println("Error: " + e);
         }
         return null;
-        */
+        /*
         ArrayList<Bike> bikes = new ArrayList<>();
         //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
         bikes.add(new Bike(1, "Trek", 1000.0, "El", 0.5, 0, new Location("NTNU Kalvskinnet", true), Bike.AVAILABLE, LocalDate.now()));
         return bikes;
+        */
     }
 
     public Bike[] getLoggedBikesOA() {

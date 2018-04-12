@@ -95,7 +95,7 @@ public class BikeCenterController implements Initializable{
         for(int i = 0; i < 25; i++){
             //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
             Bike a = new Bike(i, "Trek", 899.90, "Electric", 0.5, 100, new Location(), Bike.AVAILABLE,  LocalDate.now());
-            //Bike b = new Bike(i+1, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
+            Bike b = new Bike(i+1, "DBS", 599.87, "Electric", 0.8, 200, new Location(), Bike.AVAILABLE, LocalDate.now());
             //Bike c = new Bike(i+2, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
             //Bike d = new Bike(i+3, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
             //addBikeData(b); //hører til tabell
