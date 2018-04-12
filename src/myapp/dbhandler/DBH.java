@@ -747,7 +747,7 @@ public class DBH {
             if(db == null) {
                 return users;
             }
-            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, user.lastname, users.phone, users.landcode FROM users WHERE users.userTypeID = ?");
+            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.lastname, users.phone, users.landcode FROM users WHERE users.userTypeID = ?");
             stmt.setInt(1, type);
 
             ResultSet resultSet = execSQLRS(stmt);
