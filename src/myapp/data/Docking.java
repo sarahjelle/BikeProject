@@ -15,6 +15,8 @@ public class Docking {
     private int capacity;
     private Bike[] bikes;
 
+    private static int MINIMUM_BAT_LEVEL = 0;
+
     DBH dbh = new DBH();
 
     public Docking(int id, String name, Location location, int capacity) {
@@ -89,17 +91,46 @@ public class Docking {
         return false;
     }
 
-    public boolean dockBike(Bike bike) {
+    public boolean dockBike(Bike bike, User user) {
         int spot = findFirstOpen() + 1;
-        if(dbh.dockBike(id, spot, bike)) {
+        if(dbh.endRent(user, bike,id, spot)) {
+            spot--;
             bikes[spot] = bike;
             return true;
         }
         return false;
     }
 
+    public Bike rentBike(User user) {
+        dbh.updateBikesInDockingStation(id, bikes);
+        Bike bike = null;
+        for(int i = 0; i < bikes.length; i++) {
+            if(bikes[i].getBatteryPercentage() > MINIMUM_BAT_LEVEL) {
+                bike = bikes[i];
+                bikes[i] = null;
+            }
+        }
+        if(bike != null) {
+            if(dbh.rentBike(user, bike, id)) {
+                return bike;
+            }
+        }
+
+        return null;
+    }
+
     public Bike[] getBikes() {
         return bikes;
+    }
+
+    public String toString() {
+        String prBikes = "";
+        for (int i = 0; i < bikes.length; i++) {
+            if(bikes[i] != null){
+                prBikes += "\nSlot: " + (i + 1) + " - " + bikes[i].toString();
+            }
+        }
+        return "Name: " + name + " - With ID: " + id + "\nBikes:" + prBikes;
     }
 
 
