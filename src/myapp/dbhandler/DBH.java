@@ -184,6 +184,7 @@ public class DBH {
     }
 
     public ArrayList<Bike> getAllBikes() {
+        /*
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -217,6 +218,11 @@ public class DBH {
             System.out.println("Error: " + e);
         }
         return null;
+        */
+        ArrayList<Bike> bikes = new ArrayList<>();
+        //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
+        bikes.add(new Bike(1, "Trek", 1000.0, "El", 0.5, 0, new Location("NTNU Kalvskinnet", true), Bike.AVAILABLE, LocalDate.now()));
+        return bikes;
     }
 
     public Bike[] getLoggedBikesOA() {
