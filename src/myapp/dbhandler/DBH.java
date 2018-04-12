@@ -225,6 +225,42 @@ public class DBH {
         */
     }
 
+    private ArrayList<Bike> localGetBikes() {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, b.purchaseDate, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime UNION SELECT bikeID, make, type, price, status, purchaseDate, NULL AS logTime, '0' AS batteryPercentage, '0' AS latitude, '0' AS longitude, '0' AS totalKM FROM bikes c WHERE c.bikeID NOT IN (SELECT bikeID FROM bike_logs)");
+            ResultSet bikeset = execSQLRS(stmt);
+            ArrayList<Bike> bikes = new ArrayList<Bike>();
+            while(bikeset.next()) {
+                bikes.add(new Bike(
+                        bikeset.getInt("bikeID"),
+                        bikeset.getString("make"),
+                        bikeset.getDouble("price"),
+                        bikeset.getString("type"),
+                        bikeset.getDouble("batteryPercentage"),
+                        bikeset.getInt("totalKM"),
+                        new Location(
+                                bikeset.getDouble("latitude"),
+                                bikeset.getDouble("longitude")
+                        ),
+                        bikeset.getInt("status"),
+                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
+                ));
+            }
+            stmt.close();
+            db.close();
+            return bikes;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
     public Bike[] getLoggedBikesOA() {
         ArrayList<Bike> bikes = getLoggedBikes();
         return bikes.toArray(new Bike[bikes.size()]);
@@ -394,34 +430,6 @@ public class DBH {
         return execSQLPK(stmt, db);
     }
 
-    public boolean dockBike(int stationId, int slotId, Bike bike) {
-        db = connect();
-        PreparedStatement stmt = null;
-        try {
-            if(db == null) {
-                return false;
-            }
-            stmt = db.prepareStatement("UPDATE slots SET bikeID = ? WHERE stationID = ? AND slotID = ?");
-
-            stmt.setInt(1, bike.getId());
-            stmt.setInt(2, stationId);
-            stmt.setInt(3, slotId);
-
-
-            if(!execSQLBool(stmt, db)) {
-                stmt.close();
-                db.close();
-                return false;
-            }
-            stmt.close();
-            db.close();
-            return true;
-        } catch(SQLException e) {
-            System.out.println("Error: " + e);
-        }
-        return false;
-    }
-
     public ArrayList<Docking> getAllDockingStations() {
         db = connect();
         PreparedStatement stmt = null;
@@ -453,7 +461,168 @@ public class DBH {
         return null;
     }
 
+    public void updateBikesInDockingStation(int dockID, Bike[] bikes) {
+        Docking[] docks = getAllDockingStationsWithBikes();
+        for (int i = 0; i < docks.length; i++) {
+            if (docks[i].getId() == dockID) {
+                bikes = docks[i].getBikes();
+                break;
+            }
+        }
+    }
 
+    //Martin
+    public boolean rentBike(User userRentingBike, Bike bikeToRent, int dockID){
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+            java.util.Date utilDate = new java.util.Date();
+
+            stmt = db.prepareStatement("INSERT INTO trips (bikeID, startStation, startTime, userID) VALUES (?, ?, ?, ?)");
+            stmt.setInt(1, bikeToRent.getId());
+            stmt.setInt(2, dockID);
+            stmt.setDate(3, new java.sql.Date(utilDate.getTime()));
+            stmt.setInt(4, userRentingBike.getUserID());
+            if(execSQLBool(stmt, db)) {
+                if(undockBike(bikeToRent, dockID)) {
+                    stmt.close();
+                    db.close();
+                    return true;
+                }
+            }
+
+            stmt.close();
+            db.close();
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+
+        return false;
+    }
+
+    //Martin
+    public boolean endRent(User user, Bike bike, int dockID, int spot){
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE trips SET endTime = ?, endStation = ? WHERE bikeID = ? AND trips.userID = ? AND endStation IS NULL AND endTime IS NULL");
+            java.util.Date jutilDate = new java.util.Date();
+            stmt.setDate(1, new java.sql.Date(jutilDate.getTime()));
+            stmt.setInt(2, dockID);
+            stmt.setInt(3, bike.getId());
+            stmt.setInt(4, user.getUserID());
+
+            if(execSQLBool(stmt, db)) {
+                if(dockBike(bike, dockID, spot)) {
+                    stmt.close();
+                    db.close();
+
+                    return true;
+                }
+            }
+            stmt.close();
+            db.close();
+
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    //Martin
+    private boolean undockBike(Bike bike, int dockID){
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.stationID = ? AND slots.bikeID = ?");
+            stmt.setInt(1, dockID);
+            stmt.setInt(2, bike.getId());
+            boolean output = execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
+            return output;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean dockBike(Bike bike, int dockID, int spot){
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = ? WHERE slots.stationID = ? AND slots.slotID = ?");
+            stmt.setInt(1, bike.getId());
+            stmt.setInt(2, dockID);
+            stmt.setInt(3, spot);
+            boolean output = execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
+            return output;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    //Martin && Fredrik
+    public Docking[] getAllDockingStationsWithBikes(){
+        ArrayList<Docking> dck = getAllDockingStations();
+        Docking[] stations = new Docking[dck.size()];
+        stations = dck.toArray(stations);
+
+        ArrayList<Bike> bikes = localGetBikes();
+
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            for (int i = 0; i < stations.length; i++) {
+                if (db == null) {
+                    return null;
+                }
+                stmt = db.prepareStatement("SELECT slots.bikeID, slots.slotID, slots.stationID FROM slots WHERE slots.stationID = ?");
+                stmt.setInt(1, stations[i].getId());
+
+                ResultSet resultSet = execSQLRS(stmt);
+                ArrayList<BikeSlotPair> slotPairs = new ArrayList<>();
+
+
+                while (resultSet.next()) {
+                    slotPairs.add(new BikeSlotPair(resultSet.getInt("bikeID"), resultSet.getInt("slotID"), resultSet.getInt("stationID")));
+                }
+
+                for (int m = 0; m < slotPairs.size(); m++) {
+                    for (int n = 0; n < bikes.size(); n++) {
+                        if (slotPairs.get(m).getBike_id() == bikes.get(n).getId()) {
+                            bikes.get(n).setLocation(new Location(stations[i].getLocation().getLatitude(), stations[i].getLocation().getLongitude()));
+                            stations[i].forceAddBike(bikes.get(n), slotPairs.get(m).getSlot_id());
+                        }
+                    }
+                }
+            }
+            stmt.close();
+            db.close();
+            return stations;
+
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return stations;
+    }
 
     /*
      * METHODS BELONGING TO THE USER OBJECT.
@@ -529,7 +698,7 @@ public class DBH {
     }
 
     //Martin
-    public User[] getAllCustomers(){
+    private User[] getUserByType(int type) {
         db = connect();
         PreparedStatement stmt = null;
         ArrayList<User> usersList = new ArrayList<>();
@@ -538,7 +707,8 @@ public class DBH {
             if(db == null) {
                 return users;
             }
-            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.phone, users.landcode FROM users WHERE users.userTypeID = 3");
+            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.phone, users.landcode FROM users WHERE users.userTypeID = ?");
+            stmt.setInt(1, type);
 
             ResultSet resultSet = execSQLRS(stmt);
             while(resultSet.next()){
@@ -561,156 +731,17 @@ public class DBH {
         }
         return users;
     }
-    //Martin
-    public Docking[] getAllDockingStationsWithBikes(){
-        Docking[] stations = null;
-        stations = getAllDockingStations().toArray(stations);
 
-        db = connect();
-        PreparedStatement stmt = null;
-        for (int i = 0; i < stations.length; i++) {
-            try {
-                if(db == null) {
-                    return null;
-                }
-                stmt = db.prepareStatement("SELECT slots.bikeID, slots.slotID, slots.stationID FROM slots WHERE slots.stationID = ?");
-                stmt.setInt(1, stations[i].getId());
-
-                ResultSet resultSet = execSQLRS(stmt);
-                ArrayList<BikeSlotPair> slotPairs = new ArrayList<>();
-
-
-                while(resultSet.next()){
-                    slotPairs.add(new BikeSlotPair(resultSet.getInt("bikeID"), resultSet.getInt("slotID"), resultSet.getInt("stationID")));
-                }
-
-
-                stmt.close();
-                db.close();
-
-                ArrayList<Docking> docking_stations = getAllDockingStations();
-                ArrayList<Bike> bikes = new ArrayList<>();
-
-                db = connect();
-                for (int j = 0; j < slotPairs.size(); j++) {
-                    stmt = db.prepareStatement("SELECT bikes.bikeID, bikes.price, bikes.purchaseDate, bikes.totalTrips, bikes.totalKm, bikes.make, bikes.type, bikes.status FROM bikes WHERE bikes.bikeID = ?");
-                    stmt.setInt(1, slotPairs.get(i).getBike_id());
-                    int stationID = slotPairs.get(i).getStation_id();
-                    ResultSet set = execSQLRS(stmt);
-                    while(set.next()){
-                        Docking station = null;
-                        for (int k = 0; k < docking_stations.size(); k++) {
-                            if(docking_stations.get(k).getId() == stationID){
-                                station = docking_stations.get(k);
-                            }
-                        }
-                        Double[] locArr = {station.getLocation().getLatitude(), station.getLocation().getLongitude(), station.getLocation().getAltitude()};
-                        bikes.add(new Bike(
-                           set.getInt("bikeID"),
-                           set.getString("make"),
-                           set.getDouble("price"),
-                           set.getString("type"),
-                           0.0,
-                            set.getInt("totalKm"),
-                           new Location("", locArr),
-                           set.getInt("status"),
-                           dateTimeToDateOnly(set.getString("purchaseDate"))
-                        ));
-                    }
-                }
-
-                for (int j = 0; j < slotPairs.size(); j++) {
-                    int stationID = slotPairs.get(j).getStation_id();
-                    int slotID = slotPairs.get(j).getSlot_id();
-                    int bikeID = slotPairs.get(j).getBike_id();
-
-                    for (int k = 0; k < docking_stations.size(); k++) {
-                        if(docking_stations.get(k).getId() == stationID){
-                            Bike bikeToDockHere = null;
-                            for (int l = 0; l < bikes.size(); l++) {
-                                if(bikes.get(l).getId() == bikeID){
-                                    bikeToDockHere = bikes.get(l);
-                                }
-                            }
-                            docking_stations.get(k).forceAddBike(bikeToDockHere, slotID);
-                        }
-                    }
-                }
-                stations = docking_stations.toArray(stations);
-                return stations;
-            } catch(SQLException e) {
-                System.out.println("Error: " + e);
-            }
-        }
-        return stations;
+    public User[] getAllCustomers(){
+        return getUserByType(3);
     }
-    //Martin
-    public boolean undockBike(Bike bike, Docking dock){
-        db = connect();
-        PreparedStatement stmt = null;
-        try{
-            if(db == null){
-                return false;
-            }
 
-            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.stationID = ? AND slots.bikeID = ?");
-            stmt.setInt(1, dock.getId());
-            stmt.setInt(2, bike.getId());
-            boolean output = execSQLBool(stmt, db);
-            stmt.close();
-            db.close();
-            return output;
-        } catch(SQLException ex){
-            ex.printStackTrace();
-        }
-        return false;
+    public User[] getAllAdminUsers() {
+        return getUserByType(1);
     }
-    //Martin
-    public boolean rentBike(User userRentingBike, Bike bikeToRent, Docking start){
-        db = connect();
-        PreparedStatement stmt = null;
-        try{
-            if(db == null){
-                return false;
-            }
-            stmt = db.prepareStatement("INSERT INTO trips (bikeID, startStation, startTime, userID) VALUES (?, ?, ?, ?)");
-            stmt.setInt(1, bikeToRent.getId());
-            stmt.setInt(2, start.getId());
-            java.util.Date utilDate = new java.util.Date();
-            stmt.setDate(3, new java.sql.Date(utilDate.getTime()));
-            stmt.setInt(4, userRentingBike.getUserID());
-            boolean output = execSQLBool(stmt, db);
-            stmt.close();
-            db.close();
-            return output;
-        } catch(SQLException ex){
-            ex.printStackTrace();
-        }
-        return false;
-    }
-    //Martin
-    public boolean endTrip(User user, Bike bike, Docking end){
-        db = connect();
-        PreparedStatement stmt = null;
-        try{
-            if(db == null){
-                return false;
-            }
-            stmt = db.prepareStatement("UPDATE trips SET endTime = ?, endStation = ? WHERE bikeID = ? AND trips.userID = ? AND endStation IS NULL AND endTime IS NULL");
-            java.util.Date jutilDate = new java.util.Date();
-            stmt.setDate(1, new java.sql.Date(jutilDate.getTime()));
-            stmt.setInt(2, end.getId());
-            stmt.setInt(3, bike.getId());
-            stmt.setInt(4, user.getUserID());
 
-            boolean output = execSQLBool(stmt, db);
-            stmt.close();
-            db.close();
-            return output;
-        } catch(SQLException ex){
-            ex.printStackTrace();
-        }
-        return false;
+    public User[] getAllRepairUsers() {
+        return getUserByType(2);
     }
 }
 
@@ -724,7 +755,6 @@ class BikeSlotPair{
         this.slot_id = slot_id;
         this.station_id = station_id;
     }
-
     public int getBike_id(){
         return bike_id;
     }
@@ -742,9 +772,10 @@ class BikeSlotPair{
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        Bike[] bikes = dbh.getAllBikesOA();
-        for(Bike bike : bikes) {
-            System.out.println(bike.toString() + " Location: \n" + bike.getLocation().toString());
-        }
+        Docking[] stations = dbh.getAllDockingStationsWithBikes();
+
+        for(Docking station : stations) {
+            System.out.println(station.toString());
+       }
     }
 }
