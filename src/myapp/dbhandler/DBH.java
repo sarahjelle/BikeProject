@@ -504,19 +504,18 @@ public class DBH {
     }
 
     //Martin
-    public boolean endRent(User user, Bike bike, int dockID, int spot){
+    public boolean endRent(Bike bike, int dockID, int spot){
         db = connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
                 return false;
             }
-            stmt = db.prepareStatement("UPDATE trips SET endTime = ?, endStation = ? WHERE bikeID = ? AND trips.userID = ? AND endStation IS NULL AND endTime IS NULL");
+            stmt = db.prepareStatement("UPDATE trips SET endTime = ?, endStation = ? WHERE bikeID = ? AND endStation IS NULL AND endTime IS NULL");
             java.util.Date jutilDate = new java.util.Date();
             stmt.setDate(1, new java.sql.Date(jutilDate.getTime()));
             stmt.setInt(2, dockID);
             stmt.setInt(3, bike.getId());
-            stmt.setInt(4, user.getUserID());
 
             if(execSQLBool(stmt, db)) {
                 if(dockBike(bike, dockID, spot)) {
