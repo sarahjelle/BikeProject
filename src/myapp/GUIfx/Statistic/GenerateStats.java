@@ -19,9 +19,10 @@ public class GenerateStats {
     private ArrayList<Docking> docks;
 
     public GenerateStats() {
-        dbh = new DBH();
-        bikes = dbh.getAllBikesDummyLocation();
-        docks = dbh.getAllDockingStations();
+        this.dbh = new DBH();
+        this.bikes = null;
+        this.bikes = dbh.getAllBikes();
+        this.docks = dbh.getAllDockingStations();
     }
 
     public String[] dockingName() {

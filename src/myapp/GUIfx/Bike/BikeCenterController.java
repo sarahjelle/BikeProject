@@ -12,6 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import myapp.data.Bike;
+import myapp.data.Location;
 
 import javax.swing.text.html.ImageView;
 import java.awt.*;
@@ -78,12 +79,13 @@ public class BikeCenterController implements Initializable{
         }*/
 
         for(int i = 0; i < 25; i++){
-            Bike a = new Bike(i, "Electric", 899.90, LocalDate.now(), "Trek", 0.5, true, 100, null);
-            Bike b = new Bike(i+1, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
-            Bike c = new Bike(i+2, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
-            Bike d = new Bike(i+3, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
+            //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
+            Bike a = new Bike(i, "Trek", 899.90, "Electric", 0.5, 100, new Location(), Bike.AVAILABLE,  LocalDate.now());
+            //Bike b = new Bike(i+1, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
+            //Bike c = new Bike(i+2, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
+            //Bike d = new Bike(i+3, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
             //addBikeData(b); //hører til tabell
-            listView.getItems().addAll(a, b, c, d);
+            listView.getItems().add(a);
         }
 
 
@@ -206,7 +208,7 @@ public class BikeCenterController implements Initializable{
         dateOutput.setText(purchaseDate);
         batteryOutput.setText(Double.toString(bike.getBatteryPercentage()));
 
-        if(bike.isAvailable()){
+        if(bike.getStatus() == Bike.AVAILABLE){
             availableOutput.setText("Available");
         }
         else{
