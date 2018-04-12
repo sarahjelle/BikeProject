@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class BikeCenterController implements Initializable{
@@ -35,6 +36,8 @@ public class BikeCenterController implements Initializable{
     @FXML private DatePicker purchaseDate;
     @FXML private TextField priceInput;
     @FXML private TextField makeInput;
+    //error
+    @FXML private Label priceError;
 
     //attributes for repair
     @FXML private VBox repairBikePane;
@@ -51,11 +54,22 @@ public class BikeCenterController implements Initializable{
     @FXML private Text distanceOutput;
     @FXML private BorderPane bikeInfoEdit;
 
+    //attributes for edit
+    @FXML private VBox bikeEditPane;
+    @FXML private TextField typeEdit;
+    @FXML private TextField makeEdit;
+    @FXML private TextField priceEdit;
+    @FXML private DatePicker dateEdit;
+    @FXML private TextField batteryEdit;
+    @FXML private ComboBox statusEdit;
+    @FXML private TextField distanceEdit;
 
     //listview
     @FXML private ListView listView;
     //private DBH dbh = new DBH();
     //private ArrayList<Bike> bikes = dbh.getBikes();
+
+
 
     public void initialize(URL url, ResourceBundle rb) {
         //for tableview
@@ -98,16 +112,13 @@ public class BikeCenterController implements Initializable{
 
     //opens the registration pane
     public void openRegisterPane(){
+        closeAll();
         regBikePane.setVisible(true);
-        listView.setVisible(false);
-        repairBikePane.setVisible(false);
-        System.out.println("Du har trykket");
     }
 
     //opens the repairPane
     public void openRepairPane(){
-        listView.setVisible(false);
-        regBikePane.setVisible(false);
+        closeAll();
         repairBikePane.setVisible(true);
     }
 
@@ -117,25 +128,21 @@ public class BikeCenterController implements Initializable{
         String selected = typeInput.getSelectionModel().getSelectedItem();
         System.out.println(selected);
 
-        if(selected.equals("New type")){
-            TextInputDialog newType = new TextInputDialog();
+        if(selected.equals("New type")) {
+            TextInputDialog newType = new TextInputDialog("New type");
             newType.setHeaderText("New type");
             newType.setGraphic(null);
-
-            try {
-                String type2 = newType.showAndWait().get();
-                System.out.println(typeInput);
-                typeInput.getItems().add(type2);
-            }
-            catch(Exception e){
-                newType.close();
-                e.printStackTrace();
+            newType.setContentText("Enter new type:");
+            Optional<String> result = newType.showAndWait();
+            if (result.isPresent()) {
+                typeInput.getItems().add(result.get());
+            } else {
+                System.out.println("Cancel");
             }
         }
     }
 
-
-    @FXML private Label priceError;
+    //checks if info is written in the textfield
     public boolean regInfoOk(){
         if(typeInput.getSelectionModel().isEmpty()){
 
@@ -253,16 +260,9 @@ public class BikeCenterController implements Initializable{
         bikeInfo.setVisible(false);
         bikeEditPane.setVisible(false);
         bikeInfoEdit.setVisible(false);
+        repairBikePane.setVisible(false);
     }
 
-    @FXML private VBox bikeEditPane;
-    @FXML private TextField typeEdit;
-    @FXML private TextField makeEdit;
-    @FXML private TextField priceEdit;
-    @FXML private DatePicker dateEdit;
-    @FXML private TextField batteryEdit;
-    @FXML private ComboBox statusEdit;
-    @FXML private TextField distanceEdit;
 
 
     @FXML private void openEdit(){
@@ -278,6 +278,36 @@ public class BikeCenterController implements Initializable{
        dateEdit.setValue(bike.getPurchased());
        batteryEdit.setText(Double.toString(bike.getBatteryPercentage()));
        //statusEdit.setValue(1);
+    }
+
+    @FXML private boolean deleteBike(){
+        String bikeId = bikeidOutput.getText();
+        int id = Integer.parseInt(bikeId);
+
+        Alert delete = new Alert(Alert.AlertType.CONFIRMATION);
+        delete.setTitle("Delete bike");
+        delete.setContentText("Are you sure you want to delete bike with bikeid " + id + "?");
+
+        Optional<ButtonType> result = delete.showAndWait();
+
+        if(result.isPresent() && result.get() == ButtonType.OK){
+            //if boolean == true
+            Alert deleted = new Alert(Alert.AlertType.INFORMATION);
+            deleted.setHeaderText("Deleted");
+            deleted.setContentText("Bike with bikeId " + id + " was sucsessfully deleted");
+            Optional<ButtonType> result2 = deleted.showAndWait();
+
+            if(result2.get() == ButtonType.OK || result2.get() == ButtonType.CLOSE){
+                closeAll();
+                listView.setVisible(true);
+            }
+            return true;
+        }
+
+        else{
+            System.out.println("Cancel");
+            return false;
+        }
     }
 }
 

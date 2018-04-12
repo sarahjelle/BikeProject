@@ -11,6 +11,7 @@ public class BikePaneController {
 
     //fiks så man kommer inn på listen hver gang man trykker
     public void openPane(){
+        centerPaneController.cancel();
         bikePane.setVisible(true);
     }
 
