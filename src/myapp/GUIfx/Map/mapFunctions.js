@@ -72,9 +72,15 @@ document.addMarker = function addMarker(bike) {
     let infoWindow = new google.maps.InfoWindow({
         content: "Bike Id: " + bike.id
     });
-
+    var counter = 0;
     google.maps.event.addListener(marker,'click',function(){
-        infoWindow.open(map,marker);
+        if(counter == 0){
+            infoWindow.open(map,marker);
+            counter = 1;
+        } else if(counter == 1){
+            infoWindow.close(map,marker);
+            counter = 0;
+        }
     });
 
     //document.getElementById("console").innerHTML = "Length: " + markers.length;
