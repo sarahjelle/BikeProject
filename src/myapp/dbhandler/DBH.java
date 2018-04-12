@@ -608,7 +608,7 @@ public class DBH {
                 for (int m = 0; m < slotPairs.size(); m++) {
                     for (int n = 0; n < bikes.size(); n++) {
                         if (slotPairs.get(m).getBike_id() == bikes.get(n).getId()) {
-                            bikes.get(n).setLocation(stations[i].getLocation());
+                            bikes.get(n).setLocation(new Location(stations[i].getLocation().getLatitude(), stations[i].getLocation().getLongitude()));
                             stations[i].forceAddBike(bikes.get(n), slotPairs.get(m).getSlot_id());
                         }
                     }
@@ -698,7 +698,7 @@ public class DBH {
     }
 
     //Martin
-    public User[] getAllCustomers(){
+    private User[] getUserByType(int type) {
         db = connect();
         PreparedStatement stmt = null;
         ArrayList<User> usersList = new ArrayList<>();
@@ -707,7 +707,8 @@ public class DBH {
             if(db == null) {
                 return users;
             }
-            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.phone, users.landcode FROM users WHERE users.userTypeID = 3");
+            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.phone, users.landcode FROM users WHERE users.userTypeID = ?");
+            stmt.setInt(1, type);
 
             ResultSet resultSet = execSQLRS(stmt);
             while(resultSet.next()){
@@ -729,6 +730,18 @@ public class DBH {
             System.out.println("Error: " + e);
         }
         return users;
+    }
+
+    public User[] getAllCustomers(){
+        return getUserByType(3);
+    }
+
+    public User[] getAllAdminUsers() {
+        return getUserByType(1);
+    }
+
+    public User[] getAllRepairUsers() {
+        return getUserByType(2);
     }
 }
 
