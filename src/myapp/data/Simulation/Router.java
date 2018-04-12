@@ -27,25 +27,43 @@ public class Router implements Runnable{
     private long TotalTime = -1;
 
     public Router(User customer, Bike bikeToMove, Docking start, Docking end){
+        if(customer == null){
+            throw new IllegalArgumentException("Customer is null");
+        }
+        if(bikeToMove == null){
+            throw new IllegalArgumentException("Bike is null");
+        }
+        if(start == null){
+            throw new IllegalArgumentException("Start Docking station is null");
+        }
+        if(end == null){
+            throw new IllegalArgumentException("End Docking station is null");
+        }
         this.customer = customer;
         this.bikeToMove = bikeToMove;
         this.start = bikeToMove.getLocation();
         this.end = end;
+        System.out.println(start.toString());
+        System.out.println(end.toString());
         this.WayPoints = getWayPoints();
-        if(WayPoints.length <= 0){
+        if(WayPoints == null || WayPoints.length <= 0){
             hasArrived = true;
             stop = true;
+        } else{
+            for (int i = 0; i < WayPoints.length - 1; i++) {
+                bikeToMove.setDistanceTraveled((int)getDistance(WayPoints[i], WayPoints[i+1]));
+            }
         }
         this.startStation = start;
-        for (int i = 0; i < WayPoints.length - 1; i++) {
-            bikeToMove.setDistanceTraveled((int)getDistance(WayPoints[i], WayPoints[i+1]));
-        }
+        System.out.println("ROUTER CREATED: ");
+        System.out.println(customer.toString() + ", " + bikeToMove.toString());
     }
 
     public void run(){
         long StartTime = System.currentTimeMillis();
         while(!stop){
             if(!hasArrived){
+                System.out.println("ROUTING");
                 move();
                 try{
                     Thread.sleep(2000);

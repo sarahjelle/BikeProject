@@ -105,9 +105,11 @@ public class Docking {
         dbh.updateBikesInDockingStation(id, bikes);
         Bike bike = null;
         for(int i = 0; i < bikes.length; i++) {
-            if(bikes[i].getBatteryPercentage() > MINIMUM_BAT_LEVEL) {
-                bike = bikes[i];
-                bikes[i] = null;
+            if(bikes[i] != null) {
+                if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
+                    bike = bikes[i];
+                    bikes[i] = null;
+                }
             }
         }
         if(bike != null) {

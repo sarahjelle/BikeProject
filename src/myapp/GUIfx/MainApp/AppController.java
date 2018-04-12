@@ -7,7 +7,6 @@ import javafx.scene.web.WebView;
 import myapp.GUIfx.Bike.BikePaneController;
 import myapp.GUIfx.DockingStation.DockStationCenter;
 import myapp.GUIfx.Map.MapController;
-import myapp.GUIfx.Map.MapControllerV2;
 import myapp.GUIfx.Statistic.StatController2;
 
 import java.awt.*;
@@ -25,7 +24,7 @@ import java.util.ArrayList;
 public class AppController {
     @FXML private BikePaneController bikeController;
     @FXML private DockStationCenter dockController;
-    @FXML private MapControllerV2 map;
+    @FXML private MapController map;
     @FXML private StatController2 statController;
 
     private Updater up;

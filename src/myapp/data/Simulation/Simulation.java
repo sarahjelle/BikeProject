@@ -53,6 +53,7 @@ public class Simulation implements Runnable{
     }
 
     public void run(){
+        System.out.println("Starting Simulation");
         User[] userSubset = getUserSubset();
 
         Router[] routers = getRouters(userSubset);
@@ -60,13 +61,15 @@ public class Simulation implements Runnable{
         Thread[] threads = new Thread[routers.length];
         for (int i = 0; i < threads.length; i++) {
             threads[i] = new Thread(routers[i]);
-            threads[i].run();
+            threads[i].start();
         }
 
         while(!stop){
             for (int i = 0; i < routers.length; i++) {
+                /*
                 if(routers[i].hasArrived() && routers[i].isDocked()){
                     //No problem, create new router
+                    System.out.println("Bike has arrived, getting new router");
                     routers[i].stop();
                     User newUser = getNewUser(routers[i].getUser(), userSubset);
                     Docking start = routers[i].getStartStation();
@@ -82,6 +85,7 @@ public class Simulation implements Runnable{
                     threads[i].start();
                 } else if(routers[i].hasArrived() && !routers[i].isDocked()){
                     //Bike has arrived, but could not dock
+                    System.out.println("bike could not dock, getting new router");
                     routers[i].stop();
                     User user = routers[i].getUser();
                     Bike bike = routers[i].getBike();
@@ -95,6 +99,7 @@ public class Simulation implements Runnable{
                     threads[i] = new Thread(routers[i]);
                     threads[i].start();
                 }
+                */
             }
         }
         // Simulation ends, end all routers
@@ -104,7 +109,11 @@ public class Simulation implements Runnable{
     }
 
     public User[] getUserSubset(){
-        User[] subset = new User[(int)(users.length * percentageOfUsersToMove )];
+        int percentage = (int)(users.length * percentageOfUsersToMove );
+        if(percentage <= 0){
+            percentage = 1;
+        }
+        User[] subset = new User[percentage];
         Random rand = new Random();
         for (int i = 0; i < subset.length; i++) {
             boolean precentMoreThanOnceInSubset = false;
@@ -129,6 +138,7 @@ public class Simulation implements Runnable{
         Random rand = new Random();
         for (int i = 0; i < routers.length; i++) {
             Docking start = docking_stations[rand.nextInt(docking_stations.length)];
+            //System.out.println(start.toString());
             Docking end = docking_stations[rand.nextInt(docking_stations.length)];
             User customer = userSubSet[i];
             Bike bike = start.rentBike(customer);
