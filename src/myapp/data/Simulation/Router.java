@@ -15,7 +15,7 @@ public class Router implements Runnable{
     private Location[] WayPoints; //WayPoints[0] = start, WayPoints[WayPoints.length -1] = end
     private boolean hasArrived = false;
     private boolean isDocked = false;
-    private static int updateInterval = 60000; //milliseconds
+    private static int UPDATE_INTERVAL = 60000; //milliseconds
 
     private MapsAPI map = new MapsAPI();
     private final double AVRG_BIKE_SPEED = 0.4305; // m/s
@@ -32,39 +32,35 @@ public class Router implements Runnable{
         this.start = bikeToMove.getLocation();
         this.end = end;
         this.WayPoints = getWayPoints();
-
-        DBH handler = new DBH();
-        handler.rentBike(customer, bikeToMove, start);
+        if(WayPoints.length <= 0){
+            hasArrived = true;
+            stop = true;
+        }
         this.startStation = start;
     }
 
     public void run(){
-        if(!hasArrived){
-            long StartTime = System.currentTimeMillis();
-            while(!stop){
-                if(!hasArrived){
-                    move();
-                    try{
-                        Thread.sleep(2000);
-                    } catch(InterruptedException ex){
-                        ex.printStackTrace();
-                    }
-                    if((System.currentTimeMillis() - StartTime) >= updateInterval){
-                        //Update bike location to DB
-                        DBH handler = new DBH();
-                        Bike[] bikes = new Bike[1];
-                        bikes[0] = bikeToMove;
-                        Bike[] updatedBikes = handler.logBikes(bikes);
-                        if(updatedBikes.length != bikes.length){
-                            //Error updating
-                            System.out.println("Problem updating bike to DB: " + bikeToMove.toString());
-                        }
-                        //reset starttime
-                        StartTime = System.currentTimeMillis();
-                    }
-                } else {
-                    stop();
+        long StartTime = System.currentTimeMillis();
+        while(!stop){
+            if(!hasArrived){
+                move();
+                try{
+                    Thread.sleep(2000);
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
+                if((System.currentTimeMillis() - StartTime) >= UPDATE_INTERVAL){
+                    //Update loc to DB
+                    DBH handler = new DBH();
+                    Bike[] arr = {bikeToMove};
+                    Bike[] ret = handler.logBikes(arr);
+                    if(ret == null || ret.length <= 0){
+                        System.out.println("Error updating bike location to DB: " + bikeToMove.toString());
+                    }
+                    StartTime = System.currentTimeMillis();
+                }
+            } else{
+                stop = true;
             }
         }
     }
@@ -199,9 +195,9 @@ public class Router implements Runnable{
         return WP;
     }
 
-    public void resetStartLocation(){
+    /*public void resetStartLocation(){
         this.start = bikeToMove.getLocation();
-    }
+    }*/
 
     public void resetHasArrived(){
         this.hasArrived = false;
