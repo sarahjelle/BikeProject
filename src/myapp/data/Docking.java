@@ -91,9 +91,9 @@ public class Docking {
         return false;
     }
 
-    public boolean dockBike(Bike bike, User user) {
+    public boolean dockBike(Bike bike) {
         int spot = findFirstOpen() + 1;
-        if(dbh.endRent(user, bike,id, spot)) {
+        if(dbh.endRent(bike,id, spot)) {
             spot--;
             bikes[spot] = bike;
             return true;
