@@ -764,6 +764,7 @@ public class DBH {
             }
             stmt.close();
             db.close();
+            users = new User[usersList.size()];
             users = usersList.toArray(users);
             return users;
         } catch(SQLException e) {

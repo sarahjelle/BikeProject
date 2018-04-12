@@ -37,6 +37,9 @@ public class Router implements Runnable{
             stop = true;
         }
         this.startStation = start;
+        for (int i = 0; i < WayPoints.length - 1; i++) {
+            bikeToMove.setDistanceTraveled((int)getDistance(WayPoints[i], WayPoints[i+1]));
+        }
     }
 
     public void run(){
