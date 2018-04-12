@@ -210,6 +210,7 @@ public class DBH {
                         dateTimeToDateOnly(bikeset.getString("purchaseDate"))
                 ));
             }
+            
             stmt.close();
             db.close();
             Docking[] docks = getAllDockingStationsWithBikes();
