@@ -428,12 +428,17 @@ public class DBH {
                 return bikes;
             }
             stmt = db.prepareStatement("INSERT INTO bike_logs (bikeID, longitude, latitude, altitude, batteryPercentage, totalKM) VALUES (?,?,?,?,?,?)");
-
+            MapsAPI map = new MapsAPI();
             for (int i = 0; i < bikes.length; i++) {
                 stmt.setDouble(1, bikes[i].getId());
                 stmt.setDouble(2, bikes[i].getLocation().getLongitude());
                 stmt.setDouble(3, bikes[i].getLocation().getLatitude());
-                stmt.setDouble(4, bikes[i].getLocation().getAltitude());
+                if(bikes[i].getLocation().getAltitude() != null){
+                    stmt.setDouble(4, bikes[i].getLocation().getAltitude());
+                } else{
+                    stmt.setDouble(4, map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()));
+                }
+
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());
                 stmt.setDouble(6, bikes[i].getDistanceTraveled());
 
@@ -481,19 +486,21 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM docking_stations");
+            stmt = db.prepareStatement("SELECT stationID, stationName, maxSlots, latitude, longitude FROM docking_stations");
             ResultSet dockingSet = execSQLRS(stmt);
             ArrayList<Docking> docks = new ArrayList<>();
             while(dockingSet.next()) {
-                docks.add(new Docking(
+                Docking newDock = new Docking(
                         dockingSet.getInt("stationID"),
                         dockingSet.getString("stationName"),
                         new Location(
+                                dockingSet.getString("stationName"),
                                 dockingSet.getDouble("latitude"),
                                 dockingSet.getDouble("longitude")
                         ),
                         dockingSet.getInt("maxSlots")
-                ));
+                );
+                docks.add(newDock);
             }
 
             stmt.close();

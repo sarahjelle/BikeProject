@@ -29,26 +29,13 @@ CREATE TABLE bikes (
 CREATE TABLE repair_cases (
   repairCaseID int NOT NULL AUTO_INCREMENT,
   bikeID int NOT NULL,
-  dateCreated DATETIME DEFAULT NOW(), -- timestamp?
-  dateReceived DATETIME DEFAULT NULL,
+  dateCreated DATE NOT NULL,
+  dateReceived DATE DEFAULT NULL,
+  description TEXT NOT NULL,
+  returnDescription TEXT DEFAULT NULL,
+  price DOUBLE DEFAULT NULL,
   PRIMARY KEY (repairCaseID)
 );
-#All repair options for a registered repair case on a bike
-CREATE TABLE repair_lists (
-  repairCaseID int NOT NULL,
-  repairOptionID int NOT NULL,
-  userID int NOT NULL,
-  status smallint NOT NULL,
-  PRIMARY KEY (repairCaseID, repairOptionID)
-);
-#Options for repairs, example: "Bytte dekk på forhjul", "Skifte bakre bremseklosser"
-CREATE TABLE repair_options (
-  repairOptionID int NOT NULL AUTO_INCREMENT,
-  description varchar(255) NOT NULL,
-  price decimal NOT NULL,
-  PRIMARY KEY (repairOptionID)
-);
-
 
 /**
  * USER SECTION
@@ -81,8 +68,8 @@ CREATE TABLE docking_stations(
   stationID int NOT NULL AUTO_INCREMENT,
   stationName varchar(255) NOT NULL,
   maxSlots int NOT NULL DEFAULT 0,
-  longitude FLOAT( 10, 6 ) NOT NULL,
   latitude FLOAT( 10, 6 ) NOT NULL,
+  longitude FLOAT( 10, 6 ) NOT NULL,
   PRIMARY KEY(stationID)
 );
 
@@ -108,8 +95,8 @@ CREATE TABLE slots(
 CREATE TABLE bike_logs(
   bikeID int NOT NULL,
   logTime DATETIME NOT NULL DEFAULT NOW(),
-  longitude FLOAT( 10, 6 ) NOT NULL,
   latitude FLOAT( 10, 6 ) NOT NULL,
+  longitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
   batteryPercentage int NOT NULL,
   totalKm int DEFAULT 0,
@@ -137,11 +124,6 @@ CREATE TABLE trips(
 
 ALTER TABLE repair_cases
   ADD FOREIGN KEY (bikeID) REFERENCES bikes(bikeID);
-
-ALTER TABLE repair_lists
-  ADD FOREIGN KEY (repairCaseID) REFERENCES repair_cases(repairCaseID),
-  ADD FOREIGN KEY (repairOptionID) REFERENCES repair_options(repairOptionID),
-  ADD FOREIGN KEY (userID) REFERENCES users(userID);
 
 ALTER TABLE users
   ADD FOREIGN KEY (userTypeID) REFERENCES user_types(userTypeID);

@@ -83,7 +83,7 @@ public class GenerateContent {
             for (int i = 0; i < NumberOfStations; i++) {
                 //name, maxSlots
                 String name = stationNames[i];
-                int slots = rand.nextInt(MaxSlots);
+                int slots = MaxSlots * 2;
                 if(slots <= 0){
                     slots = 10;
                 }
@@ -97,12 +97,37 @@ public class GenerateContent {
             String slots = "\n";
             for (int i = 0; i < slotsOnStations.length; i++) {
                 //slotID, stationID
-                for (int j = 0; j < slotsOnStations[i]; j++) {
+                for (int j = 0; j < slotsOnStations[i] * 2; j++) {
                     int slotID = j + 1;
                     int stationID = i + 1;
                     slots += "INSERT INTO " + slotsTableName + " (slotID, stationID) VALUES (" + slotID + ", " + stationID + ");\n";
                 }
             }
+            int numberOfDockingStations = docking_stations.split("\n").length;
+            int numberOfSlotsOnEachDockingStation = MaxSlots;
+            int dockCounter = 1;
+            int slotCounter = 1;
+            String slotSet = "\n";
+            for (int i = 1; i <= NumberOfBikes; i++) {
+                slotSet += "UPDATE slots SET bikeID = " + i + " WHERE slotID = " + slotCounter + " AND stationID = " + dockCounter + ";\n";
+                slotCounter++;
+                if(slotCounter > MaxSlots){
+                    slotCounter = 1;
+                    dockCounter++;
+                }
+            }
+
+            String users = "\n" +
+                    "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'martin@mail.com', 'passord', 'salt', 'Martin', 'Moan', 99999999, 0047);\n" +
+                    "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'frank@mail.com', 'passord', 'salt', 'Frank', 'Kjosås', 66666666, 0047);\n" +
+                    "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'jonnyboi@mail.com', 'passord', 'salt', 'Jonas Gahr', 'Støre', 70707070, 0047);\n";
+            /*
+            String[] bikesList = bikes.split("\n");
+            String slotSet = "\n";
+            for (int i = 0; i < bikesList.length; i++) {
+                slotSet += "UPDATE TABLE slots SET bikeID = " + bikesList[i].get
+            }
+            */
 
             //Create user_types
             String user_types = "\n";
@@ -112,7 +137,7 @@ public class GenerateContent {
 
 
 
-            toWrite += bikes + docking_stations + slots + user_types;
+            toWrite += bikes + docking_stations + slots + user_types + slotSet + users;
             //Write content-string to file
             bWriter.write(toWrite);
         } catch(Exception e){

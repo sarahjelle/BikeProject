@@ -201,40 +201,42 @@ class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
-        /*
-
         sim.setUpdateInterval(3000);
 
         Thread simThread = new Thread(sim);
         simThread.start();
-        */
+
+        /*
         DBH handler = new DBH();
+        System.out.println("Starting");
+        //Router[] routers = sim.getRouters(subset);
+        Docking[] dockings = handler.getAllDockingStationsWithBikes();
         User[] users = handler.getAllCustomers();
+        Bike[] bikes = new Bike[users.length];
+        Random rand = new Random();
+        System.out.println("Starting");
+        Router[] routers = new Router[users.length];
+        MapsAPI map = new MapsAPI();
+        System.out.println("Starting");
         for (int i = 0; i < users.length; i++) {
-            System.out.println(users[i].toString());
-        }
-        System.out.println("FROM SUBSET");
-        User[] subset = sim.getUserSubset();
-        for (int i = 0; i < subset.length; i++) {
-            System.out.println(subset[i].toString());
+            System.out.println("Starting");
+            Docking start = null;
+            Docking end = null;
+            do{
+                start = dockings[rand.nextInt(dockings.length)];
+                end = dockings[rand.nextInt(dockings.length)];
+                bikes[i] = start.rentBike(users[i]);
+            } while(end == start || bikes[i] == null);
+            System.out.println(start.getLocation().getLatitude());
+            System.out.println(start.getLocation().getLongitude());
+
+            Location[] wp = map.getWayPoints(start.getLocation(), end.getLocation());
+            for (int j = 0; j < wp.length; j++) {
+                System.out.println(wp[i].toString());
+            }
+            routers[i] = new Router(users[i], bikes[i], start, end);
         }
 
-        Router[] routers = sim.getRouters(subset);
-        for (int i = 0; i < routers.length; i++) {
-            System.out.println(routers[i].toString());
-        }
-        MapsAPI map = new MapsAPI();
-        Location[] wp = map.getWayPoints(routers[0].getStartStation().getLocation(), routers[0].getEnd().getLocation());
-        if(wp == null){
-            System.out.println("WAYPOINTS NULL");
-        } else if(wp.length == 0){
-            System.out.println("WAYPOINTS.length == 0");
-        }
-        if(wp != null){
-            for (int i = 0; i < wp.length; i++) {
-                System.out.println(wp[0].toString());
-            }
-        }
 
         //To make sure bike is docked back in DB
         for (int i = 0; i < routers.length; i++) {
@@ -252,6 +254,8 @@ class SimTest{
                 System.out.println("Docking to original end successful");
             }
         }
+        */
+
 
     }
 }
