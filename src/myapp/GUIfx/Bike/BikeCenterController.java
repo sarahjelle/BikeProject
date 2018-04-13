@@ -39,10 +39,10 @@ public class BikeCenterController implements Initializable{
     @FXML private Label priceError;
 
     //attributes for repair
-    @FXML private VBox repairBikePane;
+    @FXML private SplitPane repairBikePane;
 
     //attributes for info
-    @FXML private VBox bikeInfo;
+    @FXML private BorderPane bikeInfo;
     @FXML private Text bikeidOutput;
     @FXML private Text typeOutput;
     @FXML private Text makeOutput;
@@ -51,7 +51,6 @@ public class BikeCenterController implements Initializable{
     @FXML private Text batteryOutput;
     @FXML private Text availableOutput;
     @FXML private Text distanceOutput;
-    @FXML private BorderPane bikeInfoEdit;
 
     //attributes for edit
     @FXML private VBox bikeEditPane;
@@ -198,7 +197,6 @@ public class BikeCenterController implements Initializable{
     //@FXML private ImageView image1;
     @ FXML private void showInfo(Bike bike){
         closeAll();
-        bikeInfoEdit.setVisible(true);
         bikeInfo.setVisible(true);
         bikeidOutput.setText(Integer.toString(bike.getId()));
         typeOutput.setText(bike.getType());
@@ -255,9 +253,8 @@ public class BikeCenterController implements Initializable{
     public void closeAll(){
         listView.setVisible(false);
         regBikePane.setVisible(false);
-        bikeInfo.setVisible(false);
         bikeEditPane.setVisible(false);
-        bikeInfoEdit.setVisible(false);
+        bikeInfo.setVisible(false);
         repairBikePane.setVisible(false);
     }
 
@@ -265,7 +262,6 @@ public class BikeCenterController implements Initializable{
 
     @FXML private void openEdit(){
         closeAll();
-        bikeInfoEdit.setVisible(true);
         bikeEditPane.setVisible(true);
        String bikeId = bikeidOutput.getText();
        int id = Integer.parseInt(bikeId);

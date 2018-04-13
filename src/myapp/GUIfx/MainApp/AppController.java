@@ -2,6 +2,7 @@ package myapp.GUIfx.MainApp;
 
 import javafx.fxml.FXML;
 import javafx.scene.web.WebView;
+import myapp.GUIfx.Bike.BikeController;
 import myapp.GUIfx.Bike.BikePaneController;
 import myapp.GUIfx.DockingStation.DockStationCenter;
 import myapp.GUIfx.Map.MapController;
@@ -15,7 +16,7 @@ import java.io.BufferedReader;
 import java.net.URL;
 
 public class AppController {
-    @FXML private BikePaneController bikeController;
+    @FXML private BikeController bikeController;
     @FXML private DockStationCenter dockController;
     @FXML private MapController map;
     @FXML private StatController2 statController;
@@ -53,7 +54,7 @@ public class AppController {
 
 
     private void closeAll(){
-        bikeController.closePane();
+        bikeController.closeAll();
         dockController.closePane();
         statController.closePane();
         mapPane.setVisible(false);
