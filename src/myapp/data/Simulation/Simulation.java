@@ -53,69 +53,53 @@ public class Simulation implements Runnable{
     }
 
     public void run(){
+        System.out.println("Starting Simulation");
         User[] userSubset = getUserSubset();
-        // Get subset of bikes
-        Bike[] subset = getBikeSubset(userSubset);
-        // Choose random end docking stations, no matter where the bikes are
-        Docking[] endStations = getEndDockingStations(subset);
-        // Get Router objects for all bikes that will move
-        Router[] routers = getRouters(userSubset, subset, endStations);
+
+        Router[] routers = getRouters(userSubset);
 
         Thread[] threads = new Thread[routers.length];
         for (int i = 0; i < threads.length; i++) {
             threads[i] = new Thread(routers[i]);
-            threads[i].run();
+            threads[i].start();
         }
 
         while(!stop){
             for (int i = 0; i < routers.length; i++) {
+                /*
                 if(routers[i].hasArrived() && routers[i].isDocked()){
                     //No problem, create new router
-                    //Get new bike
-                    Bike bikeThatFinished = routers[i].getBike();
-                    Bike newBike = null;
-                    do{
-                        newBike = getAvailableBike(subset);
-                    } while (newBike == bikeThatFinished);
-
-                    //Get new docking station end
-                    Docking newEnd = null;
-                    do{
-                        Bike[] b = new Bike[1];
-                        b[0] = newBike;
-                        Docking[] arr = getEndDockingStations(b);
-                        newEnd = arr[0];
-                    } while(newEnd.getLocation() == newBike.getLocation());
-
-                    routers[i] = new Router(routers[i].getUser(), newBike, routers[i].getEnd(), newEnd);
-                    threads[i] = new Thread(routers[i]);
-                    threads[i].run();
-                } else if(routers[i].hasArrived() && !routers[i].isDocked()){
-                    // Bike has arrived but could not dock.
-                    //      stop router,
-                    //      give it new end (this will update start, get new waypoints)
-                    //      reset hasArrived
-                    //      restart router thread
-
-                    // stop thread
+                    System.out.println("Bike has arrived, getting new router");
                     routers[i].stop();
-                    routers[i].resetStartLocation();
-                    // Give router new endlocation
-                    Docking couldNotDockTo = routers[i].getEnd();
-                    Bike[] arr = new Bike[1];
-                    arr[0] = routers[i].getBike();
-                    Docking[] newEnd = null;
+                    User newUser = getNewUser(routers[i].getUser(), userSubset);
+                    Docking start = routers[i].getStartStation();
+                    Docking end = null;
+                    Random rand = new Random();
                     do{
-                        newEnd = getEndDockingStations(arr);
-                    } while(newEnd[0] == couldNotDockTo);
+                        end = docking_stations[rand.nextInt(docking_stations.length)];
+                    } while(end == start);
 
-                    routers[i].setEnd(newEnd[0]);
-                    //reset hasArrived
-                    routers[i].resetHasArrived();
-                    //restart thread
-                    routers[i].setRunnable();
-                    threads[i].run();
+                    Bike bikeToMove = start.rentBike(newUser);
+                    routers[i] = new Router(newUser, bikeToMove, start, end);
+                    threads[i] = new Thread(routers[i]);
+                    threads[i].start();
+                } else if(routers[i].hasArrived() && !routers[i].isDocked()){
+                    //Bike has arrived, but could not dock
+                    System.out.println("bike could not dock, getting new router");
+                    routers[i].stop();
+                    User user = routers[i].getUser();
+                    Bike bike = routers[i].getBike();
+                    Docking start = routers[i].getEnd();
+                    Docking end = null;
+                    Random rand = new Random();
+                    do{
+                        end = docking_stations[rand.nextInt(docking_stations.length)];
+                    } while(end == start);
+                    routers[i] = new Router(user, bike, start, end);
+                    threads[i] = new Thread(routers[i]);
+                    threads[i].start();
                 }
+                */
             }
         }
         // Simulation ends, end all routers
@@ -125,7 +109,11 @@ public class Simulation implements Runnable{
     }
 
     public User[] getUserSubset(){
-        User[] subset = new User[(int)(users.length * percentageOfUsersToMove )];
+        int percentage = (int)(users.length * percentageOfUsersToMove );
+        if(percentage <= 0){
+            percentage = 1;
+        }
+        User[] subset = new User[percentage];
         Random rand = new Random();
         for (int i = 0; i < subset.length; i++) {
             boolean precentMoreThanOnceInSubset = false;
@@ -145,118 +133,18 @@ public class Simulation implements Runnable{
         return subset;
     }
 
-    public Bike[] getBikeSubset(User[] usersToMove){
-        Bike[] subset = new Bike[usersToMove.length];
+    private Router[] getRouters(User[] userSubSet){
+        Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
-        for (int i = 0; i < subset.length; i++) {
-            boolean precentMoreThanOnceInSubset = false;
-            do{
-                subset[i] = bikes[rand.nextInt(bikes.length)];
-                for (int j = 0; j < subset.length; j++) {
-                    if(j != i){
-                        if(subset[j] != null){
-                            if(subset[j] == subset[i]){
-                                precentMoreThanOnceInSubset = true;
-                            }
-                        }
-                    }
-                }
-            } while(precentMoreThanOnceInSubset);
+        for (int i = 0; i < routers.length; i++) {
+            Docking start = docking_stations[rand.nextInt(docking_stations.length)];
+            //System.out.println(start.toString());
+            Docking end = docking_stations[rand.nextInt(docking_stations.length)];
+            User customer = userSubSet[i];
+            Bike bike = start.rentBike(customer);
+            routers[i] = new Router(customer, bike, start, end);
         }
-        return subset;
-    }
-
-    /*
-    * getNewSubset() returns a Bike[] that consists of 10% of all the registered bikes in the database,
-    * that has a status number = Bike.AVAILABLE (1).
-    * All the bikes are un-docked from their docking_stations before being returned (both in database and in object).
-    */
-    private Bike[] getNewSubset(){
-        int numberOfBikes = (int)(users.length * percentageOfUsersToMove );
-        if(numberOfBikes < 1){
-            numberOfBikes = 1;
-        }
-        Bike[] subset = new Bike[numberOfBikes]; // 10% of users will move;
-        Random rand = new Random();
-        for (int i = 0; i < subset.length; i++) {
-            boolean presentMoreThanOnce = false;
-            Bike lookingAt = null;
-            do{
-                //Choose random bike from "bikes"
-                lookingAt = null;
-                do{
-                    lookingAt = bikes[rand.nextInt(bikes.length)];
-                } while(lookingAt.getStatus() != Bike.AVAILABLE);
-
-                //Check that the bike is not present in the subset more than once
-                for (int j = 0; j < subset.length; j++) {
-                    if(j != i){
-                        if(subset[j] != null){
-                            if(subset[i] == lookingAt){
-                                presentMoreThanOnce = true;
-                            }
-                        }
-                    }
-                }
-            } while(!presentMoreThanOnce);
-            if(!presentMoreThanOnce){
-                subset[i] = lookingAt;
-                //Find what station bike is docked at and undock
-                for (int j = 0; j < docking_stations.length; j++) {
-                    Bike[] bikesHere = docking_stations[j].getBikes();
-                    for (int k = 0; k < bikesHere.length; k++) {
-                        if(bikesHere[k].getId() == lookingAt.getId()){
-                            docking_stations[j].undockBike(lookingAt.getId());
-                            DBH handler = new DBH();
-                            handler.undockBike(lookingAt, docking_stations[j]);
-                        }
-                    }
-                }
-            } else{
-                System.out.println("Do-while loop did not work...");
-            }
-        }
-        return subset;
-    }
-
-    private Docking[] getEndDockingStations(Bike[] workingSubSet){
-        Docking[] endStations = new Docking[workingSubSet.length];
-        Random rand = new Random();
-        for (int i = 0; i < workingSubSet.length; i++) {
-            //Choose random end station from all available docking stations
-            endStations[i] = docking_stations[rand.nextInt(docking_stations.length)];
-            //Does not matter if several bikes has same end station
-        }
-        return endStations;
-    }
-
-    public Router[] getRouters(User[] userSubset, Bike[] bikeSubset, Docking[] endStations){
-        if(bikeSubset.length == endStations.length && bikeSubset.length == userSubset.length){
-            Router[] routers = new Router[userSubset.length];
-            for (int i = 0; i < routers.length; i++) {
-                //Find the station bike[i] is at
-                Docking start = getStationIDForBike(bikeSubset[i]);
-                if(start != null){
-                    routers[i] = new Router(userSubset[i], bikeSubset[i], start, endStations[i]);
-                }
-
-            }
-            return routers;
-        } else{
-            return null;
-        }
-    }
-
-    private Docking getStationIDForBike(Bike bike){
-        for (int i = 0; i < docking_stations.length; i++) {
-            Bike[] subset = docking_stations[i].getBikes();
-            for (int j = 0; j < subset.length; j++) {
-                if(subset[j].getId() == bike.getId()){
-                    return docking_stations[i];
-                }
-            }
-        }
-        return null;
+        return routers;
     }
 
     public void setUpdateInterval(int millis){
@@ -280,6 +168,23 @@ public class Simulation implements Runnable{
         return output;
     }
 
+    public User getNewUser(User finished, User[] subset){
+        User output = null;
+        Random rand = new Random();
+        boolean presentInSubset = false;
+        for (int i = 0; i < users.length; i++) {
+            do{
+                output = users[rand.nextInt(users.length)];
+
+                for (int j = 0; j < subset.length; j++) {
+                    if(output == subset[j]){
+                        presentInSubset = true;
+                    }
+                }
+            } while(output == finished || !presentInSubset);
+        }
+        return output;
+    }
 
 }
 

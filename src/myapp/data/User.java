@@ -84,6 +84,10 @@ public class User {
     public String getPassword(){
         return password;
     }
+
+    public String toString(){
+        return "ID: " + UserID + " UserTypeID: " + UserClass + " firstname: " + firstname + " lastname: " + lastname;
+    }
 }
 
 class UserTest{

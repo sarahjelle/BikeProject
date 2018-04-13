@@ -239,6 +239,33 @@ public class DBH {
         */
     }
 
+    private ArrayList<Bike> getBikesByStatus(int status) {
+        ArrayList<Bike> bikes = getAllBikes();
+        ArrayList<Bike> result = new ArrayList<>();
+        for(Bike bike : bikes) {
+            if(bike.getStatus() == status) {
+                result.add(bike);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<Bike> getBikesWithStatusAvailable() {
+        return getBikesByStatus(1);
+    }
+
+    public ArrayList<Bike> getBikesWithStatusInTrip() {
+        return getBikesByStatus(2);
+    }
+
+    public ArrayList<Bike> getBikesWithStatusRepair() {
+        return getBikesByStatus(3);
+    }
+
+    public ArrayList<Bike> getBikesWithStatusSoftDelete() {
+        return getBikesByStatus(4);
+    }
+
     private ArrayList<Bike> localGetBikes() {
         db = connect();
         PreparedStatement stmt = null;
@@ -720,7 +747,7 @@ public class DBH {
             if(db == null) {
                 return users;
             }
-            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.phone, users.landcode FROM users WHERE users.userTypeID = ?");
+            stmt = db.prepareStatement("SELECT users.userID, users.userTypeID, users.email, users.firstname, users.lastname, users.phone, users.landcode FROM users WHERE users.userTypeID = ?");
             stmt.setInt(1, type);
 
             ResultSet resultSet = execSQLRS(stmt);
@@ -737,6 +764,7 @@ public class DBH {
             }
             stmt.close();
             db.close();
+            users = new User[usersList.size()];
             users = usersList.toArray(users);
             return users;
         } catch(SQLException e) {

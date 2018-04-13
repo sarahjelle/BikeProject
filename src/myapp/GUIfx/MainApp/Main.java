@@ -19,13 +19,15 @@ public class Main extends Application{
     }
 
     public void loadApp(Stage primaryStage) throws Exception{
+        System.out.println("loading app");
         Parent root = FXMLLoader.load(getClass().getResource("App.fxml"));
+        System.out.println("loading app 2");
         Scene scene = new Scene(root, 700,500);
 
         primaryStage.setTitle("FXML Welcome");
         primaryStage.setScene(scene);
         primaryStage.show();
-
+        System.out.println("finished loading app");
     }
 
     @Override

@@ -7,7 +7,6 @@ import javafx.scene.web.WebView;
 import myapp.GUIfx.Bike.BikePaneController;
 import myapp.GUIfx.DockingStation.DockStationCenter;
 import myapp.GUIfx.Map.MapController;
-import myapp.GUIfx.Map.MapControllerV2;
 import myapp.GUIfx.Statistic.StatController2;
 
 import java.awt.*;
@@ -25,7 +24,7 @@ import java.util.ArrayList;
 public class AppController {
     @FXML private BikePaneController bikeController;
     @FXML private DockStationCenter dockController;
-    @FXML private MapControllerV2 map;
+    @FXML private MapController map;
     @FXML private StatController2 statController;
 
     private Updater up;
@@ -90,6 +89,7 @@ public class AppController {
 
         public Updater(){
             //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
+            /*
             String adrOne = "NTNU Kalvskinnet";
             String adrTwo = "NTNU Gløshaugen";
             String adrThree = "Bautavegen 3, 7056 Ranheim";
@@ -100,16 +100,14 @@ public class AppController {
             bikesTest[2] = new Bike(3, "DBS", 3400.0, "Bysykkel", 1.0, 100, new Location(adrThree, true), 1, LocalDate.now());
             bikesTest[3] = new Bike(4, "Trek", 100.0, "Landevei", 1.0, 100, new Location(adrFour, true), 1, LocalDate.now());
             bikes = bikesTest;
-                /*
-                DBH handler = new DBH();
-                ArrayList<Bike> bikesList = handler.getAllBikes();
-                Bike[] b = new Bike[bikesList.size()];
-                if(bikesList != null){
-                    this.bikes = bikesList.toArray(b);
-                }
-                */
+            */
 
-            System.out.println("Creating Updater");
+            DBH handler = new DBH();
+            ArrayList<Bike> bikesList = handler.getAllBikes();
+            Bike[] b = new Bike[bikesList.size()];
+            if(bikesList != null){
+                this.bikes = bikesList.toArray(b);
+            }
 
             URL url = getClass().getResource("../Map/map.html");
             mapPane.getEngine().load(url.toExternalForm());
