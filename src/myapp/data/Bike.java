@@ -13,6 +13,7 @@ public class Bike {
     private int distanceTraveled;
     private int totalTrips;
     private Location location;
+    private Repair[] repairs = new Repair[0];
     /*
     Status:
     1 = Available;
@@ -124,6 +125,14 @@ public class Bike {
         this.totalTrips++;
     }
 
+    public Repair[] getRepairs() {
+        return repairs;
+    }
+
+    public void setRepairs(Repair[] repairs) {
+        this.repairs = repairs;
+    }
+
     public boolean setStatus(int sta) {
         if(sta <= 4 && sta >= 1) {
             status = sta;
@@ -151,8 +160,48 @@ public class Bike {
         return false;
     }
 
+    private Repair getLatestRepairRequest() {
+        Repair repair = null;
+        for(Repair rep : repairs) {
+            if(repair == null) {
+                repair = rep;
+            } else if(repair.getCaseID() < rep.getCaseID()) {
+                repair = rep;
+            }
+        }
+
+        return repair;
+    }
+
+    public void addRepairRequest(String desc, LocalDate date) {
+        if(repairs.length == 0) {
+            repairs = new Repair[1];
+            repairs[0] = new Repair(id, desc, date);
+        } else {
+            Repair[] temp = new Repair[repairs.length + 1];
+            for(int i = 0; i < repairs.length; i++) {
+                temp[i] = repairs[i];
+            }
+            temp[temp.length - 1] = new Repair(id, desc, date);
+            temp[temp.length - 1].startRepairRequest();
+        }
+    }
+
+    public void finishLastRepairRequest(String returnDesc, LocalDate returnDate, double price) {
+        Repair rep = getLatestRepairRequest();
+        rep.finishRepairRequest(returnDesc, returnDate, price);
+    }
+
     // Added by Mediå for testing. Needs to be more complex!
     public String toString() {
-        return "ID: " + id + " Type: " + type + " Make: " + make;
+        String repairsList = "\tNo repairs";
+        if(repairs != null) {
+            repairsList = "";
+            for(Repair repair : repairs) {
+                repairsList += "\t" + repair.toString() + "\n\n";
+            }
+        }
+
+        return "ID: " + id + " Type: " + type + " Make: " + make + "\n\tRepairs:\n" + repairsList + "\n";
     }
 }

@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import static java.lang.Math.toIntExact;
 
+import com.sun.org.apache.regexp.internal.RE;
 import myapp.data.*;
 import myapp.hasher.*;
 
@@ -65,6 +66,14 @@ public class DBH {
     private LocalDate dateTimeToDateOnly(String datetime) {
         String date[] = datetime.split(" ")[0].split("-");
         return LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+    }
+
+    private LocalDate dateToLocalDate(String datetime) {
+        if(datetime != null) {
+        String date[] = datetime.split("-");
+        return LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+        }
+        return null;
     }
 
 
@@ -203,8 +212,8 @@ public class DBH {
                         bikeset.getDouble("batteryPercentage"),
                         bikeset.getInt("totalKM"),
                         new Location(
-                                bikeset.getDouble("latitude"),
-                                bikeset.getDouble("longitude")
+                                bikeset.getDouble("longitude"),
+                                bikeset.getDouble("latitude")
                         ),
                         bikeset.getInt("status"),
                         dateTimeToDateOnly(bikeset.getString("purchaseDate"))
@@ -220,6 +229,7 @@ public class DBH {
                     if (bks[j] != null) {
                         for (int k = 0; k < bikes.size(); i++) {
                             if (bks[j].getId() == bikes.get(k).getId()) {
+                                bks[j].setRepairs(bikes.get(k).getRepairs());
                                 bikes.set(k, bks[j]);
                             }
                         }
@@ -231,12 +241,6 @@ public class DBH {
             System.out.println("Error: " + e);
         }
         return null;
-        /*
-        ArrayList<Bike> bikes = new ArrayList<>();
-        //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
-        bikes.add(new Bike(1, "Trek", 1000.0, "El", 0.5, 0, new Location("NTNU Kalvskinnet", true), Bike.AVAILABLE, LocalDate.now()));
-        return bikes;
-        */
     }
 
     private ArrayList<Bike> getBikesByStatus(int status) {
@@ -276,7 +280,7 @@ public class DBH {
 
             stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, b.purchaseDate, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime UNION SELECT bikeID, make, type, price, status, purchaseDate, NULL AS logTime, '0' AS batteryPercentage, '0' AS latitude, '0' AS longitude, '0' AS totalKM FROM bikes c WHERE c.bikeID NOT IN (SELECT bikeID FROM bike_logs)");
             ResultSet bikeset = execSQLRS(stmt);
-            ArrayList<Bike> bikes = new ArrayList<Bike>();
+            ArrayList<Bike> bikes = new ArrayList<>();
             while(bikeset.next()) {
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
@@ -293,6 +297,22 @@ public class DBH {
                         dateTimeToDateOnly(bikeset.getString("purchaseDate"))
                 ));
             }
+
+            Repair[] repairs = getAllRepairs();
+            for(Bike bike : bikes) {
+                ArrayList<Repair> localRep = new ArrayList<>();
+                for(Repair locRep : repairs) {
+                    if(locRep.getBikeID() == bike.getId()) {
+                        localRep.add(locRep);
+                    }
+                }
+                if(localRep.size() > 0) {
+                    Repair[] toUse = new Repair[localRep.size()];
+                    toUse = localRep.toArray(toUse);
+                    bike.setRepairs(toUse);
+                }
+            }
+
             stmt.close();
             db.close();
             return bikes;
@@ -452,7 +472,7 @@ public class DBH {
      * METHODS BELONGING TO THE DOCKING OBJECT.
      */
 
-    public int registerDocking(Docking dock) {
+    public int registerDocking(Docking dock) { //NOT COMPLETE
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -784,6 +804,114 @@ public class DBH {
     public User[] getAllRepairUsers() {
         return getUserByType(2);
     }
+
+    /*
+     * METHODS BELONGING TO THE REPAIR OBJECT
+     */
+
+    private Repair[] getRepairsByID(int bikeID) {
+        db = connect();
+        PreparedStatement stmt = null;
+        ArrayList<Repair> repairList = new ArrayList<>();
+        Repair[] repairs = null;
+
+        try {
+            if(db == null) {
+                return repairs;
+            }
+            if(bikeID <= 0) {
+                stmt = db.prepareStatement("SELECT * FROM repair_cases");
+            } else {
+                stmt = db.prepareStatement("SELECT * FROM repair_cases WHERE bikeID = ?");
+                stmt.setInt(1, bikeID);
+            }
+
+            ResultSet resultSet = execSQLRS(stmt);
+            while(resultSet.next()){
+                repairList.add(new Repair(
+                        resultSet.getInt("bikeID"),
+                        resultSet.getInt("repairCaseID"),
+                        resultSet.getString("description"),
+                        resultSet.getString("returnDescription"),
+                        dateToLocalDate(resultSet.getString("dateCreated")),
+                        dateToLocalDate(resultSet.getString("dateReceived")),
+                        resultSet.getDouble("price")
+                ));
+            }
+            stmt.close();
+            db.close();
+            repairs = new Repair[repairList.size()];
+            repairs = repairList.toArray(repairs);
+            return repairs;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return repairs;
+    }
+
+    public Repair[] getAllRepairs() {
+        return getRepairsByID(0); // 0 means ALL
+    }
+
+    public Repair[] getAllRepairsForBike(int bikeID) {
+        return getRepairsByID(bikeID);
+    }
+
+    public boolean registerRepairRequest(int bikeID, String desc, LocalDate date) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+            java.util.Date utilDate = new java.util.Date();
+
+            stmt = db.prepareStatement("INSERT INTO repair_cases (bikeID, description, dateCreated) VALUES (?, ?, ?)");
+            stmt.setInt(1, bikeID);
+            stmt.setString(2, desc);
+            stmt.setString(3, date.toString());
+
+            boolean output = execSQLBool(stmt, db);
+
+            stmt.close();
+            db.close();
+
+            return output;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean finishRepairRequest(int caseID, String desc, LocalDate date, double price) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+            java.util.Date utilDate = new java.util.Date();
+
+            stmt = db.prepareStatement("UPDATE repair_cases SET returnDescription = ?, dateReceived = ?, price = ? WHERE repairCaseID = ?");
+            stmt.setString(1, desc);
+            stmt.setString(2, date.toString());
+            stmt.setDouble(3, price);
+            stmt.setInt(4, caseID);
+
+            boolean output = execSQLBool(stmt, db);
+
+            stmt.close();
+            db.close();
+
+            return output;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+
+        return false;
+    }
+
 }
 
 class BikeSlotPair{
