@@ -24,7 +24,7 @@ import java.util.ArrayList;
 public class AppController {
     @FXML private BikePaneController bikeController;
     @FXML private DockStationCenter dockController;
-    @FXML private MapController map;
+    //@FXML private MapController map;
     @FXML private StatController2 statController;
 
     private Updater up;

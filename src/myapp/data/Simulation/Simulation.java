@@ -50,6 +50,10 @@ public class Simulation implements Runnable{
         for (int i = 0; i < arr.size(); i++) {
             bikes[i] = arr.get(i);
         }
+
+        for (int i = 0; i < users.length; i++) {
+            System.out.println(users[i].toString());
+        }
     }
 
     public void run(){
@@ -66,7 +70,7 @@ public class Simulation implements Runnable{
 
         while(!stop){
             for (int i = 0; i < routers.length; i++) {
-                /*
+
                 if(routers[i].hasArrived() && routers[i].isDocked()){
                     //No problem, create new router
                     System.out.println("Bike has arrived, getting new router");
@@ -99,7 +103,6 @@ public class Simulation implements Runnable{
                     threads[i] = new Thread(routers[i]);
                     threads[i].start();
                 }
-                */
             }
         }
         // Simulation ends, end all routers
@@ -108,8 +111,9 @@ public class Simulation implements Runnable{
         }
     }
 
+    //Correct output
     public User[] getUserSubset(){
-        int percentage = (int)(users.length * percentageOfUsersToMove );
+        int percentage = (int)(users.length * percentageOfUsersToMove);
         if(percentage <= 0){
             percentage = 1;
         }
@@ -133,15 +137,20 @@ public class Simulation implements Runnable{
         return subset;
     }
 
-    private Router[] getRouters(User[] userSubSet){
+    public Router[] getRouters(User[] userSubSet){
         Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
         for (int i = 0; i < routers.length; i++) {
-            Docking start = docking_stations[rand.nextInt(docking_stations.length)];
-            //System.out.println(start.toString());
-            Docking end = docking_stations[rand.nextInt(docking_stations.length)];
+            Bike bike = null;
+            Docking start = null;
+            Docking end = null;
             User customer = userSubSet[i];
-            Bike bike = start.rentBike(customer);
+            do{
+                start = docking_stations[rand.nextInt(docking_stations.length)];
+                //System.out.println(start.toString());
+                end = docking_stations[rand.nextInt(docking_stations.length)];
+                bike = start.rentBike(customer);
+            } while(bike == null || start == null || end == null);
             routers[i] = new Router(customer, bike, start, end);
         }
         return routers;
@@ -188,15 +197,61 @@ public class Simulation implements Runnable{
 
 }
 
-
 class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
+        /*
+
         sim.setUpdateInterval(3000);
 
         Thread simThread = new Thread(sim);
         simThread.start();
+        */
+        DBH handler = new DBH();
+        User[] users = handler.getAllCustomers();
+        for (int i = 0; i < users.length; i++) {
+            System.out.println(users[i].toString());
+        }
+        System.out.println("FROM SUBSET");
+        User[] subset = sim.getUserSubset();
+        for (int i = 0; i < subset.length; i++) {
+            System.out.println(subset[i].toString());
+        }
+
+        Router[] routers = sim.getRouters(subset);
+        for (int i = 0; i < routers.length; i++) {
+            System.out.println(routers[i].toString());
+        }
+        MapsAPI map = new MapsAPI();
+        Location[] wp = map.getWayPoints(routers[0].getStartStation().getLocation(), routers[0].getEnd().getLocation());
+        if(wp == null){
+            System.out.println("WAYPOINTS NULL");
+        } else if(wp.length == 0){
+            System.out.println("WAYPOINTS.length == 0");
+        }
+        if(wp != null){
+            for (int i = 0; i < wp.length; i++) {
+                System.out.println(wp[0].toString());
+            }
+        }
+
+        //To make sure bike is docked back in DB
+        for (int i = 0; i < routers.length; i++) {
+            Docking end = routers[i].getEnd();
+            Bike bike = routers[i].getBike();
+            if(!end.dockBike(bike)){
+                System.out.println("Could not dock to original end station");
+                Docking start = routers[i].getStartStation();
+                if(!start.dockBike(bike)){
+                    System.out.println("Could not dock to original start station");
+                } else{
+                    System.out.println("Docking to original start successful");
+                }
+            } else{
+                System.out.println("Docking to original end successful");
+            }
+        }
 
     }
 }

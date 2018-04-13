@@ -248,4 +248,8 @@ public class Router implements Runnable{
         double d = R * c;
         return d * 1000; // meters
     }
+
+    public String toString(){
+        return "USER:\n" + customer.toString() + "\n" + "BIKE:\n" + bikeToMove.toString() + "\n" + "START:\n" + startStation.toString() + "\n" + "END:\n" + end.toString();
+    }
 }

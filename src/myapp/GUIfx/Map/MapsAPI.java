@@ -20,7 +20,8 @@ import java.util.ArrayList;
 
 public class MapsAPI {
 
-    private static final String API_KEY = "AIzaSyDcg5pjzr05qM86p9gEDLYy8i8IcpKjT6w";
+    //private static final String API_KEY = "AIzaSyDcg5pjzr05qM86p9gEDLYy8i8IcpKjT6w";
+    private static final String API_KEY = "AIzaSyCu_ClX6T7er7XR_dXU656PijOFwx-OVns";
     private static final String ROADS_API_KEY = "AIzaSyDlJ5qke9-Dw-3-cpk1okWXSXWg3MIRSLc";
     // Sindre Toft Nordal API KEY:
     // https://maps.googleapis.com/maps/api/elevation/json?locations=LATITUDE,LONGITUDE&key=YOUR_API_KEY
@@ -184,7 +185,7 @@ public class MapsAPI {
     private URL createWayPointsURL(Location start, Location end){
         URL url = null;
         try {
-            url = new URL("https://maps.google.com/maps/api/directions/json?origin="
+            url = new URL("https://maps.googleapis.com/maps/api/directions/json?origin="
                     + start.getLatitude()+","+start.getLongitude()+"&destination="
                     + end.getLatitude() + "," + end.getLongitude() + "&mode=bicycling"
                     + "&key=" + API_KEY);

@@ -8,6 +8,7 @@ import java.util.Random;
 
 import myapp.data.Location;
 import myapp.GUIfx.Map.MapsAPI;
+import java.nio.file.*;
 
 public class GenerateContent {
 
@@ -42,7 +43,10 @@ public class GenerateContent {
         FileWriter fWriter = null;
         try{
             //Setup file, and writer
-            String fileName = "/setup/database_content.sql";
+            Path currentRelativePath = Paths.get("");
+            String s = currentRelativePath.toAbsolutePath().toString();
+            System.out.println("Current relative path is: " + s);
+            String fileName = s + "/src/Setup/database_content.sql";
             File outputFile = new File(fileName);
             fWriter = new FileWriter(outputFile);
             bWriter = new BufferedWriter(fWriter);
@@ -86,7 +90,7 @@ public class GenerateContent {
                 slotsOnStations[i] = slots;
                 Double[] latlong = map.getLatLong(name + ", Trondheim");
                 String address = map.getAddress(latlong[0], latlong[1]);
-                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots, latitude, longitude) VALUES (\"" + address + "\", " + slots + ", " + latlong[0] + ", " + latlong[0] + ");\n";
+                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots, latitude, longitude) VALUES (\"" + address + "\", " + slots + ", " + latlong[0] + ", " + latlong[1] + ");\n";
             }
 
             //Create slots on dockingstations

@@ -5,6 +5,8 @@
 
 package myapp.dbhandler;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.sql.*;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -13,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import static java.lang.Math.toIntExact;
 
+import myapp.GUIfx.Map.MapsAPI;
 import myapp.data.*;
 import myapp.hasher.*;
 
@@ -814,9 +817,5 @@ class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
         Docking[] stations = dbh.getAllDockingStationsWithBikes();
-
-        for(Docking station : stations) {
-            System.out.println(station.toString());
-       }
     }
 }
