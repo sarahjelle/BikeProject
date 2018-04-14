@@ -14,6 +14,7 @@ import java.util.*;
 import static java.lang.Math.toIntExact;
 
 import com.sun.org.apache.regexp.internal.RE;
+import myapp.GUIfx.Map.MapsAPI;
 import myapp.data.*;
 import myapp.hasher.*;
 
@@ -204,6 +205,7 @@ public class DBH {
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<>();
             while(bikeset.next()) {
+                System.out.println("Creating bike from DB");
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
                         bikeset.getString("make"),
@@ -212,8 +214,8 @@ public class DBH {
                         bikeset.getDouble("batteryPercentage"),
                         bikeset.getInt("totalKM"),
                         new Location(
-                                bikeset.getDouble("longitude"),
-                                bikeset.getDouble("latitude")
+                                bikeset.getDouble("latitude"),
+                                bikeset.getDouble("longitude")
                         ),
                         bikeset.getInt("status"),
                         dateTimeToDateOnly(bikeset.getString("purchaseDate"))
@@ -223,11 +225,14 @@ public class DBH {
             stmt.close();
             db.close();
             Docking[] docks = getAllDockingStationsWithBikes();
+            /*int counter = 1;
             for (int i = 0; 0 < docks.length; i++) {
                 Bike[] bks = docks[i].getBikes();
                 for (int j = 0; j < bks.length; i++) {
                     if (bks[j] != null) {
                         for (int k = 0; k < bikes.size(); i++) {
+                            System.out.println(counter);
+                            counter++;
                             if (bks[j].getId() == bikes.get(k).getId()) {
                                 bks[j].setRepairs(bikes.get(k).getRepairs());
                                 bikes.set(k, bks[j]);
@@ -235,7 +240,8 @@ public class DBH {
                         }
                     }
                 }
-            }
+            }*/
+            System.out.println("GOTTEN ALL BIKES");
             return bikes;
         } catch(SQLException e) {
             System.out.println("Error: " + e);
@@ -445,12 +451,17 @@ public class DBH {
                 return bikes;
             }
             stmt = db.prepareStatement("INSERT INTO bike_logs (bikeID, longitude, latitude, altitude, batteryPercentage, totalKM) VALUES (?,?,?,?,?,?)");
-
+            MapsAPI map = new MapsAPI();
             for (int i = 0; i < bikes.length; i++) {
                 stmt.setDouble(1, bikes[i].getId());
                 stmt.setDouble(2, bikes[i].getLocation().getLongitude());
                 stmt.setDouble(3, bikes[i].getLocation().getLatitude());
-                stmt.setDouble(4, bikes[i].getLocation().getAltitude());
+                if(bikes[i].getLocation().getAltitude() != null){
+                    stmt.setDouble(4, bikes[i].getLocation().getAltitude());
+                } else{
+                    stmt.setDouble(4, map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()));
+                }
+
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());
                 stmt.setDouble(6, bikes[i].getDistanceTraveled());
 
@@ -945,6 +956,14 @@ class DBTest {
 
         for(Docking station : stations) {
             System.out.println(station.toString());
-       }
+        }
+       //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
+        Bike bike = new Bike(50, "DBS", 2978.0, "Landevei", 1.0, 0,
+               new Location("Østre Moholt-tun 21, 7048 Trondheim, Norway", 63.4095, 10.436171)
+               , 1, LocalDate.of(2018,4, 13));
+
+        if(stations[0].dockBike(bike)){
+            System.out.println("docked");
+        }
     }
 }

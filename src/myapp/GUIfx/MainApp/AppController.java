@@ -48,14 +48,14 @@ public class AppController {
         closeAll();
         mapPane.setVisible(true);
 
-        /*
+
         try {
             URL url = getClass().getResource("../Map/map.html");
             mapPane.getEngine().load(url.toExternalForm());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        */
+
         if(up == null){
             up = new Updater();
         }
@@ -63,6 +63,7 @@ public class AppController {
             upThread = new Thread(up);
             upThread.start();
         }
+
     }
 
 
@@ -83,13 +84,13 @@ public class AppController {
     class Updater implements Runnable{
         private Boolean stop = false;
         private Bike[] bikes;
-        private int UPDATE_INTERVAL = 3000;
+        private int UPDATE_INTERVAL = 10000;
 
         private Bike[] bikesTest;
 
         public Updater(){
             //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
-            /*
+
             String adrOne = "NTNU Kalvskinnet";
             String adrTwo = "NTNU Gløshaugen";
             String adrThree = "Bautavegen 3, 7056 Ranheim";
@@ -100,7 +101,7 @@ public class AppController {
             bikesTest[2] = new Bike(3, "DBS", 3400.0, "Bysykkel", 1.0, 100, new Location(adrThree, true), 1, LocalDate.now());
             bikesTest[3] = new Bike(4, "Trek", 100.0, "Landevei", 1.0, 100, new Location(adrFour, true), 1, LocalDate.now());
             bikes = bikesTest;
-            */
+
 
             DBH handler = new DBH();
             ArrayList<Bike> bikesList = handler.getAllBikes();
@@ -117,22 +118,38 @@ public class AppController {
             for (int i = 0; i < bikes.length; i++) {
                 addBike(bikes[i], engine);
             }
+
         }
 
         public void run(){
             long StartTime = System.currentTimeMillis();
             while(!stop){
-                    /*
-                    if((System.currentTimeMillis() - StartTime) >= UPDATE_INTERVAL){
-                        WebEngine engine = mapPane.getEngine();
-                        for (int i = 0; i < bikes.length; i++) {
-                            System.out.println("Updating bikes");
-                            updateBike(bikes[i], engine);
-                        }
-                        StartTime = System.currentTimeMillis();
-
+                try{
+                    Thread.sleep(UPDATE_INTERVAL);
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+                if((System.currentTimeMillis() - StartTime) >= UPDATE_INTERVAL){
+                    DBH handler = new DBH();
+                    ArrayList<Bike> bikesList = handler.getAllBikes();
+                    Bike[] b = new Bike[bikesList.size()];
+                    if(bikesList != null){
+                        this.bikes = bikesList.toArray(b);
                     }
-                    */
+
+                    WebEngine engine = mapPane.getEngine();
+                    int[] array = new int[bikes.length];
+                    for (int i = 0; i < bikes.length; i++) {
+                        array[i] = bikes[i].getId();
+                    }
+                    checkID(array, engine);
+                    for (int i = 0; i < bikes.length; i++) {
+                        updateBike(bikes[i], engine);
+                    }
+                    StartTime = System.currentTimeMillis();
+
+                }
+                /*
                 bikes[0].setLocation(new Location("Lade Arena", true));
 
                 Platform.runLater(() ->{
@@ -156,6 +173,7 @@ public class AppController {
                 } catch (Exception e){
                     e.printStackTrace();
                 }
+                */
             }
         }
 
@@ -171,7 +189,7 @@ public class AppController {
                     engine.executeScript("document.addBike({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
                             + ", lng: " + bike.getLocation().getLongitude() + "});");
                 });
-            } catch (netscape.javascript.JSException e){
+            } catch (Exception e){
 
             }
         }
@@ -180,8 +198,21 @@ public class AppController {
             try{
                 engine.executeScript("document.updateBike({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
                         + ", lng: " + bike.getLocation().getLongitude() + "});");
-            } catch (netscape.javascript.JSException e){
+            } catch (Exception e){
 
+            }
+        }
+
+        public void checkID(int[] bikeID, WebEngine engine){
+            try{
+                String array = "{";
+                for (int i = 0; i < bikeID.length; i++) {
+                    array += bikeID[i] + ", ";
+                }
+                array += "}";
+                engine.executeScript("document.checkID(" + array + ");");
+            } catch(Exception e){
+                e.printStackTrace();
             }
         }
 
@@ -190,8 +221,8 @@ public class AppController {
                 Platform.runLater(() ->{
                     engine.executeScript("document.removeAll();");
                 });
-            } catch (netscape.javascript.JSException e){
-
+            } catch (Exception e){
+                e.printStackTrace();
             }
         }
     }

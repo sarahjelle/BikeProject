@@ -15,7 +15,7 @@ public class Simulation implements Runnable{
     private Bike[] bikes;
     private Docking[] docking_stations;
     private User[] users;
-    private int updateInterval = 60000; //milliseconds
+    private static int UPDATE_INTERVAL = 60000; //milliseconds
     private int sleepTime = 2000; //millieconds
     private Boolean stop = false;
     private static final double ERROR_TOLERANSE = 0.0000001;
@@ -66,8 +66,8 @@ public class Simulation implements Runnable{
 
         while(!stop){
             for (int i = 0; i < routers.length; i++) {
-                /*
                 if(routers[i].hasArrived() && routers[i].isDocked()){
+                    /*
                     //No problem, create new router
                     System.out.println("Bike has arrived, getting new router");
                     routers[i].stop();
@@ -83,23 +83,33 @@ public class Simulation implements Runnable{
                     routers[i] = new Router(newUser, bikeToMove, start, end);
                     threads[i] = new Thread(routers[i]);
                     threads[i].start();
+                    */
                 } else if(routers[i].hasArrived() && !routers[i].isDocked()){
                     //Bike has arrived, but could not dock
-                    System.out.println("bike could not dock, getting new router");
-                    routers[i].stop();
-                    User user = routers[i].getUser();
-                    Bike bike = routers[i].getBike();
-                    Docking start = routers[i].getEnd();
-                    Docking end = null;
-                    Random rand = new Random();
-                    do{
-                        end = docking_stations[rand.nextInt(docking_stations.length)];
-                    } while(end == start);
-                    routers[i] = new Router(user, bike, start, end);
-                    threads[i] = new Thread(routers[i]);
-                    threads[i].start();
+                    try{
+                        Thread.sleep(1000);
+                    } catch(Exception e){
+                        e.printStackTrace();
+                    }
+                    if(routers[i].hasArrived() && !routers[i].isDocked()){
+                        System.out.println("bike could not dock, getting new router");
+                        routers[i].stop();
+                        User user = routers[i].getUser();
+                        Bike bike = routers[i].getBike();
+                        Docking start = routers[i].getEnd();
+                        Docking end = null;
+                        Random rand = new Random();
+                        do{
+                            end = docking_stations[rand.nextInt(docking_stations.length)];
+                        } while(end == start);
+                        routers[i] = new Router(user, bike, start, end);
+                        threads[i] = new Thread(routers[i]);
+                        threads[i].start();
+                    } else{
+                        System.out.println("Bike has arrived and is docked");
+                    }
+
                 }
-                */
             }
         }
         // Simulation ends, end all routers
@@ -138,18 +148,18 @@ public class Simulation implements Runnable{
         Random rand = new Random();
         for (int i = 0; i < routers.length; i++) {
             Docking start = docking_stations[rand.nextInt(docking_stations.length)];
-            //System.out.println(start.toString());
             Docking end = docking_stations[rand.nextInt(docking_stations.length)];
             User customer = userSubSet[i];
             Bike bike = start.rentBike(customer);
             routers[i] = new Router(customer, bike, start, end);
+            routers[i].setUpdateInterval(UPDATE_INTERVAL);
         }
         return routers;
     }
 
     public void setUpdateInterval(int millis){
         if(millis >= 0){
-            this.updateInterval = millis;
+            this.UPDATE_INTERVAL = millis;
         }
     }
 
@@ -193,7 +203,7 @@ class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
-        sim.setUpdateInterval(3000);
+        sim.setUpdateInterval(10000);
 
         Thread simThread = new Thread(sim);
         simThread.start();

@@ -96,7 +96,7 @@ CREATE TABLE docking_log(
 
 CREATE TABLE slots(
   slotID int NOT NULL,
-  bikeID int,
+  bikeID int UNIQUE DEFAULT NULL,
   stationID int NOT NULL,
   PRIMARY KEY(stationID, slotID)
 );

@@ -1,4 +1,5 @@
 package myapp.data.Simulation;
+import com.sun.org.apache.xpath.internal.SourceTree;
 import myapp.GUIfx.Map.*;
 import myapp.data.*;
 import myapp.dbhandler.*;
@@ -43,8 +44,6 @@ public class Router implements Runnable{
         this.bikeToMove = bikeToMove;
         this.start = bikeToMove.getLocation();
         this.end = end;
-        System.out.println(start.toString());
-        System.out.println(end.toString());
         this.WayPoints = getWayPoints();
         if(WayPoints == null || WayPoints.length <= 0){
             hasArrived = true;
@@ -56,14 +55,21 @@ public class Router implements Runnable{
         }
         this.startStation = start;
         System.out.println("ROUTER CREATED: ");
-        System.out.println(customer.toString() + ", " + bikeToMove.toString());
+        System.out.println("User: ");
+        System.out.println(customer.toString() + "\n");
+        System.out.println("Bike: ");
+        System.out.println(bikeToMove.toString() + "\n");
+        System.out.println("Start station: ");
+        System.out.println(startStation.toString() + "\n");
+        System.out.println("End station: ");
+        System.out.println(end.toString() + "\n");
     }
 
     public void run(){
         long StartTime = System.currentTimeMillis();
         while(!stop){
             if(!hasArrived){
-                System.out.println("ROUTING");
+                //System.out.println("ROUTING bike: " + bikeToMove.toString());
                 move();
                 try{
                     Thread.sleep(2000);
@@ -76,12 +82,48 @@ public class Router implements Runnable{
                     Bike[] arr = {bikeToMove};
                     Bike[] ret = handler.logBikes(arr);
                     if(ret == null || ret.length <= 0){
-                        System.out.println("Error updating bike location to DB: " + bikeToMove.toString());
+                        //System.out.println("Updated bike location to DB: " + bikeToMove.toString());
                     }
                     StartTime = System.currentTimeMillis();
                 }
             } else{
                 stop = true;
+            }
+        }
+        if(!isDocked){
+            if(end.dockBike(bikeToMove)){
+                System.out.println();
+                System.out.println();
+                System.out.println("Router docked bike successfully to end-station after thread forced stop");
+                System.out.println("Bike: ");
+                System.out.println(bikeToMove.toString());
+                System.out.println("End-station:");
+                System.out.println(end.toString());
+                System.out.println();
+                System.out.println();
+            } else if(startStation.dockBike(bikeToMove)){
+                System.out.println();
+                System.out.println();
+                System.out.println("Router unsuccessfull in docking to end-station.");
+                System.out.println("Router docked bike successfully to start-station after thread forced stop");
+                System.out.println("Bike: ");
+                System.out.println(bikeToMove.toString());
+                System.out.println("Start-station:");
+                System.out.println(startStation.toString());
+                System.out.println();
+                System.out.println();
+            } else{
+                System.out.println();
+                System.out.println();
+                System.out.println("Router unsuccessfull in docking to end-station nor to start-station after thread forced stop.");
+                System.out.println("Bike: ");
+                System.out.println(bikeToMove.toString());
+                System.out.println("Start-station:");
+                System.out.println(startStation.toString());
+                System.out.println("End-station:");
+                System.out.println(end.toString());
+                System.out.println();
+                System.out.println();
             }
         }
     }
@@ -90,14 +132,12 @@ public class Router implements Runnable{
         this.stop = true;
     }
 
-    public void move(){
+    private void move(){
         if(TotalStartTime < 0){
             TotalStartTime = System.currentTimeMillis();
         }
         if(!hasArrived){
             //Move bike
-            System.out.println(end.getLocation());
-            System.out.println(start);
             if(WayPointsIterator < WayPoints.length && WayPointsIterator >= 0){
                 Location atNow = bikeToMove.getLocation();
                 Location nextLocation = WayPoints[WayPointsIterator];
@@ -138,7 +178,7 @@ public class Router implements Runnable{
                     //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
                     bikeToMove.setLocation(new Location(null, newLat, newLng));
 
-
+                    System.out.println(newLat + ", " + newLng);
                     double checkLat = Math.abs(bikeToMove.getLocation().getLatitude() - nextLocation.getLatitude());
                     double checkLng = Math.abs(bikeToMove.getLocation().getLongitude() - nextLocation.getLongitude());
                     if(checkLat <= ERROR_TOLERANCE && checkLng <= ERROR_TOLERANCE){
@@ -164,6 +204,7 @@ public class Router implements Runnable{
                 hasArrived = true;
                 //Dock to endStation
                 isDocked = end.dockBike(bikeToMove);
+                System.out.println("ROUTER ABLE TO DOCK TO END: " + isDocked);
             }
         }
     }
@@ -209,16 +250,15 @@ public class Router implements Runnable{
         if(WP == null){
             hasArrived = true;
         } else {
-            for (int i = 0; i < WP.length; i++) {
-                System.out.println(WP[i]);
-            }
         }
         return WP;
     }
 
-    /*public void resetStartLocation(){
+    /*
+    public void resetStartLocation(){
         this.start = bikeToMove.getLocation();
-    }*/
+    }
+    */
 
     public void resetHasArrived(){
         this.hasArrived = false;
@@ -247,5 +287,9 @@ public class Router implements Runnable{
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double d = R * c;
         return d * 1000; // meters
+    }
+
+    public static void setUpdateInterval(int updateInterval) {
+        UPDATE_INTERVAL = updateInterval;
     }
 }

@@ -44,7 +44,7 @@ document.updateBike = function updateBike(bike) {
     }
 }
 
-document.removeAll = function removeAll(){
+document.removeAll = function removeAll() {
     for(let i = 0; i < markers.length; i++){
         markers[i].setMap(null);
         markers.splice(i,1);
@@ -59,6 +59,30 @@ document.removeAll = function removeAll(){
     markers = [];
     bikes = [];
     //redraw()
+}
+
+document.checkID = function checkID(ids){
+    for(var i = 0; i < ids.length; i++){
+        var present = false;
+        var bikeIndex = -1;
+        for(var j = 0; j < bikes.length; j++){
+            if(ids[i] == bikes[j].id){
+                present = true;
+                bikeIndex = j;
+            }
+        }
+        if(present){
+            if(bikeIndex > -1){
+                bikes = bikes.splice(bikeIndex, 1);
+            }
+            for(var j = 0; j < markers.length; j++){
+                if(ids[i] == markers[j].id){
+                    markers[j].setMap(null);
+                    markers.splice(j, 1);
+                }
+            }
+        }
+    }
 }
 
 document.addMarker = function addMarker(bike) {
@@ -85,12 +109,6 @@ document.addMarker = function addMarker(bike) {
 
     //document.getElementById("console").innerHTML = "Length: " + markers.length;
 }
-/*
-function redraw() {
-    map.setZoom(map.getZoom() - 1);
-    map.setZoom(map.getZoom() + 1);
-}
-*/
 
 
 
