@@ -1,7 +1,9 @@
 package myapp.GUIfx.MainApp;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.*;
+import javafx.event.*;
 import javafx.scene.*;
 import javafx.stage.*;
 
@@ -17,17 +19,26 @@ public class Main extends Application{
     }
 
     public void loadApp(Stage primaryStage) throws Exception{
+        System.out.println("loading app");
         Parent root = FXMLLoader.load(getClass().getResource("App.fxml"));
+        System.out.println("loading app 2");
         Scene scene = new Scene(root, 700,500);
 
         primaryStage.setTitle("FXML Welcome");
         primaryStage.setScene(scene);
         primaryStage.show();
-
+        System.out.println("finished loading app");
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent e) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
         //login(primaryStage);
         loadApp(primaryStage);
     }
