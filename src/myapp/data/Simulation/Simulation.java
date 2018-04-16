@@ -159,6 +159,8 @@ public class Simulation implements Runnable{
     private Router[] getRouters(User[] userSubSet){
         Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
+        DBH handler = new DBH();
+        Bike[] undockedBikes = handler.getAllBikesOnTrip();
         for (int i = 0; i < routers.length; i++) {
             User customer = userSubSet[i];
             Docking start = null;

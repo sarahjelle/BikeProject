@@ -240,7 +240,7 @@ public class DBH {
         return result;
     }
 
-    private Bike[] getAllBikesOnTrip(){
+    public Bike[] getAllBikesOnTrip(){
         db = connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> outList = new ArrayList<>();
@@ -248,7 +248,7 @@ public class DBH {
             if(db == null){
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLoc");
+            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew");
             ResultSet set = execSQLRS(stmt);
             while(set.next()){
                 outList.add(new Bike(
@@ -374,7 +374,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLoc");
+            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
 
@@ -594,10 +594,18 @@ public class DBH {
                 if(undockBike(bikeToRent, dockID)) {
                     stmt.close();
                     db.close();
+                    db = connect();
+                    bikeToRent.setStatus(Bike.TRIP);
+                    stmt = db.prepareStatement("UPDATE bikes SET status = ? , totalTrips = ? WHERE bikeID = ?");
+                    stmt.setInt(1, Bike.TRIP);
+                    stmt.setInt(2, bikeToRent.getTotalTrips() + 1);
+                    stmt.setInt(3, bikeToRent.getId());
+                    execSQLBool(stmt, db);
+                    stmt.close();
+                    db.close();
                     return true;
                 }
             }
-
             stmt.close();
             db.close();
         } catch(SQLException ex){
@@ -625,7 +633,14 @@ public class DBH {
                 if(dockBike(bike, dockID, spot)) {
                     stmt.close();
                     db.close();
-
+                    db = connect();
+                    bike.setStatus(Bike.AVAILABLE);
+                    stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
+                    stmt.setInt(1, Bike.AVAILABLE);
+                    stmt.setInt(2, bike.getId());
+                    execSQLBool(stmt, db);
+                    stmt.close();
+                    db.close();
                     return true;
                 }
             }
