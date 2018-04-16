@@ -153,7 +153,7 @@ DROP VIEW IF EXISTS bikesWithDockingLocation;
 DROP VIEW IF EXISTS undockedBikesWithNewestLogLoc;
 DROP VIEW IF EXISTS allBikesWithLoc;
 
-CREATE VIEW newestLogs AS (SELECT log.bikeID, new.logTime, log.latitude, log.longitude, log.altitude, log.batteryPercentage, log.totalKm FROM bike_logs log JOIN (SELECT bikeID, MAX(logTime) AS logTime FROM bike_logs GROUP BY bikeID) new WHERE log.bikeID = new.bikeID);
+CREATE VIEW newestLogs AS (SELECT b.*, l.latitude, l.longitude, l.altitude FROM bikes b JOIN bike_logs l WHERE b.bikeID = l.bikeID AND l.logTime = (SELECT MAX(logTime) FROM bike_logs log WHERE log.bikeID = b.bikeID));
 
 CREATE VIEW undockedBikes AS SELECT * FROM bikes WHERE bikeID NOT IN (SELECT bikeID FROM slots WHERE bikeID IS NOT NULL);
 

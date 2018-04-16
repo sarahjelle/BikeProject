@@ -3,6 +3,9 @@ var bikes = [];
 var centerPos = {lat: 63.429148, lng: 10.392461};
 let markers = [];
 
+var docks = [];
+var dockMarkers = [];
+
 
 function initMap() {
     var options = {
@@ -19,10 +22,46 @@ function initMap() {
     };
 
 }
+document.addBikes = function addBikes(bikesArr){
+    for(var i = 0; i < bikesArr.length; i++){
+           document.addBike(bikesArr[i]);
+    }
+}
+
+document.allBikes = function allBikes(bikesArr){
+    for(var i = 0; i < bikes.length; i++){
+        var present = false;
+        for(var j = 0; j < bikesArr.length; j++){
+            if(bikesArr[j].id == bikes[i].id){
+                present = true;
+            }
+        }
+        if(!present){
+            //Remove bike from bikes
+            for(var j = 0; j < markers.length; j++){
+                if(markers[j].id == bikes[i].id){
+                    markers[j].setMap(null);
+                    markers[j] = null;
+                    markers.splice(j, 1);
+                    break;
+                }
+            }
+            bikes[i] = null;
+            bikes.splice(i, 1);
+            i--;
+        } else{
+            //Update loc
+        }
+    }
+    for(var i = 0; i < bikesArr.length; i++){
+        document.addBike(bikesArr[i]);
+    }
+}
+
 document.addBike = function addBike(bike) {
     var present = false;
     for (var i = 0; i < bikes.length; i++) {
-        if (bike == bikes[i]) {
+        if (bike.id == bikes[i].id) {
             present = true;
         }
     }
@@ -45,49 +84,72 @@ document.updateBike = function updateBike(bike) {
 }
 
 document.removeAll = function removeAll() {
-    for(let i = 0; i < markers.length; i++){
-        markers[i].setMap(null);
-        markers.splice(i,1);
-        /*try{
-            markers[i].f.setMap(null);
-        } catch{
-            markers[i].setMap(null);
-        }*/
+    var ids = "";
 
+    for(let i = 0; i < markers.length; i++){
+        ids += markers[i].id + ", ";
+        markers[i].setMap(null);
+        markers[i] = null;
     }
 
     markers = [];
     bikes = [];
-    //redraw()
 }
 
-document.checkID = function checkID(ids){
-    for(var i = 0; i < ids.length; i++){
-        var present = false;
-        var bikeIndex = -1;
-        for(var j = 0; j < bikes.length; j++){
-            if(ids[i] == bikes[j].id){
-                present = true;
-                bikeIndex = j;
-            }
+document.removeBike = function removeBike(id){
+    for(var i = 0; i < markers.length; i++){
+        if(markers[i].id == id){
+            markers[i].setMap(null);
+            markers[i] = null;
+            markers.splice(i,1);
         }
-        if(present){
-            if(bikeIndex > -1){
-                bikes = bikes.splice(bikeIndex, 1);
-            }
-            for(var j = 0; j < markers.length; j++){
-                if(ids[i] == markers[j].id){
-                    markers[j].setMap(null);
-                    markers.splice(j, 1);
-                }
-            }
+    }
+
+    for(var i = 0; i < bikes.length; i++){
+        if(bikes[i].id == id){
+            bikes[i] = null;
+            bikes.splice(i,1);
         }
+    }
+}
+
+document.addDock = function addDock(dock){
+    var marker = new google.maps.Marker({
+        position: {lat: dock.lat, lng: dock.lng},
+        map: map,
+        id: dock.id
+    });
+    var present = false;
+    for(var i = 0; i < docks.length; i++){
+        if(docks[i].id == dock.id){
+            present = true;
+        }
+    }
+
+    if(!present){
+        docks.push(dock);
+        dockMarkers.push(marker);
+        let infoWindow = new google.maps.InfoWindow({
+            content: "Dock id: " + dock.id
+        });
+        var counter = 0;
+        google.maps.event.addListener(marker,'click',function(){
+            if(counter == 0){
+                infoWindow.open(map,marker);
+                counter = 1;
+            } else if(counter == 1){
+                infoWindow.close(map,marker);
+                counter = 0;
+            }
+        });
+        //document.addMarker(dock);
     }
 }
 
 document.addMarker = function addMarker(bike) {
     var marker = new google.maps.Marker({
         position: {lat: bike.lat, lng: bike.lng},
+        icon: "bike.png",//"http://labs.google.com/ridefinder/images/mm_20_blue.png",
         map: map,
         id: bike.id
     });
@@ -106,8 +168,6 @@ document.addMarker = function addMarker(bike) {
             counter = 0;
         }
     });
-
-    //document.getElementById("console").innerHTML = "Length: " + markers.length;
 }
 
 
