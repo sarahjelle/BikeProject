@@ -20,6 +20,7 @@ public class Simulation implements Runnable{
     private Boolean stop = false;
     private static final double ERROR_TOLERANSE = 0.0000001;
     private final double percentageOfUsersToMove = 0.10;
+    private Router[] routers;
 
     /*
         Simulate that users pay and check out a bike at a docking station.
@@ -61,13 +62,14 @@ public class Simulation implements Runnable{
         for (int i = 0; i < arr.size(); i++) {
             bikes[i] = arr.get(i);
         }
+        this.routers = null;
     }
 
     public void run(){
         System.out.println("Starting Simulation");
         User[] userSubset = getUserSubset();
 
-        Router[] routers = getRouters(userSubset);
+        this.routers = getRouters(userSubset);
 
         Thread[] threads = new Thread[routers.length];
         for (int i = 0; i < threads.length; i++) {
@@ -212,9 +214,14 @@ public class Simulation implements Runnable{
         return output;
     }
 
+    public void stop(){
+        for (int i = 0; i < routers.length; i++) {
+            routers[i].stop();
+        }
+        this.stop = true;
+    }
+
 }
-
-
 class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
@@ -223,6 +230,10 @@ class SimTest{
 
         Thread simThread = new Thread(sim);
         simThread.start();
+
+
+        javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
+        sim.stop();
 
     }
 }

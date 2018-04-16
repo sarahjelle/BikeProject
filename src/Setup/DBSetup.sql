@@ -166,6 +166,16 @@ CREATE VIEW undockedBikesWithNewestLogLoc AS (SELECT l.bikeID, b.price, b.purcha
 
 CREATE VIEW allBikesWithLoc AS SELECT * FROM bikesWithDockingLocation b UNION (SELECT * FROM undockedBikesWithNewestLogLoc);
 
-SELECT * FROM newestLogs;
-SELECT * FROM undockedBikes;
-SELECT * FROM bikesWithDockingLocation;
+
+CREATE VIEW undockedBikesNew AS (SELECT * FROM bikes b WHERE b.bikeID NOT IN (SELECT s.bikeID FROM slots s WHERE s.bikeID IS NOT NULL));
+
+CREATE VIEW newestLogsNew AS (SELECT l.bikeID, l.latitude, l.longitude FROM bike_logs l WHERE l.logTime = (SELECT MAX(log.logTime) AS logTime FROM bike_logs log WHERE log.bikeID = l.bikeID));
+
+CREATE VIEW dockedBikesWithDocLocNew AS (
+  SELECT * FROM (SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, b.batteryPercentage, b.totalKm, d.latitude, d.longitude FROM bikes b JOIN
+    (SELECT * FROM slots) AS s ON b.bikeID = s.bikeID JOIN (SELECT * FROM docking_stations) AS d ON d.stationID = s.stationID) AS total
+);
+
+CREATE VIEW undockedBikesWithNewestLogLocNew AS (SELECT und.*, logs.latitude, logs.longitude FROM undockedBikesNew und LEFT JOIN (SELECT * FROM newestLogsNew) AS logs ON und.bikeID = logs.bikeID);
+
+CREATE VIEW allBikesWithLocNew AS (SELECT * FROM (SELECT * FROM dockedBikesWithDocLocNew UNION (SELECT * FROM undockedBikesWithNewestLogLocNew) ORDER BY bikeID) AS total);

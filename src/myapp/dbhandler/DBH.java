@@ -200,7 +200,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM allBikesWithLoc");
+            stmt = db.prepareStatement("SELECT * FROM allBikesWithLocNew");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<>();
             while(bikeset.next()) {
