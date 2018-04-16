@@ -18,6 +18,8 @@ CREATE TABLE bikes (
   status int DEFAULT 1,
   make VARCHAR(25) NOT NULL,
   type VARCHAR(25) NOT NULL,
+  batteryPercentage DOUBLE DEFAULT 0.0,
+  totalKm int DEFAULT 0,
   PRIMARY KEY (bikeID)
 );
 
@@ -29,24 +31,12 @@ CREATE TABLE bikes (
 CREATE TABLE repair_cases (
   repairCaseID int NOT NULL AUTO_INCREMENT,
   bikeID int NOT NULL,
-  dateCreated DATETIME DEFAULT NOW(), -- timestamp?
-  dateReceived DATETIME DEFAULT NULL,
+  dateCreated DATE NOT NULL,
+  dateReceived DATE DEFAULT NULL,
+  description TEXT NOT NULL,
+  returnDescription TEXT DEFAULT NULL,
+  price DOUBLE DEFAULT NULL,
   PRIMARY KEY (repairCaseID)
-);
-#All repair options for a registered repair case on a bike
-CREATE TABLE repair_lists (
-  repairCaseID int NOT NULL,
-  repairOptionID int NOT NULL,
-  userID int NOT NULL,
-  status smallint NOT NULL,
-  PRIMARY KEY (repairCaseID, repairOptionID)
-);
-#Options for repairs, example: "Bytte dekk på forhjul", "Skifte bakre bremseklosser"
-CREATE TABLE repair_options (
-  repairOptionID int NOT NULL AUTO_INCREMENT,
-  description varchar(255) NOT NULL,
-  price decimal NOT NULL,
-  PRIMARY KEY (repairOptionID)
 );
 
 
@@ -81,8 +71,8 @@ CREATE TABLE docking_stations(
   stationID int NOT NULL AUTO_INCREMENT,
   stationName varchar(255) NOT NULL,
   maxSlots int NOT NULL DEFAULT 0,
-  longitude FLOAT( 10, 6 ) NOT NULL,
   latitude FLOAT( 10, 6 ) NOT NULL,
+  longitude FLOAT( 10, 6 ) NOT NULL,
   PRIMARY KEY(stationID)
 );
 
@@ -111,7 +101,7 @@ CREATE TABLE bike_logs(
   latitude FLOAT( 10, 6 ) NOT NULL,
   longitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
-  batteryPercentage int NOT NULL,
+  batteryPercentage DOUBLE NOT NULL,
   totalKm int DEFAULT 0,
   PRIMARY KEY(bikeID, logTime)
 );
@@ -137,11 +127,6 @@ CREATE TABLE trips(
 
 ALTER TABLE repair_cases
   ADD FOREIGN KEY (bikeID) REFERENCES bikes(bikeID);
-
-ALTER TABLE repair_lists
-  ADD FOREIGN KEY (repairCaseID) REFERENCES repair_cases(repairCaseID),
-  ADD FOREIGN KEY (repairOptionID) REFERENCES repair_options(repairOptionID),
-  ADD FOREIGN KEY (userID) REFERENCES users(userID);
 
 ALTER TABLE users
   ADD FOREIGN KEY (userTypeID) REFERENCES user_types(userTypeID);
@@ -172,7 +157,7 @@ CREATE VIEW newestLogs AS (SELECT log.bikeID, new.logTime, log.latitude, log.lon
 
 CREATE VIEW undockedBikes AS SELECT * FROM bikes WHERE bikeID NOT IN (SELECT bikeID FROM slots WHERE bikeID IS NOT NULL);
 
-CREATE VIEW bikesWithDockingLocation AS (SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, fromDock.latitude, fromDock.longitude FROM bikes b INNER JOIN
+CREATE VIEW bikesWithDockingLocation AS (SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, b.batteryPercentage, b.totalKm, fromDock.latitude, fromDock.longitude FROM bikes b INNER JOIN
   (SELECT s.bikeID, s.stationID, ds.latitude, ds.longitude FROM slots s INNER JOIN
     (SELECT d.stationID, d.latitude, d.longitude FROM docking_stations d) ds ON ds.stationID = s.stationID
   WHERE s.bikeID IS NOT NULL) fromDock ON fromDock.bikeID = b.bikeID);
@@ -180,3 +165,7 @@ CREATE VIEW bikesWithDockingLocation AS (SELECT b.bikeID, b.price, b.purchaseDat
 CREATE VIEW undockedBikesWithNewestLogLoc AS (SELECT l.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, l.batteryPercentage, l.totalKm, l.latitude, l.longitude FROM newestLogs l LEFT JOIN (SELECT * FROM bikes) b ON b.bikeID = l.bikeID);
 
 CREATE VIEW allBikesWithLoc AS SELECT * FROM bikesWithDockingLocation b UNION (SELECT * FROM undockedBikesWithNewestLogLoc);
+
+SELECT * FROM newestLogs;
+SELECT * FROM undockedBikes;
+SELECT * FROM bikesWithDockingLocation;
