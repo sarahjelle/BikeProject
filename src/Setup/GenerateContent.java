@@ -8,6 +8,7 @@ import java.util.Random;
 
 import myapp.data.Location;
 import myapp.GUIfx.Map.MapsAPI;
+import java.nio.file.*;
 
 public class GenerateContent {
 
@@ -42,7 +43,10 @@ public class GenerateContent {
         FileWriter fWriter = null;
         try{
             //Setup file, and writer
-            String fileName = "/setup/database_content.sql";
+            Path currentRelativePath = Paths.get("");
+            String s = currentRelativePath.toAbsolutePath().toString();
+            System.out.println("Current relative path is: " + s);
+            String fileName = s + "/src/Setup/database_content.sql";
             File outputFile = new File(fileName);
             fWriter = new FileWriter(outputFile);
             bWriter = new BufferedWriter(fWriter);
@@ -50,10 +54,10 @@ public class GenerateContent {
             Random rand = new Random();
             //Create full content string
             String toWrite = "/*\n\t" +
-                             "For this script to work, the script DBSetup.sql must be run first,\n\t" +
-                             "so that any auto incremented id numbers are regenerated.\n\t" +
-                             "But this will delete any content previously registered in the database\n" +
-                             "*/\n\n";
+                    "For this script to work, the script DBSetup.sql must be run first,\n\t" +
+                    "so that any auto incremented id numbers are regenerated.\n\t" +
+                    "But this will delete any content previously registered in the database\n" +
+                    "*/\n\n";
 
             //Create bikes
             String[] bikeTypes = {"Bysykkel", "Hybrid", "Terreng", "Landevei"};
@@ -79,26 +83,51 @@ public class GenerateContent {
             for (int i = 0; i < NumberOfStations; i++) {
                 //name, maxSlots
                 String name = stationNames[i];
-                int slots = rand.nextInt(MaxSlots);
+                int slots = MaxSlots * 2;
                 if(slots <= 0){
                     slots = 10;
                 }
                 slotsOnStations[i] = slots;
                 Double[] latlong = map.getLatLong(name + ", Trondheim");
                 String address = map.getAddress(latlong[0], latlong[1]);
-                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots, latitude, longitude) VALUES (\"" + address + "\", " + slots + ", " + latlong[0] + ", " + latlong[0] + ");\n";
+                docking_stations += "INSERT INTO " + dockingTableName + " (stationName, maxSlots, latitude, longitude) VALUES (\"" + address + "\", " + slots + ", " + latlong[0] + ", " + latlong[1] + ");\n";
             }
 
             //Create slots on dockingstations
             String slots = "\n";
             for (int i = 0; i < slotsOnStations.length; i++) {
                 //slotID, stationID
-                for (int j = 0; j < slotsOnStations[i]; j++) {
+                for (int j = 0; j < slotsOnStations[i] * 2; j++) {
                     int slotID = j + 1;
                     int stationID = i + 1;
                     slots += "INSERT INTO " + slotsTableName + " (slotID, stationID) VALUES (" + slotID + ", " + stationID + ");\n";
                 }
             }
+            int numberOfDockingStations = docking_stations.split("\n").length;
+            int numberOfSlotsOnEachDockingStation = MaxSlots;
+            int dockCounter = 1;
+            int slotCounter = 1;
+            String slotSet = "\n";
+            for (int i = 1; i <= NumberOfBikes; i++) {
+                slotSet += "UPDATE slots SET bikeID = " + i + " WHERE slotID = " + slotCounter + " AND stationID = " + dockCounter + ";\n";
+                slotCounter++;
+                if(slotCounter > 50){
+                    slotCounter = 1;
+                    dockCounter++;
+                }
+            }
+
+            String users = "\n" +
+                    "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'martin@mail.com', 'passord', 'salt', 'Martin', 'Moan', 99999999, 0047);\n" +
+                    "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'frank@mail.com', 'passord', 'salt', 'Frank', 'Kjosås', 66666666, 0047);\n" +
+                    "INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'jonnyboi@mail.com', 'passord', 'salt', 'Jonas Gahr', 'Støre', 70707070, 0047);\n";
+            /*
+            String[] bikesList = bikes.split("\n");
+            String slotSet = "\n";
+            for (int i = 0; i < bikesList.length; i++) {
+                slotSet += "UPDATE TABLE slots SET bikeID = " + bikesList[i].get
+            }
+            */
 
             //Create user_types
             String user_types = "\n";
@@ -108,7 +137,7 @@ public class GenerateContent {
 
 
 
-            toWrite += bikes + docking_stations + slots + user_types;
+            toWrite += bikes + docking_stations + slots + user_types + slotSet + users;
             //Write content-string to file
             bWriter.write(toWrite);
         } catch(Exception e){

@@ -108,8 +108,8 @@ CREATE TABLE slots(
 CREATE TABLE bike_logs(
   bikeID int NOT NULL,
   logTime DATETIME NOT NULL DEFAULT NOW(),
-  longitude FLOAT( 10, 6 ) NOT NULL,
   latitude FLOAT( 10, 6 ) NOT NULL,
+  longitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
   batteryPercentage int NOT NULL,
   totalKm int DEFAULT 0,
@@ -161,3 +161,22 @@ ALTER TABLE trips
   ADD FOREIGN KEY (endStation) REFERENCES docking_stations(stationID),
   ADD FOREIGN KEY (bikeID) REFERENCES bikes(bikeID),
   ADD FOREIGN KEY (userID) REFERENCES users(userID);
+
+DROP VIEW IF EXISTS newestLogs;
+DROP VIEW IF EXISTS undockedBikes;
+DROP VIEW IF EXISTS bikesWithDockingLocation;
+DROP VIEW IF EXISTS undockedBikesWithNewestLogLoc;
+DROP VIEW IF EXISTS allBikesWithLoc;
+
+CREATE VIEW newestLogs AS (SELECT log.bikeID, new.logTime, log.latitude, log.longitude, log.altitude, log.batteryPercentage, log.totalKm FROM bike_logs log JOIN (SELECT bikeID, MAX(logTime) AS logTime FROM bike_logs GROUP BY bikeID) new WHERE log.bikeID = new.bikeID);
+
+CREATE VIEW undockedBikes AS SELECT * FROM bikes WHERE bikeID NOT IN (SELECT bikeID FROM slots WHERE bikeID IS NOT NULL);
+
+CREATE VIEW bikesWithDockingLocation AS (SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, fromDock.latitude, fromDock.longitude FROM bikes b INNER JOIN
+  (SELECT s.bikeID, s.stationID, ds.latitude, ds.longitude FROM slots s INNER JOIN
+    (SELECT d.stationID, d.latitude, d.longitude FROM docking_stations d) ds ON ds.stationID = s.stationID
+  WHERE s.bikeID IS NOT NULL) fromDock ON fromDock.bikeID = b.bikeID);
+
+CREATE VIEW undockedBikesWithNewestLogLoc AS (SELECT l.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, l.batteryPercentage, l.totalKm, l.latitude, l.longitude FROM newestLogs l LEFT JOIN (SELECT * FROM bikes) b ON b.bikeID = l.bikeID);
+
+CREATE VIEW allBikesWithLoc AS SELECT * FROM bikesWithDockingLocation b UNION (SELECT * FROM undockedBikesWithNewestLogLoc);
