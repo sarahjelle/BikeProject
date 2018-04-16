@@ -13,10 +13,10 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="myapp.GUIfx.Bike.BikeController"
-            prefHeight="400.0" prefWidth="600.0">
+            prefHeight="400.0" prefWidth="600.0" stylesheets="@BikePane2.css">
 
     <BorderPane fx:id="listPane" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
-        <top>
+        <bottom>
             <HBox fx:id="topMenu">
                 <TextField text="Bike id" fx:id="searchInput" prefHeight="20"/>
                 <Button onAction="#search" prefHeight="20">
@@ -27,16 +27,47 @@
                     </graphic>
                 </Button>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="New bike"/>
+                <Button text="New bike" onAction="#openRegBike"/>
             </HBox>
-        </top>
+        </bottom>
         <center>
             <ListView fx:id="bikeList" onMouseClicked="#selectedRow"/>
         </center>
     </BorderPane>
+    <VBox visible="false" alignment="CENTER" fx:id="registerPane" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+        <GridPane alignment="CENTER" hgap="10.0" vgap="10.0">
+            <Label text="Purchase date: " GridPane.rowIndex="0" />
+            <DatePicker fx:id="dateReg" GridPane.columnIndex="1" />
+
+            <Label text="Price: " GridPane.rowIndex="1" />
+            <TextField fx:id="priceReg" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+            <Label text="Make: " GridPane.rowIndex="2" />
+            <TextField fx:id="makeReg" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+            <Label text="Type:" GridPane.rowIndex="3" />
+            <ComboBox fx:id="typeReg" onAction="#selectedType" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="New type" />
+                        <String fx:value="Type1" />
+                        <String fx:value="Type2" />
+                        <String fx:value="Type3" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+        </GridPane>
+        <HBox>
+            <Button text="Register" onAction="#regBike"/>
+            <Button text="Cancel" onAction="#cancel"/>
+        </HBox>
+    </VBox>
     <BorderPane fx:id="infoEditRepair" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
         <top>
-            <Label fx:id="idOutput"/>
+            <HBox fx:id="topIdOutput">
+                <Label text="Bikeid: "/>
+                <Label fx:id="idOutput"/>
+            </HBox>
         </top>
         <center>
             <AnchorPane>
@@ -123,9 +154,9 @@
                         </bottom>
                     </BorderPane>
                 </SplitPane>
-                <BorderPane fx:id="editPane" visible="false">
+                <BorderPane fx:id="editPane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
                     <center>
-                        <GridPane>
+                        <GridPane alignment="CENTER" hgap="15" vgap="15">
                             <Label text="Type: " GridPane.rowIndex="0"/>
                             <TextField fx:id="typeEdit" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 

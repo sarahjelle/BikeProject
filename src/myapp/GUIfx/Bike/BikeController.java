@@ -8,6 +8,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.layout.BorderPane;
 
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import myapp.data.Bike;
 import myapp.dbhandler.DBH;
 
@@ -17,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class BikeController implements Initializable {
@@ -57,6 +60,22 @@ public class BikeController implements Initializable {
 
     //Edit
     @FXML private BorderPane editPane;
+    @FXML private TextField typeEdit;
+    @FXML private TextField makeEdit;
+    @FXML private TextField priceEdit;
+    @FXML private DatePicker dateEdit;
+    @FXML private TextField batteryEdit;
+    @FXML private ComboBox statusEdit;
+    @FXML private TextField distanceEdit;
+
+    //Register new bike:
+    @FXML private VBox registerPane;
+    @FXML private ComboBox<String> typeReg;
+    @FXML private DatePicker dateReg;
+    @FXML private TextField priceReg;
+    @FXML private TextField makeReg;
+
+
 
     public void initialize(URL url, ResourceBundle rb) {
         bikeList.setCellFactory(e -> new BikeCell());
@@ -79,6 +98,9 @@ public class BikeController implements Initializable {
         infoEditRepair.setVisible(false);
         repairPane.setVisible(false);
         bikeInfo.setVisible(false);
+        editPane.setVisible(false);
+        repairPane.setVisible(false);
+        registerPane.setVisible(false);
     }
 
     @FXML private void cancel(){
@@ -180,14 +202,6 @@ public class BikeController implements Initializable {
         String description = descriptionDone.getText();
     }
 
-    @FXML private TextField typeEdit;
-    @FXML private TextField makeEdit;
-    @FXML private TextField priceEdit;
-    @FXML private DatePicker dateEdit;
-    @FXML private TextField batteryEdit;
-    @FXML private ComboBox statusEdit;
-    @FXML private TextField distanceEdit;
-
     //methodes for edit
     @FXML private void openEditPane(){
         int id = Integer.parseInt(idOutput.getText());
@@ -210,4 +224,81 @@ public class BikeController implements Initializable {
         int id = Integer.parseInt(idOutput.getText());
         return true;
     }
+
+    @FXML private void openRegBike(){
+        closeAll();
+        registerPane.setVisible(true);
+    }
+
+
+    @FXML private void selectedType(){
+        String selected = typeReg.getSelectionModel().getSelectedItem();
+
+        if(selected.equals("New type")){
+            TextInputDialog newType = new TextInputDialog("New type");
+            newType.setContentText("Enter new type: ");
+            Optional<String> result = newType.showAndWait();
+            if(result.isPresent()){
+                typeReg.getItems().add(result.get());
+            }
+        }
+    }
+
+    @FXML private boolean regBikeOk(){
+        boolean ok = true;
+
+        while (ok) {
+            if (makeReg.getText().trim().isEmpty()) {
+                makeReg.setText("Empty");
+                ok = false;
+            }
+
+            if (typeReg.getSelectionModel().getSelectedItem() == null) {
+                typeReg.setValue("Type1");
+
+                ok = false;
+            }
+
+            if (dateReg.getValue() == null) {
+                dateReg.setValue(LocalDate.now());
+                ok = false;
+            }
+
+            if (priceReg.getText().trim().isEmpty()) {
+                priceReg.setText("Field is blank");
+                ok = false;
+            }
+            else{
+                try{
+                     double price = Double.parseDouble(priceReg.getText());
+                }
+                catch(Exception e){
+                    ok = false;
+                    priceReg.setText("Write a number");
+                }
+            }
+        }
+        return ok;
+    }
+
+    @FXML private void regBike(){
+        if(regBikeOk()){
+            Double price = Double.parseDouble(priceReg.getText());
+            LocalDate date = dateReg.getValue();
+            String type = typeReg.getSelectionModel().getSelectedItem();
+            String make = makeReg.getText();
+
+            Bike bike = new Bike(price, date, type, make);
+            //add bike to dbh
+
+            priceReg.clear();
+            makeReg.clear();
+            typeReg.setValue(null);
+            dateReg.setValue(null);
+        }
+    }
+
+
+
+
 }
