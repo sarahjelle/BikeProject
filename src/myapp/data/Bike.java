@@ -10,7 +10,6 @@ public class Bike {
     private String make;
     private double price;
     private double batteryPercentage;
-    private boolean available;
     private int distanceTraveled;
     private int totalTrips;
     private Location location;
@@ -24,10 +23,11 @@ public class Bike {
     private int status;
 
     public static int   AVAILABLE   = 1,
-            TRIP        = 2,
-            REPAIR      = 3,
-            DELETE      = 4;
+                        TRIP        = 2,
+                        REPAIR      = 3,
+                        DELETE      = 4;
 
+    // To be used when sending to DB
     public Bike(double price, LocalDate purchased, String type, String make) {
         this.price = price;
         this.purchased = purchased;
@@ -35,17 +35,20 @@ public class Bike {
         this.make = make;
     }
 
-    public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status){
+    // To be used returned from DB
+    public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased){
         this.id = id;
         this.make = make;
         this.type = type;
         this.price = price;
-        this.purchased = LocalDate.now();
+        this.purchased = purchased;
         this.batteryPercentage = batteryPercentage;
         this.location = location;
         this.distanceTraveled = distanceTraveled;
         this.status = status;
     }
+
+    // UNKNOWN USAGE
     public Bike(int id, String make, double price, String type, double batteryPercentage, int distanceTraveled){
         this.id = id;
         this.make = make;
@@ -60,14 +63,15 @@ public class Bike {
         }
     }
 
-    public Bike(int id, String type, double price, LocalDate purchased, String make, double batteryPercentage, boolean available, int distanceTraveled, Location location){
+    // UNKNOWN USAGE
+    public Bike(int id, String type, double price, LocalDate purchased, String make, double batteryPercentage, int status, int distanceTraveled, Location location){
         this.id = id;
         this.type = type;
         this.price = price;
         this.purchased = purchased;
         this.make = make;
         this.batteryPercentage = batteryPercentage;
-        this.available = available;
+        this.status = status;
         this.location = location;
         if (distanceTraveled != 0){
             this.distanceTraveled = distanceTraveled;
@@ -104,14 +108,6 @@ public class Bike {
         this.batteryPercentage = batteryPercentage;
     }
 
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
-    }
-
     public int getDistanceTraveled(){
         return distanceTraveled; //getInfoFromKmReader;
     }
@@ -126,6 +122,14 @@ public class Bike {
 
     public void setTotalTrips(){
         this.totalTrips++;
+    }
+
+    public boolean setStatus(int sta) {
+        if(sta <= 4 && sta >= 1) {
+            status = sta;
+            return true;
+        }
+        return false;
     }
 
     public int getStatus() {

@@ -1,27 +1,71 @@
-//importClass(myapp.map.DummyLocations);
-//var bike1 = new DummyLocations(123, 63.429, 10.3969);
 var map;
+var bikes = [{id: 1, lat: 43.1293213, lng: 34.9541231},{id: 2, lat: 43.1293213, lng: 34.9541231}];
+var centerPos = {lat: 63.429148, lng: 10.392461};
+var markers = [];
+
+
 function initMap() {
-    //var positions = {lat: bike1.getLatitude(), lng: bike1.getLongitude()};
-    var positions = [{lat: 63.429148, lng: 10.392461},{lat: 63.427189, lng: 10.396924},
-        {lat: 63.429319, lng: 10.386667},{lat: 63.431948, lng: 10.397567}];
-    var prinsen = {lat: 63.429148, lng: 10.392461};
     var options = {
-        zoom: 15,
-        center: prinsen
+        zoom: 13,
+        center: centerPos
     };
+
     map = new google.maps.Map(document.getElementById('map'), options);
-    for (var i=0; i<positions.length;i++)
-    {addMarker(positions[i])};
+
+    document.addBike = function addBike(bike) {
+        var present = false;
+        for (var i = 0; i < bikes.length; i++) {
+            if (bike == bikes[i]) {
+                present = true;
+            }
+        }
+        if (!present) {
+            bikes.push(bike);
+            document.addMarker(bike);
+        }
+        else{
+            document.updateBike(bike);
+        }
 
 
+    }
 
-    // Add marker function
-    function addMarker(coords){
+    document.updateBike = function updateBike(bike) {
+        for (var i = 0; i < marker.length; i++) {
+            if (markers[i].id == bike.id) {
+                markers[i].setPosition(new google.maps.LatLng(bike.lat,bike.lng));
+                break;
+            }
+        }
+    }
+
+    document.removeBike = function(){
+
+    }
+
+    document.addMarker = function addMarker(bike) {
         var marker = new google.maps.Marker({
-            position: coords,
-            map: map
-            //icon: "Bike.png",
+            position: {lat: bike.lat, lng: bike.lng},
+            map: map,
+            id: bike.id
+        });
+        markers.push(marker);
+
+        let infoWindow = new google.maps.InfoWindow({
+            content: "Bike Id: " + bike.id
+        });
+
+        google.maps.event.addListener(marker,'click',function(){
+           infoWindow.open(map,marker);
         });
     }
+
+    for (var i = 0; i < bikes.length; i++) {
+        document.addMarker(bikes[i])
+    };
+
 }
+
+
+
+

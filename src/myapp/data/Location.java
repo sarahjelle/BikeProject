@@ -115,7 +115,7 @@ public class Location implements Serializable {
         if (!(o instanceof Location)) return false;
 
         Location l = (Location) o;
-        return ((latitude  == null && l.getLatitude () == null) || latitude .equals(l.getLatitude ()))
+        return ((latitude  == null && l.getLatitude() == null) || latitude.equals(l.getLatitude()) )
                 && ((longitude == null && l.getLongitude() == null) || longitude.equals(l.getLongitude()));
 
     }

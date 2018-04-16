@@ -4,35 +4,62 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane visible="false" fx:id="dockPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="myapp.GUIfx.DockingStation.DockStationCenter">
+<BorderPane stylesheets="@DockCenterPane.css" visible="false" fx:id="dockPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="myapp.GUIfx.DockingStation.DockStationCenter">
     <top>
-        <HBox>
+        <HBox fx:id="topMenu">
             <TextField fx:id="searchInput"/>
             <Button text="Search"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Button text="+ Register new" onAction="#openRegDock"/>
         </HBox>
     </top>
     <center>
         <AnchorPane>
             <ListView fx:id="dockingList" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" onMouseClicked="#selectedRow"/>
-            <BorderPane  visible="false" fx:id="bikeInfo" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0">
-                <center>
-                    <VBox>
-                        <Label fx:id="dockIdOutput"/>
+            <BorderPane  visible="false" fx:id="dockInfo" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0">
+                <top>
+                    <HBox fx:id="infoTop">
+                        <Label text="Docking station: "/>
                         <Label fx:id="nameOutput"/>
-                        <Label fx:id="openSpaces"/>
-                    </VBox>
+                    </HBox>
+                </top>
+                <center>
+                    <SplitPane>
+                        <VBox alignment="CENTER">
+                            <GridPane alignment="CENTER" hgap="10" vgap="10">
+                                <Label text="Docking station id: "/>
+                                <Label fx:id="dockIdOutput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                <Label text="OpenSpaces: " GridPane.rowIndex="1"/>
+                                <Label fx:id="openSpaces" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                            </GridPane>
+                            <Region VBox.vgrow="ALWAYS"/>
+                            <HBox alignment="CENTER" spacing="10">
+                                <Button text="Edit"/>
+                                <Button text="Delete"/>
+                                <Button text="Cancel"/>
+                            </HBox>
+                        </VBox>
+                        <ListView fx:id="bikeList"/>
+                    </SplitPane>
                 </center>
             </BorderPane>
-            <VBox fx:id="regDock" visible="false">
-                <GridPane>
-                    <Label text="Location: " GridPane.rowIndex="0"/>
-                    <TextField fx:id="locationInput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                    <Label text="Name: " GridPane.rowIndex="1"/>
-                    <TextField fx:id="nameInput" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <VBox fx:id="regDock" visible="false" alignment="CENTER" spacing="20" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                <GridPane alignment="CENTER" hgap="10" vgap="10">
+                    <Label text="Name: " GridPane.rowIndex="0"/>
+                    <TextField fx:id="nameInput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label text="Address : " GridPane.rowIndex="1"/>
+                    <TextField fx:id="addressInput" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="Number of slots: " GridPane.rowIndex="2"/>
+                    <TextField fx:id="slotsInput" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                 </GridPane>
+                <HBox alignment="CENTER" spacing="10">
+                    <Button text="Register" onAction="#regDock"/>
+                    <Button text="Cancel" onAction="#cancel"/>
+                </HBox>
             </VBox>
         </AnchorPane>
     </center>
+    <bottom>
+        <HBox fx:id="bottomMenu">
+            <Button text="+ new docking station" onAction="#openRegDock"/>
+        </HBox>
+    </bottom>
 </BorderPane>

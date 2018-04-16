@@ -7,14 +7,13 @@ import myapp.dbhandler.DBH;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Docking {
     private int id;
     private String name;
     private Location location;
     private int capacity;
-    private ArrayList<Bike> bikes;
+    private Bike[] bikes;
 
     DBH dbh = new DBH();
 
@@ -23,7 +22,7 @@ public class Docking {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
-        this.bikes = new ArrayList<Bike>(capacity);
+        this.bikes = new Bike[capacity];
     }
 
     public int getId() {
@@ -54,26 +53,16 @@ public class Docking {
         return getCapacity() - openSpaces();
     }
 
-    public void addBike(Bike bike) {
-        int spot = firstOpen();
-        if(spot >= 0){
-            bikes.add(spot, bike);
-            dbh.dockBike(id, spot, bike);
-        }
-    }
-
     // To use when creating docking station from DB
     public void forceAddBike(Bike bike, int spot) {
         spot--;
-        if(spot >= 0){
-            bikes.add(spot, bike);
-        }
+            bikes[spot] = bike;
     }
 
     //Helper function for finding first open spot
-    public int firstOpen() {
-        for(int i = 0; i < bikes.size(); i++){
-            if(bikes.get(i) == null){
+    public int findFirstOpen() {
+        for(int i = 0; i < bikes.length; i++){
+            if(bikes[i] == null){
                 return i;
             }
         }
@@ -82,26 +71,36 @@ public class Docking {
 
     public int openSpaces() {
         int count = 0;
-        for (int i = 0; i < bikes.size(); i++){
-            if(bikes.get(i) == null){
+        for (int i = 0; i < bikes.length; i++){
+            if(bikes[i] == null){
                 count++;
             }
         }
         return count;
     }
 
-    public boolean removeBike(int bikeId) {
-        for(int i = 0; i < bikes.size(); i++) {
-            if(bikes.get(i).getId() == bikeId) {
-                bikes.add(i, null);
+    public boolean undockBike(int bikeId) {
+        for(int i = 0; i < bikes.length; i++) {
+            if(bikes[i].getId() == bikeId) {
+                bikes[i] = null;
                 return true;
             }
         }
         return false;
     }
 
-    public ArrayList<Bike> getBikes() {
+    public boolean dockBike(Bike bike) {
+        int spot = findFirstOpen() + 1;
+        if(dbh.dockBike(id, spot, bike)) {
+            bikes[spot] = bike;
+            return true;
+        }
+        return false;
+    }
+
+    public Bike[] getBikes() {
         return bikes;
     }
+
 
 }
