@@ -173,23 +173,36 @@ public class Bike {
         return repair;
     }
 
-    public void addRepairRequest(String desc, LocalDate date) {
+    public boolean addRepairRequest(String desc, LocalDate date) {
         if(repairs.length == 0) {
             repairs = new Repair[1];
             repairs[0] = new Repair(id, desc, date);
+            if(repairs[0].startRepairRequest()) {
+                status = Bike.REPAIR;
+                return true;
+            }
         } else {
             Repair[] temp = new Repair[repairs.length + 1];
             for(int i = 0; i < repairs.length; i++) {
                 temp[i] = repairs[i];
             }
             temp[temp.length - 1] = new Repair(id, desc, date);
-            temp[temp.length - 1].startRepairRequest();
+            if(temp[temp.length - 1].startRepairRequest()) {
+                status = Bike.REPAIR;
+                return true;
+            }
         }
+        return false;
     }
 
-    public void finishLastRepairRequest(String returnDesc, LocalDate returnDate, double price) {
+    public boolean finishLastRepairRequest(String returnDesc, LocalDate returnDate, double price) {
         Repair rep = getLatestRepairRequest();
-        rep.finishRepairRequest(returnDesc, returnDate, price);
+        if(rep.finishRepairRequest(returnDesc, returnDate, price)) {
+            status = Bike.AVAILABLE;
+            return true;
+        }
+        return false;
+
     }
 
     // Added by Mediå for testing. Needs to be more complex!
