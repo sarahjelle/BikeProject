@@ -20,26 +20,21 @@ public class GenerateStats {
 
     public GenerateStats() {
         this.dbh = new DBH();
-        this.bikes = null;
         this.bikes = dbh.getAllBikes();
         this.docks = dbh.getAllDockingStations();
     }
 
-    public String[] dockingName() {
-        String[] dockName = new String[docks.size()];
-        for (int i=0; i<docks.size(); i++) {
-            dockName[i] = docks.get(i).getName().split(",")[0];
+    // Uses the ArrayList containing all docking stations and for each station returns name, capacity and taken slots.
+    public Object[][] dockingStatistics() {
+        Object[][] stat1list = new Object[3][docks.size()];
+        for (int i = 0; i < docks.size(); i++) {
+            stat1list[0][i] = docks.get(i).getName().split(",")[0];
+            stat1list[1][i] = docks.get(i).getCapacity();
+            stat1list[2][i] = docks.get(i).getCapacity()-docks.get(i).getOpenSpaces();
         }
-      return dockName;
+        return stat1list;
     }
 
-    public int[] dockCapacity(){
-        int[] dockCap = new int[docks.size()];
-        for (int i=0; i<docks.size(); i++) {
-            dockCap[i] = docks.get(i).getCapacity();
-        }
-        return dockCap;
-    }
 
     public int[] bikeAvailability(){
         int[] availStats = new int[3];

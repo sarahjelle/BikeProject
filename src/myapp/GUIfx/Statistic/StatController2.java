@@ -16,11 +16,9 @@ import myapp.Stats.DummyBikeInfo;
 
 public class StatController2 {
     @FXML
-    private BorderPane stat1Pane;
-    @FXML
     private BorderPane statPane;
     @FXML
-    private TextField bikeIdInput;
+    private BorderPane stat1Pane;
     @FXML
     private BorderPane stat2Pane;
     @FXML
@@ -33,17 +31,16 @@ public class StatController2 {
         xAxis.setLabel("Docking station name");
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Bike capacity");
-        XYChart.Series<String, Number> dock = new XYChart.Series();
-        XYChart.Series<String, Number> capacity = new XYChart.Series();
-        int[] cap = stats.dockCapacity();
-        String[] name = stats.dockingName();
-        for (int i=0; i<cap.length; i++){
-            dock.getData().add(new XYChart.Data(name[i], cap[i]));
-            //capacity.getData().add(new XYChart.Data());
+        XYChart.Series<String, Number> cap = new XYChart.Series();
+        XYChart.Series<String, Number> taken = new XYChart.Series();
+        Object[][] dockStats = stats.dockingStatistics();
+        for (int i=0; i<dockStats.length; i++){
+            cap.getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
+            taken.getData().add(new XYChart.Data(dockStats[0][i],dockStats[2][i]));
         }
-        BarChart<String, Number> dockStat = new BarChart<>(xAxis,yAxis);
-        dockStat.getData().addAll(dock);
-        stat2Pane.setCenter(dockStat);
+        BarChart<String, Number> dockChart = new BarChart<>(xAxis,yAxis);
+        dockChart.getData().addAll(cap,taken);
+        stat2Pane.setCenter(dockChart);
     }
 
     public void closePane() {
@@ -104,13 +101,14 @@ public class StatController2 {
         battery.setName("Battery percentage");
 
         int[][] bStats = stats.bikeStats();
-        for (int i=0; i<10; i++){
-            distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[1][i]));
-            distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[2][i]));
-            distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[3][i]));
-           /* distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
-            distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
-            distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[3][i]));*/
+        for (int i=0; i<bStats.length; i++){
+            /*distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[1][i]));
+            totTrips.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[2][i]));
+            battery.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[3][i]));*/
+            System.out.println(bStats[0][i]);
+            System.out.println(bStats[1][i]);
+            System.out.println(bStats[2][i]);
+            System.out.println(bStats[3][i]);
         }
         BarChart<String, Number> bikeStat = new BarChart<>(xAxis,yAxis);
         bikeStat.getData().addAll(distTrav,totTrips,battery);
