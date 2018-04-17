@@ -164,7 +164,7 @@ CREATE VIEW bikesWithDockingLocation AS (SELECT b.bikeID, b.price, b.purchaseDat
 
 CREATE VIEW undockedBikesWithNewestLogLoc AS (SELECT l.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, l.batteryPercentage, l.totalKm, l.latitude, l.longitude FROM newestLogs l LEFT JOIN (SELECT * FROM bikes) b ON b.bikeID = l.bikeID);
 
-CREATE VIEW allBikesWithLoc AS SELECT * FROM bikesWithDockingLocation b UNION (SELECT * FROM undockedBikesWithNewestLogLoc);
+CREATE VIEW allBikesWithLoc AS SELECT * FROM bikesWithDockingLocation b UNION (SELECT * FROM undockedBikesWithNewestLogLoc l WHERE l.bikeID != b.bikeID);
 
 
 CREATE VIEW undockedBikesNew AS (SELECT * FROM bikes b WHERE b.bikeID NOT IN (SELECT s.bikeID FROM slots s WHERE s.bikeID IS NOT NULL));
