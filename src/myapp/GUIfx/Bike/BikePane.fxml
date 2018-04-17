@@ -20,7 +20,7 @@
    </top>
    <center>
       <AnchorPane BorderPane.alignment="CENTER">
-            <fx:include fx:id="centerPane" source="BikeCenterPane.fxml" visible="true" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0"/>
+            <fx:include fx:id="centerPane" source="BikeMap.fxml" visible="true" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0"/>
       </AnchorPane>
    </center>
    <bottom>

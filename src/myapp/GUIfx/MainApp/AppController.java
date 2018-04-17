@@ -48,14 +48,6 @@ public class AppController {
         closeAll();
         mapPane.setVisible(true);
 
-
-        try {
-            URL url = getClass().getResource("../Map/map.html");
-            mapPane.getEngine().load(url.toExternalForm());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         if(up == null){
             up = new Updater();
         }
