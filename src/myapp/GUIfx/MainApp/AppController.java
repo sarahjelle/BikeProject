@@ -84,7 +84,7 @@ public class AppController {
     class Updater implements Runnable{
         private Boolean stop = false;
         private Bike[] bikes;
-        private int UPDATE_INTERVAL = 8000;
+        private int UPDATE_INTERVAL = 5000;
 
         private Bike[] bikesTest;
 
@@ -132,12 +132,6 @@ public class AppController {
                     }
 
                     WebEngine engine = mapPane.getEngine();
-
-                    try{
-                        Thread.sleep(2000);
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
                     //initMap(engine);
                     System.out.println();
                     //removeAll(engine);//removeBike(bikes[i], engine);
