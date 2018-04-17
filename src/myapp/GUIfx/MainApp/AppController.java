@@ -83,6 +83,7 @@ public class AppController {
         private Bike[] bikesTest;
 
         public Updater(){
+            //Comment
             DBH handler = new DBH();
             ArrayList<Bike> bikesList = handler.getLoggedBikes();
             if(bikesList != null){
