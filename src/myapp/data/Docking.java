@@ -15,6 +15,8 @@ public class Docking {
     private int capacity;
     private Bike[] bikes;
 
+    private double power_usage;
+
     private static int MINIMUM_BAT_LEVEL = 0;
 
     DBH dbh = new DBH();
@@ -37,6 +39,10 @@ public class Docking {
 
     public void setName(String newName) {
         this.name = newName;
+    }
+
+    public void setPower_usage(double power_usage){
+        this.power_usage = power_usage;
     }
 
     public Location getLocation() {
@@ -137,7 +143,7 @@ public class Docking {
                 prBikes += "\nSlot: " + (i + 1) + " - " + bikes[i].toString();
             }
         }
-        return "Name: " + name + " - With ID: " + id + "\nBikes:" + prBikes;
+        return "Name: " + name + " - With ID: " + id;// + "\nBikes:" + prBikes;
     }
 
 

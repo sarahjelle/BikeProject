@@ -49,9 +49,11 @@ public class Router implements Runnable{
             hasArrived = true;
             stop = true;
         } else{
+            /*
             for (int i = 0; i < WayPoints.length - 1; i++) {
                 bikeToMove.setDistanceTraveled((int)getDistance(WayPoints[i], WayPoints[i+1]));
             }
+            */
         }
         this.startStation = start;
         System.out.println("ROUTER CREATED: ");
@@ -177,6 +179,7 @@ public class Router implements Runnable{
                     //String address = map.getAddress(newLat, newLng);
                     //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
                     bikeToMove.setLocation(new Location(null, newLat, newLng));
+                    bikeToMove.setDistanceTraveled(getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)));
 
                     System.out.println(newLat + ", " + newLng);
                     double checkLat = Math.abs(bikeToMove.getLocation().getLatitude() - nextLocation.getLatitude());
@@ -275,7 +278,7 @@ public class Router implements Runnable{
         return startStation;
     }
 
-    private static double getDistance(Location loc1, Location loc2){  // generally used geo measurement function
+    private static int getDistance(Location loc1, Location loc2){  // generally used geo measurement function
         double lat1 = loc1.getLatitude();
         double lon1 = loc1.getLongitude();
         double lat2 = loc2.getLatitude();
@@ -289,7 +292,7 @@ public class Router implements Runnable{
                         Math.sin(dLon/2) * Math.sin(dLon/2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double d = R * c;
-        return d * 1000; // meters
+        return (int) d; // meters
     }
 
     public static void setUpdateInterval(int updateInterval) {

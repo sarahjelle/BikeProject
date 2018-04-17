@@ -215,6 +215,6 @@ public class Bike {
             }
         }
 
-        return "ID: " + id + " Type: " + type + " Make: " + make + "\n\tRepairs:\n" + repairsList + "\n";
+        return "ID: " + id + " Type: " + type + " Make: ";// + make + "\n\tRepairs:\n" + repairsList + "\n";
     }
 }

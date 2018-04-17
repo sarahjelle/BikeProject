@@ -20,6 +20,7 @@ public class Simulation implements Runnable{
     private Boolean stop = false;
     private static final double ERROR_TOLERANSE = 0.0000001;
     private final double percentageOfUsersToMove = 1.0;
+    private final double STATION_POWER_USAGE_PR_BIKE = 230 * 2.5; //Volt * Amp
     private Router[] routers;
 
     /*
@@ -78,8 +79,16 @@ public class Simulation implements Runnable{
         }
 
         while(!stop){
+            DBH handler = new DBH();
+            for (int i = 0; i < docking_stations.length; i++) {
+                double dockPowerUsage = docking_stations[i].getBikes().length * STATION_POWER_USAGE_PR_BIKE;
+                docking_stations[i].setPower_usage(dockPowerUsage);
+                handler.logDocking(docking_stations[i]);
+            }
+
             for (int i = 0; i < routers.length; i++) {
                 if(routers[i].hasArrived() && routers[i].isDocked()){
+                    System.out.println("Router number: " + i + " has arrived and docked successfully");
                     /*
                     //No problem, create new router
                     System.out.println("Bike has arrived, getting new router");
