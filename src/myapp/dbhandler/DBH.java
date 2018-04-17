@@ -52,7 +52,6 @@ public class DBH {
     /*
      * TRANSLATION FOR TIME AND DATE.
      */
-
     private String dateTranslate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return date.format(formatter);
@@ -148,7 +147,6 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE BIKE OBJECT.
      */
-
     public int registerBike(Bike bike) {
         db = connect();
         PreparedStatement stmt = null;
@@ -558,10 +556,33 @@ public class DBH {
         return null;
     }
 
+    private void changeStatus(int bikeID, int status) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return;
+            }
+
+            stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
+            stmt.setInt(1, status);
+            stmt.setInt(2, bikeID);
+
+            if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
+                return;
+            }
+            stmt.close();
+            db.close();
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+    }
+
     /*
      * METHODS BELONGING TO THE DOCKING OBJECT.
      */
-
     public int registerDocking(Docking dock) {
         db = connect();
         PreparedStatement stmt = null;
@@ -812,10 +833,87 @@ public class DBH {
         }
     }
 
+    private Docking getDockingByID(int id) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE stationID = ?");
+            stmt.setInt(1, id);
+            ResultSet dockingSet = execSQLRS(stmt);
+            while(dockingSet.next()) {
+                Docking dock = new Docking(
+                        dockingSet.getInt("stationID"),
+                        dockingSet.getString("stationName"),
+                        new Location(
+                                dockingSet.getDouble("latitude"),
+                                dockingSet.getDouble("latitude")
+                        ),
+                        dockingSet.getInt("maxSlots")
+                );
+                stmt.close();
+                db.close();
+
+                return dock;
+            }
+
+            stmt.close();
+            db.close();
+
+            return null;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
+    public boolean editDocking(Docking dock) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE dokcing_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ? WHERE stationID = ?");
+            stmt.setString(1, dock.getName());
+            stmt.setInt(2, dock.getCapacity());
+            stmt.setDouble(3, dock.getLocation().getLatitude());
+            stmt.setDouble(4, dock.getLocation().getLongitude());
+            stmt.setInt(4, dock.getId());
+
+            Docking orgDock = getDockingByID(dock.getId());
+
+            if(orgDock != null) {
+                if(orgDock.getCapacity() < dock.getCapacity()) {
+                    //Mindre en det som blir nytt, da må det legges til mer i databasen.
+                    System.out.println("Her mangler det noe!");
+                } else if (orgDock.getCapacity() > dock.getCapacity()) {
+                    //Mer en det som er blir nytt, da må det fjernes fra databasen.
+                    System.out.println("Her mangler det noe!");
+                }
+            }
+
+            if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
-
     public int registerUser(User user) {
         Hasher hasher = new Hasher();
         db = connect();
@@ -1011,7 +1109,6 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE REPAIR OBJECT
      */
-
     private Repair[] getRepairsByID(int bikeID) {
         db = connect();
         PreparedStatement stmt = null;
@@ -1059,7 +1156,7 @@ public class DBH {
             if(db == null) {
                 return -1;
             }
-                stmt = db.prepareStatement("SELECT bikeID FROM repair_cases WHERE caseID = ?");
+                stmt = db.prepareStatement("SELECT bikeID FROM repair_cases WHERE repairCaseID = ?");
                 stmt.setInt(1, caseID);
 
             int output = -1;
@@ -1099,19 +1196,13 @@ public class DBH {
             stmt.setString(2, desc);
             stmt.setString(3, date.toString());
 
-            boolean output = execSQLBool(stmt, db);
-            if(output) {
-                stmt.close();
+            execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
 
-                stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
-                stmt.setInt(1, Bike.REPAIR);
-                stmt.setInt(2, bikeID);
+            changeStatus(bikeID, Bike.REPAIR);
 
-                output = execSQLBool(stmt, db);
-                db.close();
-                return output;
-            }
-
+            return true;
         } catch(SQLException ex){
             ex.printStackTrace();
         }
@@ -1126,33 +1217,23 @@ public class DBH {
             if(db == null){
                 return false;
             }
-            java.util.Date utilDate = new java.util.Date();
-
             stmt = db.prepareStatement("UPDATE repair_cases SET returnDescription = ?, dateReceived = ?, price = ? WHERE repairCaseID = ?");
             stmt.setString(1, desc);
             stmt.setString(2, date.toString());
             stmt.setDouble(3, price);
             stmt.setInt(4, caseID);
 
-            boolean output = execSQLBool(stmt, db);
-            if(output) {
-                stmt.close();
+            execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
 
-                int bikeID = getBikeIDByCaseID(caseID);
+            int bikeID = getBikeIDByCaseID(caseID);
+            changeStatus(bikeID, Bike.AVAILABLE);
 
-                stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
-                stmt.setInt(1, Bike.AVAILABLE);
-                stmt.setInt(2, bikeID);
-
-                output = execSQLBool(stmt, db);
-                db.close();
-                return output;
-            }
-
+            return true;
         } catch(SQLException ex){
             ex.printStackTrace();
         }
-
         return false;
     }
 
