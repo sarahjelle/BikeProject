@@ -70,7 +70,7 @@ public class AppController {
 
 
     private void closeAll(){
-        bikeController.closeAll();
+        bikeController.closePane();
         dockController.closePane();
         statController.closePane();
         mapPane.setVisible(false);

@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
 import javafx.scene.control.*;
@@ -35,6 +36,8 @@ public class BikeController implements Initializable {
     int id = -1;
 
     //listview
+    @FXML
+    private AnchorPane testbikeremoveme;
     @FXML
     private BorderPane listPane;
     @FXML
@@ -173,11 +176,18 @@ public class BikeController implements Initializable {
     public void openPane() {
         refresh();
         closeAll();
+        testbikeremoveme.setVisible(true);
         listPane.setVisible(true);
+    }
+
+    public void closePane() {
+        testbikeremoveme.setVisible(false);
     }
 
     public void closeAll() {
         //refresh();
+        closePane();
+
         listPane.setVisible(false);
         infoEditRepair.setVisible(false);
         bikeInfo.setVisible(false);
