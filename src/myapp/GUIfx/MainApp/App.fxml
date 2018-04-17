@@ -17,6 +17,7 @@
             <Button onAction="#docking" text="Docking Station" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button onAction="#map"  text="Map" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button onAction="#statistic" text="Statistic" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button text="Admin" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
         </HBox>
     </top>
     <center>
