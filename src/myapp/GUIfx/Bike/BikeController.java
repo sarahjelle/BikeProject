@@ -186,7 +186,7 @@ public class BikeController implements Initializable {
 
     public void closeAll() {
         //refresh();
-        closePane();
+        //closePane();
 
         listPane.setVisible(false);
         infoEditRepair.setVisible(false);
