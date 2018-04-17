@@ -84,10 +84,8 @@ public class Docking {
     public boolean undockBike(int bikeId) {
         for(int i = 0; i < bikes.length; i++) {
             if(bikes[i].getId() == bikeId) {
-                if(bikes[i].getStatus() == Bike.AVAILABLE) {
-                    bikes[i] = null;
-                    return true;
-                }
+                bikes[i] = null;
+                return true;
             }
         }
         return false;
@@ -108,15 +106,18 @@ public class Docking {
         Bike bike = null;
         for(int i = 0; i < bikes.length; i++) {
             if(bikes[i] != null) {
-                if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
-                    bike = bikes[i];
-                    bikes[i] = null;
+                if(bikes[i].getStatus() == Bike.AVAILABLE) {
+                    if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
+                        bike = bikes[i];
+                        bikes[i] = null;
+                    }
                 }
             }
         }
         if(bike != null) {
             if(dbh.rentBike(user, bike, id)) {
                 Bike[] bArr = new Bike[1];
+                bike.setLocation(new Location(location.getLatitude(), location.getLatitude()));
                 bArr[0] = bike;
                 dbh.logBikes(bArr);
                 return bike;

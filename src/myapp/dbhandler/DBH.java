@@ -216,8 +216,10 @@ public class DBH {
                         repairsForBike.add(allRepairs[i]);
                     }
                 }
-                Repair[] toInsert = new Repair[repairsForBike.size()];
-                bike.setRepairs(repairsForBike.toArray(toInsert));
+                if (repairsForBike.size() > 0) {
+                    Repair[] toInsert = new Repair[repairsForBike.size()];
+                    bike.setRepairs(repairsForBike.toArray(toInsert));
+                }
             }
 
             return bikes;
@@ -508,6 +510,53 @@ public class DBH {
         return bikes;
     }
 
+    public ArrayList<String> getBikeMakes() {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+            stmt = db.prepareStatement("SELECT DISTINCT make FROM bikes ORDER BY make");
+            ResultSet makes = execSQLRS(stmt);
+            ArrayList<String> makesArray = new ArrayList<>();
+
+            while(makes.next()) {
+                makesArray.add(makes.getString("make"));
+            }
+
+            stmt.close();
+            db.close();
+            return makesArray;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
+    public ArrayList<String> getBikeTypes() {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+            stmt = db.prepareStatement("SELECT DISTINCT type FROM bikes ORDER BY type");
+            ResultSet type = execSQLRS(stmt);
+            ArrayList<String> typeArray = new ArrayList<>();
+
+            while(type.next()) {
+                typeArray.add(type.getString("make"));
+            }
+
+            stmt.close();
+            db.close();
+            return typeArray;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
 
     /*
      * METHODS BELONGING TO THE DOCKING OBJECT.
