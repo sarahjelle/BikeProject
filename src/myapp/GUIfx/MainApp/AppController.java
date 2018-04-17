@@ -50,15 +50,13 @@ public class AppController {
         mapPane.setVisible(true);
         URL url = getClass().getResource("../Map/map.html");
         mapPane.getEngine().load(url.toExternalForm());
-        /*
         if(up == null){
             up = new Updater();
         }
         if(upThread == null){
             upThread = new Thread(up);
             upThread.start();
-        }*/
-
+        }
     }
 
 
