@@ -41,13 +41,13 @@ public class DockStationCenter implements Initializable{
 
         //list at the infopage
         bikeList.setCellFactory(e -> new BikeAtDock());
-        Bike bike1 = new Bike(1, 500, "DBS", "Electric", 0.2, 100);
-        Bike bike2 = new Bike(1, 500, "DBS", "Electric", 0.2, 100);
+        //Bike bike1 = new Bike(1, 500, "DBS", "Electric", 0.2, 100);
+        //Bike bike2 = new Bike(1, 500, "DBS", "Electric", 0.2, 100);
 
-        DockBikeData en = new DockBikeData(bike1, 1);
-        DockBikeData to = new DockBikeData(bike2, 2);
+        //DockBikeData en = new DockBikeData(bike1, 1);
+        //DockBikeData to = new DockBikeData(bike2, 2);
 
-        bikeList.getItems().addAll(en, to);
+        //bikeList.getItems().addAll(en, to);
         System.out.println(bikeList.getItems().size());
     }
 

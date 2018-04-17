@@ -71,7 +71,7 @@ public class Repair {
 
     public double getPrice() { return price; }
 
-    public boolean getStatus() { return finished; }
+    public boolean getStatus() {  return finished; }
 
     public String toString() {
         String fromTo = "";
