@@ -13,6 +13,7 @@ public class Repair {
     private LocalDate requestDate;
     private LocalDate returnDate;
     private double price;
+    private boolean finished;
 
     private DBH dbh = new DBH();
 
@@ -22,6 +23,7 @@ public class Repair {
         this.bikeID = bikeID;
         this.desc = desc;
         this.requestDate = date;
+        this.finished = false;
     }
 
     // Return from DB
@@ -33,6 +35,7 @@ public class Repair {
         this.requestDate = requestDate;
         this.returnDate = returnDate;
         this.price = price;
+        this.finished = (returnDesc != null);
     }
 
     public boolean startRepairRequest() {
@@ -47,39 +50,28 @@ public class Repair {
             this.returnDesc = returnDesc;
             this.returnDate = returnDate;
             this.price = price;
+            this.finished = true;
 
             return true;
         }
         return false;
     }
 
-    public int getBikeID() {
-        return bikeID;
-    }
+    public int getBikeID() { return bikeID; }
 
-    public int getCaseID() {
-        return caseID;
-    }
+    public int getCaseID() { return caseID; }
 
-    public String getDesc() {
-        return desc;
-    }
+    public String getDesc() { return desc; }
 
-    public String getReturnDesc() {
-        return returnDesc;
-    }
+    public String getReturnDesc() { return returnDesc; }
 
-    public LocalDate getRequestDate() {
-        return requestDate;
-    }
+    public LocalDate getRequestDate() { return requestDate; }
 
-    public LocalDate getReturnDate() {
-        return requestDate;
-    }
+    public LocalDate getReturnDate() { return requestDate; }
 
-    public double getPrice() {
-        return price;
-    }
+    public double getPrice() { return price; }
+
+    public boolean getStatus() { return finished; }
 
     public String toString() {
         String fromTo = "";

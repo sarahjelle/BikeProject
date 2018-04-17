@@ -206,6 +206,9 @@ public class Router implements Runnable{
                 isDocked = end.dockBike(bikeToMove);
                 System.out.println("ROUTER ABLE TO DOCK TO END: " + isDocked);
             }
+        } else{
+            isDocked = end.dockBike(bikeToMove);
+            System.out.println("ROUTER ABLE TO DOCK TO END: " + isDocked);
         }
     }
 

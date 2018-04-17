@@ -37,7 +37,7 @@ public class DBH {
      */
     private Connection connect() {
         try {
-            Connection DBCon = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password);
+            Connection DBCon = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password + "&useSSL=false");
             DBCon.setAutoCommit(false);
             return DBCon;
         } catch (SQLException e) {
@@ -204,7 +204,6 @@ public class DBH {
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<>();
             while(bikeset.next()) {
-                System.out.println("Creating bike from DB");
                 bikes.add(new Bike(
                         bikeset.getInt("bikeID"),
                         bikeset.getString("make"),
@@ -375,8 +374,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-
-            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN  bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime");
+            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLoc");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
 
@@ -392,11 +390,10 @@ public class DBH {
                         bikeset.getInt("totalKM"),
                         new Location(
                                 bikeset.getDouble("latitude"),
-                                bikeset.getDouble("longitude"),
-                                dateTimeToDateOnly(bikeset.getString("logTime"))
+                                bikeset.getDouble("longitude")
                         ),
                         bikeset.getInt("status"),
-                        dateTimeToDateOnly(bikeset.getString("purchasedDate"))
+                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
                 ));
             }
             stmt.close();
@@ -691,7 +688,7 @@ public class DBH {
         Docking[] stations = new Docking[dck.size()];
         stations = dck.toArray(stations);
 
-        ArrayList<Bike> bikes = localGetBikes();
+        ArrayList<Bike> bikes = getAllBikes();
 
         db = connect();
         PreparedStatement stmt = null;

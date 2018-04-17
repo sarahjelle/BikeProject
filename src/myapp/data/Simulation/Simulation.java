@@ -40,7 +40,18 @@ public class Simulation implements Runnable{
         this.users = handler.getAllCustomers();
         this.docking_stations = handler.getAllDockingStationsWithBikes();
         ArrayList<Bike> arr = new ArrayList<>();
+        System.out.println("Number of docking stations: " + docking_stations.length);
+        System.out.println();
         for (int i = 0; i < docking_stations.length; i++) {
+
+            Bike[] sub = docking_stations[i].getBikes();
+            int counter = 0;
+            for (int j = 0; j < sub.length; j++) {
+                if(sub[j] != null){
+                    counter++;
+                }
+            }
+            System.out.println(counter);
             Bike[] bikesList = docking_stations[i].getBikes();
             for (int j = 0; j < bikesList.length; j++) {
                 arr.add(bikesList[j]);
@@ -147,10 +158,15 @@ public class Simulation implements Runnable{
         Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
         for (int i = 0; i < routers.length; i++) {
-            Docking start = docking_stations[rand.nextInt(docking_stations.length)];
-            Docking end = docking_stations[rand.nextInt(docking_stations.length)];
             User customer = userSubSet[i];
-            Bike bike = start.rentBike(customer);
+            Docking start = null;
+            Docking end = null;
+            Bike bike = null;
+            do{
+                start = docking_stations[rand.nextInt(docking_stations.length)];
+                end = docking_stations[rand.nextInt(docking_stations.length)];
+                bike = start.rentBike(customer);
+            } while(start == null || end == null || bike == null);
             routers[i] = new Router(customer, bike, start, end);
             routers[i].setUpdateInterval(UPDATE_INTERVAL);
         }
