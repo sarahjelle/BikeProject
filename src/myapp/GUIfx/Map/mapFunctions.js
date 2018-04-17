@@ -10,7 +10,8 @@ var dockMarkers = [];
 function initMap() {
     var options = {
         zoom: 13,
-        center: centerPos
+        center: centerPos,
+        disableDefaultUI: true
     };
 
     map = new google.maps.Map(document.getElementById('map'), options);

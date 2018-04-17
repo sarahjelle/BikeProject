@@ -40,10 +40,6 @@ public class MapController extends Application{
                 browser.getEngine().load(url.toExternalForm());
                 browser.getEngine().setJavaScriptEnabled(true);
                 root.getChildren().add(browser);
-                //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status
-                //Bike myBike = new Bike(1, "DBS", 1000.0, "El", 100, 0, new Location("NTNU Kalvskinnet", true), 1);
-
-                //addBike(myBike);
                 primaryStage.show();
             }
         });

@@ -13,6 +13,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import static myapp.data.Bike.*;
+
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import  myapp.data.Bike;
 import myapp.data.Repair;
 import myapp.dbhandler.DBH;
@@ -121,6 +124,8 @@ public class BikeController implements Initializable {
     @FXML
     private TextField makeReg;
 
+    @FXML private WebView browser;
+
 
     public void initialize(URL url, ResourceBundle rb) {
         bikeList.setCellFactory(e -> new BikeCell());
@@ -195,6 +200,7 @@ public class BikeController implements Initializable {
         repairPaneBefore.setVisible(false);
         repairPaneAfter.setVisible(false);
         registerPane.setVisible(false);
+        browser.setVisible(false);
     }
 
     @FXML
@@ -250,6 +256,7 @@ public class BikeController implements Initializable {
 
     @FXML
     private void showInfo(Bike bike) {
+        System.out.println("Showing infopanel");
         setId(bike.getId());
         closeAll();
         infoEditRepair.setVisible(true);
@@ -274,7 +281,55 @@ public class BikeController implements Initializable {
         if (!getStatus(bike).equals("")) {
             statusInfo.setText(getStatus(bike));
         }
+        URL url = getClass().getResource("../Bike/BikeMap/BikeMap.html");
+        browser.getEngine().load(url.toExternalForm());
+        browser.getEngine().setJavaScriptEnabled(true);
+        browser.setVisible(true);
+        //Bike[] subset = new Bike[bikes.size()];
+        //subset = bikes.toArray(subset);
+        Bike[] subset = {bike};
+        addBikes(subset, browser.getEngine());
+        centerMap(bike, browser.getEngine());
+    }
 
+    private void centerMap(Bike bike, WebEngine engine){
+        System.out.println("Centering map");
+        try{
+            Platform.runLater(() -> {
+                engine.getLoadWorker().stateProperty().addListener((e) -> {
+                    engine.executeScript("document.centerMap({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
+                            + ", lng: " + bike.getLocation().getLongitude() + "});");
+                });
+            });
+        } catch (Exception e){
+
+        }
+    }
+
+    private void addBikes(Bike[] bikes, WebEngine engine){
+        String array = "";
+        for (int i = 0; i < bikes.length; i++) {
+            if(i == bikes.length - 1){
+                array += "{ id: " + bikes[i].getId() +
+                        ", lat: " + bikes[i].getLocation().getLatitude() +
+                        ", lng: " + bikes[i].getLocation().getLongitude() + "}";
+            } else{
+                array += "{ id: " + bikes[i].getId() +
+                        ", lat: " + bikes[i].getLocation().getLatitude() +
+                        ", lng: " + bikes[i].getLocation().getLongitude() + "},";
+            }
+        }
+        final String input = "[" + array + "]";
+        System.out.println(input);
+        try{
+            Platform.runLater(() -> {
+                engine.getLoadWorker().stateProperty().addListener((e) -> {
+                    engine.executeScript("document.addBikes(" + input + ");");
+                });
+            });
+        } catch (Exception e){
+
+        }
     }
 
     private String getStatus(Bike bike) {
