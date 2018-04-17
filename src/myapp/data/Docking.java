@@ -41,8 +41,12 @@ public class Docking {
         this.name = newName;
     }
 
-    public void setPower_usage(double power_usage){
+    public void setPowerUsage(double power_usage){
         this.power_usage = power_usage;
+    }
+
+    public double getPowerUsage() {
+        return power_usage;
     }
 
     public Location getLocation() {
@@ -57,8 +61,8 @@ public class Docking {
         return capacity;
     }
 
-    public int getOpenSpaces() {
-        return getCapacity() - openSpaces();
+    public int getFreeSpaces() {
+        return capacity - getUsedSpaces();
     }
 
     // To use when creating docking station from DB
@@ -77,7 +81,7 @@ public class Docking {
         return -1;
     }
 
-    public int openSpaces() {
+    public int getUsedSpaces() {
         int count = 0;
         for (int i = 0; i < bikes.length; i++){
             if(bikes[i] == null){
@@ -90,10 +94,8 @@ public class Docking {
     public boolean undockBike(int bikeId) {
         for(int i = 0; i < bikes.length; i++) {
             if(bikes[i].getId() == bikeId) {
-                if(bikes[i].getStatus() == Bike.AVAILABLE) {
-                    bikes[i] = null;
-                    return true;
-                }
+                bikes[i] = null;
+                return true;
             }
         }
         return false;
@@ -114,15 +116,18 @@ public class Docking {
         Bike bike = null;
         for(int i = 0; i < bikes.length; i++) {
             if(bikes[i] != null) {
-                if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
-                    bike = bikes[i];
-                    bikes[i] = null;
+                if(bikes[i].getStatus() == Bike.AVAILABLE) {
+                    if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
+                        bike = bikes[i];
+                        bikes[i] = null;
+                    }
                 }
             }
         }
         if(bike != null) {
             if(dbh.rentBike(user, bike, id)) {
                 Bike[] bArr = new Bike[1];
+                bike.setLocation(new Location(location.getLatitude(), location.getLatitude()));
                 bArr[0] = bike;
                 dbh.logBikes(bArr);
                 return bike;
