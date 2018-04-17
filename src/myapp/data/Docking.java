@@ -39,6 +39,10 @@ public class Docking {
         this.name = newName;
     }
 
+    public double getPowerUsage() {
+        return power_usage;
+    }
+
     public Location getLocation() {
         return location;
     }
@@ -51,8 +55,8 @@ public class Docking {
         return capacity;
     }
 
-    public int getOpenSpaces() {
-        return getCapacity() - openSpaces();
+    public int getFreeSpaces() {
+        return capacity - getUsedSpaces();
     }
 
     // To use when creating docking station from DB
@@ -71,7 +75,7 @@ public class Docking {
         return -1;
     }
 
-    public int openSpaces() {
+    public int getUsedSpaces() {
         int count = 0;
         for (int i = 0; i < bikes.length; i++){
             if(bikes[i] == null){

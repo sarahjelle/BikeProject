@@ -792,6 +792,26 @@ public class DBH {
         return stations;
     }
 
+    public void logDocking (Docking dock) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return;
+            }
+            stmt = db.prepareStatement("INSERT INTO docking_logs (stationID, energyUsage, usedSlots) VALUES (?, ?, ?)");
+            stmt.setInt(1, dock.getId());
+            stmt.setInt(2, dock.getEnergyUsage());
+            stmt.setInt(3, dock.getUsedSpaces());
+
+            execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+    }
+
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
