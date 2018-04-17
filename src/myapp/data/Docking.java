@@ -84,8 +84,10 @@ public class Docking {
     public boolean undockBike(int bikeId) {
         for(int i = 0; i < bikes.length; i++) {
             if(bikes[i].getId() == bikeId) {
-                bikes[i] = null;
-                return true;
+                if(bikes[i].getStatus() == Bike.AVAILABLE) {
+                    bikes[i] = null;
+                    return true;
+                }
             }
         }
         return false;
