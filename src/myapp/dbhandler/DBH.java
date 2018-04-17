@@ -149,22 +149,6 @@ public class DBH {
      * METHODS BELONGING TO THE BIKE OBJECT.
      */
 
-    public void updateBikeArray(ArrayList<Bike> arrayToUpdate) {
-        arrayToUpdate = getAllBikes();
-    }
-
-    public void updateBikeArray(Bike[] arrayToUpdate) {
-        arrayToUpdate = getAllBikesOA();
-    }
-
-    public void updateLoggedBikeArray(ArrayList<Bike> arrayToUpdate) {
-        arrayToUpdate = getLoggedBikes();
-    }
-
-    public void updateLoggedBikeArray(Bike[] arrayToUpdate) {
-        arrayToUpdate = getLoggedBikesOA();
-    }
-
     public int registerBike(Bike bike) {
         db = connect();
         PreparedStatement stmt = null;
@@ -222,6 +206,20 @@ public class DBH {
             
             stmt.close();
             db.close();
+
+            // Adding repairs to the right bike.
+            Repair[] allRepairs = getAllRepairs();
+            for(Bike bike : bikes) {
+                ArrayList<Repair> repairsForBike = new ArrayList<>();
+                for (int i = 0; i < allRepairs.length; i++) {
+                    if (allRepairs[i].getBikeID() == bike.getId()) {
+                        repairsForBike.add(allRepairs[i]);
+                    }
+                }
+                Repair[] toInsert = new Repair[repairsForBike.size()];
+                bike.setRepairs(repairsForBike.toArray(toInsert));
+            }
+
             return bikes;
         } catch(SQLException e) {
             System.out.println("Error: " + e);
@@ -1077,18 +1075,6 @@ class BikeSlotPair{
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-        Docking[] stations = dbh.getAllDockingStationsWithBikes();
 
-        for(Docking station : stations) {
-            System.out.println(station.toString());
-        }
-       //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
-        Bike bike = new Bike(50, "DBS", 2978.0, "Landevei", 1.0, 0,
-               new Location("Østre Moholt-tun 21, 7048 Trondheim, Norway", 63.4095, 10.436171)
-               , 1, LocalDate.of(2018,4, 13));
-
-        if(stations[0].dockBike(bike)){
-            System.out.println("docked");
-        }
     }
 }
