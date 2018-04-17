@@ -801,7 +801,7 @@ public class DBH {
             }
             stmt = db.prepareStatement("INSERT INTO docking_logs (stationID, energyUsage, usedSlots) VALUES (?, ?, ?)");
             stmt.setInt(1, dock.getId());
-            stmt.setInt(2, dock.getEnergyUsage());
+            stmt.setDouble(2, dock.getPowerUsage());
             stmt.setInt(3, dock.getUsedSpaces());
 
             execSQLBool(stmt, db);
@@ -1052,6 +1052,31 @@ public class DBH {
         return repairs;
     }
 
+    private int getBikeIDByCaseID(int caseID) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return -1;
+            }
+                stmt = db.prepareStatement("SELECT bikeID FROM repair_cases WHERE caseID = ?");
+                stmt.setInt(1, caseID);
+
+            int output = -1;
+            ResultSet resultSet = execSQLRS(stmt);
+            while(resultSet.next()){
+               output = resultSet.getInt("bikeID");
+            }
+            stmt.close();
+            db.close();
+
+            return output;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return -1;
+    }
+
     public Repair[] getAllRepairs() {
         return getRepairsByID(0); // 0 means ALL
     }
@@ -1075,11 +1100,18 @@ public class DBH {
             stmt.setString(3, date.toString());
 
             boolean output = execSQLBool(stmt, db);
+            if(output) {
+                stmt.close();
 
-            stmt.close();
-            db.close();
+                stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
+                stmt.setInt(1, Bike.REPAIR);
+                stmt.setInt(2, bikeID);
 
-            return output;
+                output = execSQLBool(stmt, db);
+                db.close();
+                return output;
+            }
+
         } catch(SQLException ex){
             ex.printStackTrace();
         }
@@ -1103,11 +1135,20 @@ public class DBH {
             stmt.setInt(4, caseID);
 
             boolean output = execSQLBool(stmt, db);
+            if(output) {
+                stmt.close();
 
-            stmt.close();
-            db.close();
+                int bikeID = getBikeIDByCaseID(caseID);
 
-            return output;
+                stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
+                stmt.setInt(1, Bike.AVAILABLE);
+                stmt.setInt(2, bikeID);
+
+                output = execSQLBool(stmt, db);
+                db.close();
+                return output;
+            }
+
         } catch(SQLException ex){
             ex.printStackTrace();
         }
