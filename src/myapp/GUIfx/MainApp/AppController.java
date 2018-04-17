@@ -48,14 +48,16 @@ public class AppController {
 
         closeAll();
         mapPane.setVisible(true);
-
+        URL url = getClass().getResource("../Map/map.html");
+        mapPane.getEngine().load(url.toExternalForm());
+        /*
         if(up == null){
             up = new Updater();
         }
         if(upThread == null){
             upThread = new Thread(up);
             upThread.start();
-        }
+        }*/
 
     }
 
@@ -93,16 +95,17 @@ public class AppController {
             for (int i = 0; i < dockings.length; i++) {
                 addDock(dockings[i], mapPane.getEngine());
             }
-
+            System.out.println("Startin webview");
             URL url = getClass().getResource("../Map/map.html");
             mapPane.getEngine().load(url.toExternalForm());
             mapPane.getEngine().setJavaScriptEnabled(true);
-            removeAll(mapPane.getEngine());
+            //removeAll(mapPane.getEngine());
             WebEngine engine = mapPane.getEngine();
             for (int i = 0; i < bikes.length; i++) {
                 addBike(bikes[i], engine);
                 //System.out.println(bikes[i].toString());
             }
+            System.out.println("webview open");
             //engine.reload();
 
         }
@@ -110,6 +113,7 @@ public class AppController {
         public void run(){
             long StartTime = System.currentTimeMillis();
             while(!stop){
+                System.out.println("WORKING");
                 try{
                     Thread.sleep(UPDATE_INTERVAL);
                 } catch(Exception e){
