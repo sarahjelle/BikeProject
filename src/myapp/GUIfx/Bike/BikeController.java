@@ -293,7 +293,6 @@ public class BikeController implements Initializable {
     }
 
     private void centerMap(Bike bike, WebEngine engine){
-        System.out.println("Centering map");
         try{
             Platform.runLater(() -> {
                 engine.getLoadWorker().stateProperty().addListener((e) -> {
@@ -320,7 +319,6 @@ public class BikeController implements Initializable {
             }
         }
         final String input = "[" + array + "]";
-        System.out.println(input);
         try{
             Platform.runLater(() -> {
                 engine.getLoadWorker().stateProperty().addListener((e) -> {
