@@ -52,7 +52,6 @@ public class DBH {
     /*
      * TRANSLATION FOR TIME AND DATE.
      */
-
     private String dateTranslate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return date.format(formatter);
@@ -148,7 +147,6 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE BIKE OBJECT.
      */
-
     public int registerBike(Bike bike) {
         db = connect();
         PreparedStatement stmt = null;
@@ -585,7 +583,6 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE DOCKING OBJECT.
      */
-
     public int registerDocking(Docking dock) {
         db = connect();
         PreparedStatement stmt = null;
@@ -836,10 +833,87 @@ public class DBH {
         }
     }
 
+    private Docking getDockingByID(int id) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE stationID = ?");
+            stmt.setInt(1, id);
+            ResultSet dockingSet = execSQLRS(stmt);
+            while(dockingSet.next()) {
+                Docking dock = new Docking(
+                        dockingSet.getInt("stationID"),
+                        dockingSet.getString("stationName"),
+                        new Location(
+                                dockingSet.getDouble("latitude"),
+                                dockingSet.getDouble("latitude")
+                        ),
+                        dockingSet.getInt("maxSlots")
+                );
+                stmt.close();
+                db.close();
+
+                return dock;
+            }
+
+            stmt.close();
+            db.close();
+
+            return null;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
+    public boolean editDocking(Docking dock) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE dokcing_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ? WHERE stationID = ?");
+            stmt.setString(1, dock.getName());
+            stmt.setInt(2, dock.getCapacity());
+            stmt.setDouble(3, dock.getLocation().getLatitude());
+            stmt.setDouble(4, dock.getLocation().getLongitude());
+            stmt.setInt(4, dock.getId());
+
+            Docking orgDock = getDockingByID(dock.getId());
+
+            if(orgDock != null) {
+                if(orgDock.getCapacity() < dock.getCapacity()) {
+                    //Mindre en det som blir nytt, da må det legges til mer i databasen.
+                    System.out.println("Her mangler det noe!");
+                } else if (orgDock.getCapacity() > dock.getCapacity()) {
+                    //Mer en det som er blir nytt, da må det fjernes fra databasen.
+                    System.out.println("Her mangler det noe!");
+                }
+            }
+
+            if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
-
     public int registerUser(User user) {
         Hasher hasher = new Hasher();
         db = connect();
@@ -1035,7 +1109,6 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE REPAIR OBJECT
      */
-
     private Repair[] getRepairsByID(int bikeID) {
         db = connect();
         PreparedStatement stmt = null;
