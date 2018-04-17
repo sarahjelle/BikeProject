@@ -90,14 +90,14 @@ public class BikeCenterController implements Initializable{
             listView.getItems().add(bikes.get(i));
         }*/
 
-        for(int i = 0; i < 25; i++){
+        /*for(int i = 0; i < 25; i++){
             Bike a = new Bike(i, "Electric", 899.90, LocalDate.now(), "Trek", 0.5, true, 100, null);
             Bike b = new Bike(i+1, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
             Bike c = new Bike(i+2, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
             Bike d = new Bike(i+3, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
             //addBikeData(b); //hører til tabell
             listView.getItems().addAll(a, b, c, d);
-        }
+        }*/
 
 
         System.out.println("Initialize Done");
@@ -211,7 +211,7 @@ public class BikeCenterController implements Initializable{
         dateOutput.setText(purchaseDate);
         batteryOutput.setText(Double.toString(bike.getBatteryPercentage()));
 
-        if(bike.isAvailable()){
+        /*if(bike.isAvailable()){
             availableOutput.setText("Available");
         }
         else{
@@ -219,7 +219,7 @@ public class BikeCenterController implements Initializable{
         }
 
         distanceOutput.setText(Integer.toString(bike.getDistanceTraveled()));
-
+*/
     }
 
     @FXML private void selectedRow(){

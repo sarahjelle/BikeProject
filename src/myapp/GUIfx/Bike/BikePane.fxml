@@ -10,6 +10,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.text.Text?>
 <?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="myapp.GUIfx.Bike.BikeController"
@@ -18,7 +19,7 @@
     <BorderPane fx:id="listPane" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
         <bottom>
             <HBox fx:id="topMenu">
-                <TextField text="Bike id" fx:id="searchInput" prefHeight="20"/>
+                <TextField promptText="bikeid" fx:id="searchInput" prefHeight="20"/>
                 <Button onAction="#search" prefHeight="20">
                     <graphic>
                         <ImageView fitHeight="15" fitWidth="15">
@@ -26,12 +27,27 @@
                         </ImageView>
                     </graphic>
                 </Button>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="New bike" onAction="#openRegBike"/>
+                <Button text="Refresh" onAction="#refresh" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Button text="New bike" onAction="#openRegBike" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             </HBox>
         </bottom>
         <center>
-            <ListView fx:id="bikeList" onMouseClicked="#selectedRow"/>
+            <BorderPane>
+                <top>
+                    <HBox spacing="50">
+                        <Label text="BikeID" prefWidth="100"/>
+                        <Label text="Type" prefWidth="100"/>
+                        <Label text="Make" prefWidth="100"/>
+                        <Label text="Battery" prefWidth="100"/>
+                        <padding>
+                            <Insets left="8"/>
+                        </padding>
+                    </HBox>
+                </top>
+                <center>
+                    <ListView fx:id="bikeList" onMouseClicked="#selectedRow"/>
+                </center>
+            </BorderPane>
         </center>
     </BorderPane>
     <VBox visible="false" alignment="CENTER" fx:id="registerPane" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
@@ -46,7 +62,7 @@
             <TextField fx:id="makeReg" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
             <Label text="Type:" GridPane.rowIndex="3" />
-            <ComboBox fx:id="typeReg" onAction="#selectedType" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <ComboBox fx:id="typeReg" onAction="#typeRegister" GridPane.columnIndex="1" GridPane.rowIndex="3">
                 <items>
                     <FXCollections fx:factory="observableArrayList">
                         <String fx:value="New type" />
@@ -101,7 +117,7 @@
                             <HBox alignment="CENTER">
                                 <Button text="Edit" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#openEditPane"/>
                                 <Button text="Repair" onAction="#openRepairPane" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Button text="Delete" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                <Button text="Delete" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#deleteBike"/>
                             </HBox>
                         </bottom>
                     </BorderPane>
@@ -109,56 +125,54 @@
                         <HBox>
                             <!--map-->
                         </HBox> <!--map-->
-                        <ListView/>
+                        <ListView fx:id="repairList"/>
                     </SplitPane>
                 </SplitPane>
-                <SplitPane fx:id="repairPane" visible="false" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                    <BorderPane>
-                        <top>
-                            <Label text="Before repair"/>
-                        </top>
-                        <center>
-                            <GridPane alignment="CENTER" hgap="10.0" vgap="10.0">
-                                <Label text="Date sent: " GridPane.rowIndex="0"/>
-                                <DatePicker fx:id="dateSent" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                                <Label text="Description: " GridPane.rowIndex="1" />
-                                <TextField fx:id="descriptionBefore" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                            </GridPane>
-                        </center>
-                        <bottom>
-                            <HBox alignment="CENTER">
-                                <Button text="Register" onAction="#beforeRepair" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Button onAction="#cancel" text="Cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                            </HBox>
-                        </bottom>
-                    </BorderPane>
-                    <BorderPane>
-                        <top>
-                            <Label text="On return"/>
-                        </top>
-                        <center>
-                            <GridPane alignment="CENTER" hgap="15" vgap="15">
-                                <Label text="Date sent: " GridPane.rowIndex="0"/>
-                                <DatePicker fx:id="dateReturn" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                                <Label text="Price: " GridPane.rowIndex="1"/>
-                                <TextField fx:id="priceRepair" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                                <Label text="Description: " GridPane.rowIndex="2" />
-                                <TextField fx:id="descriptionDone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                            </GridPane>
-                        </center>
-                        <bottom>
-                            <HBox alignment="CENTER">
-                                <Button text="Register" onAction="#afterRepair" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Button onAction="#cancel" text="Cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                            </HBox>
-                        </bottom>
-                    </BorderPane>
-                </SplitPane>
+                <BorderPane fx:id="repairPaneBefore" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
+                    <top>
+                        <Label text="Before repair"/>
+                    </top>
+                    <center>
+                        <GridPane alignment="CENTER" hgap="10.0" vgap="10.0">
+                            <Label text="Date sent: " GridPane.rowIndex="0"/>
+                            <DatePicker fx:id="dateSent" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <Label text="Description: " GridPane.rowIndex="1" />
+                            <TextField fx:id="descriptionBefore" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        </GridPane>
+                    </center>
+                    <bottom>
+                        <HBox alignment="CENTER">
+                            <Button text="Register" onAction="#beforeRepair" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Button onAction="#showInfoBack" text="Cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        </HBox>
+                    </bottom>
+                </BorderPane>
+                <BorderPane fx:id="repairPaneAfter" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
+                    <top>
+                        <Label text="On return"/>
+                    </top>
+                    <center>
+                        <GridPane alignment="CENTER" hgap="15" vgap="15">
+                            <Label text="Date sent: " GridPane.rowIndex="0"/>
+                            <DatePicker fx:id="dateReturn" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <Label text="Price: " GridPane.rowIndex="1"/>
+                            <TextField fx:id="priceRepair" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                            <Label text="Description: " GridPane.rowIndex="2" />
+                            <TextField fx:id="descriptionDone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        </GridPane>
+                    </center>
+                    <bottom>
+                        <HBox alignment="CENTER">
+                            <Button text="Register" onAction="#afterRepair" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <Button onAction="#showInfoBack" text="Cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        </HBox>
+                    </bottom>
+                </BorderPane>
                 <BorderPane fx:id="editPane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
                     <center>
                         <GridPane alignment="CENTER" hgap="15" vgap="15">
                             <Label text="Type: " GridPane.rowIndex="0"/>
-                            <TextField fx:id="typeEdit" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <ComboBox fx:id="typeEdit" onAction="#typeEdit" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
                             <Label text="Make: " GridPane.rowIndex="1"/>
                             <TextField fx:id="makeEdit" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
@@ -176,9 +190,10 @@
                             <ComboBox fx:id="statusEdit" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                 <items>
                                     <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="At docking station" />
-                                        <String fx:value="On repair" />
+                                        <String fx:value="Available"/>
                                         <String fx:value="Rented" />
+                                        <String fx:value="On repair" />
+                                        <String fx:value="Deleted" />
                                     </FXCollections>
                                 </items>
                             </ComboBox>

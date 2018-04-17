@@ -23,11 +23,15 @@ public class BikeCell extends ListCell<Bike>{
     //klasse for å lage listview
     //klasse for å lage hbox?'
     public BikeCell(){
-        hbox = new HBox(100);
+        hbox = new HBox(50);
         bikeid = new Label();
+        bikeid.setPrefWidth(100);
         type = new Label();
+        type.setPrefWidth(100);
         make = new Label();
+        make.setPrefWidth(100);
         battery = new ProgressBar();
+        battery.setPrefWidth(100);
         //pi = new ProgressIndicator();
         hbox.getChildren().addAll(bikeid, type, make, battery);
     }
@@ -39,7 +43,6 @@ public class BikeCell extends ListCell<Bike>{
             bikeid.setText("Bicycle " + Integer.toString(item.getId()));
             type.setText(item.getType());
             make.setText(item.getMake());
-            setGraphic(hbox);
 
             double batteri = item.getBatteryPercentage();
             battery.setProgress(batteri);
@@ -54,6 +57,8 @@ public class BikeCell extends ListCell<Bike>{
                 battery.setStyle("-fx-accent: #c40000");
             }
             //  pi.setProgress(item.getBatteryPercentage());
+
+            setGraphic(hbox);
         }
     }
 }
