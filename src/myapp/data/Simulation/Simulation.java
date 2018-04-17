@@ -82,7 +82,7 @@ public class Simulation implements Runnable{
             DBH handler = new DBH();
             for (int i = 0; i < docking_stations.length; i++) {
                 double dockPowerUsage = docking_stations[i].getBikes().length * STATION_POWER_USAGE_PR_BIKE;
-                docking_stations[i].setPower_usage(dockPowerUsage);
+                //docking_stations[i].setPower_usage(dockPowerUsage);
                 //handler.logDocking(docking_stations[i]);
             }
 

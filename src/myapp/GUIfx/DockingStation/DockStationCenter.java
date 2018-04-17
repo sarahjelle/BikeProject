@@ -70,7 +70,7 @@ public class DockStationCenter implements Initializable{
         Docking dock = (Docking) dockingList.getItems().get(dockingList.getSelectionModel().getSelectedIndex());
         dockIdOutput.setText(Integer.toString(dock.getId()));
         nameOutput.setText(dock.getName());
-        openSpaces.setText(Integer.toString(dock.getOpenSpaces()));
+        //openSpaces.setText(Integer.toString(dock.getOpenSpaces()));
         closeAll();
         dockInfo.setVisible(true);
     }

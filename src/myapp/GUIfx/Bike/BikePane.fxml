@@ -11,8 +11,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="myapp.GUIfx.Bike.BikeController"
             prefHeight="400.0" prefWidth="600.0" stylesheets="@BikePane2.css">
 
