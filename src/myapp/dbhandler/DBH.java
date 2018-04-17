@@ -200,7 +200,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM allBikesWithLoc");
+            stmt = db.prepareStatement("SELECT * FROM allBikesWithLocNew");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<>();
             while(bikeset.next()) {
@@ -240,7 +240,7 @@ public class DBH {
         return result;
     }
 
-    private Bike[] getAllBikesOnTrip(){
+    public Bike[] getAllBikesOnTrip(){
         db = connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> outList = new ArrayList<>();
@@ -248,7 +248,7 @@ public class DBH {
             if(db == null){
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLoc");
+            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew");
             ResultSet set = execSQLRS(stmt);
             while(set.next()){
                 outList.add(new Bike(
@@ -374,7 +374,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLoc");
+            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew");
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
 
@@ -515,16 +515,20 @@ public class DBH {
      * METHODS BELONGING TO THE DOCKING OBJECT.
      */
 
-    public int registerDocking(Docking dock) { //NOT COMPLETE
+    public int registerDocking(Docking dock) {
         db = connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return -1;
             }
-            stmt = db.prepareStatement("INSERT INTO dokcing_stations (name, maxSlots) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+
+            Location loc = new Location(dock.getName(), true);
+            stmt = db.prepareStatement("INSERT INTO dokcing_stations (name, maxSlots, latitude, longitude) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, dock.getName());
             stmt.setInt(2, dock.getCapacity());
+            stmt.setDouble(3, dock.getLocation().getLatitude());
+            stmt.setDouble(4, dock.getLocation().getLongitude());
 
 
         } catch(SQLException e) {
@@ -585,19 +589,26 @@ public class DBH {
             }
             java.util.Date utilDate = new java.util.Date();
 
-            stmt = db.prepareStatement("INSERT INTO trips (bikeID, startStation, startTime, userID) VALUES (?, ?, ?, ?)");
+            stmt = db.prepareStatement("INSERT INTO trips (bikeID, startStation, userID) VALUES (?, ?, ?)");
             stmt.setInt(1, bikeToRent.getId());
             stmt.setInt(2, dockID);
-            stmt.setDate(3, new java.sql.Date(utilDate.getTime()));
-            stmt.setInt(4, userRentingBike.getUserID());
+            stmt.setInt(3, userRentingBike.getUserID());
             if(execSQLBool(stmt, db)) {
                 if(undockBike(bikeToRent, dockID)) {
+                    stmt.close();
+                    db.close();
+                    db = connect();
+                    bikeToRent.setStatus(Bike.TRIP);
+                    stmt = db.prepareStatement("UPDATE bikes SET status = ? , totalTrips = ? WHERE bikeID = ?");
+                    stmt.setInt(1, Bike.TRIP);
+                    stmt.setInt(2, bikeToRent.getTotalTrips() + 1);
+                    stmt.setInt(3, bikeToRent.getId());
+                    execSQLBool(stmt, db);
                     stmt.close();
                     db.close();
                     return true;
                 }
             }
-
             stmt.close();
             db.close();
         } catch(SQLException ex){
@@ -625,7 +636,14 @@ public class DBH {
                 if(dockBike(bike, dockID, spot)) {
                     stmt.close();
                     db.close();
-
+                    db = connect();
+                    bike.setStatus(Bike.AVAILABLE);
+                    stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
+                    stmt.setInt(1, Bike.AVAILABLE);
+                    stmt.setInt(2, bike.getId());
+                    execSQLBool(stmt, db);
+                    stmt.close();
+                    db.close();
                     return true;
                 }
             }
@@ -798,6 +816,81 @@ public class DBH {
             System.out.println("Error: " + e);
         }
         return null;
+    }
+
+    public boolean changePassword(User user, String newPassword, String oldPassword) {
+        Hasher hasher = new Hasher();
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+
+            if(loginUser(user.getEmail(), oldPassword) != null) {
+                String salt = hasher.hashSalt(System.currentTimeMillis() + "");
+
+                String hashedNewPassword = hasher.hash(newPassword, salt);
+
+                stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE userID = ?");
+                stmt.setString(1, hashedNewPassword);
+                stmt.setString(2, salt);
+                stmt.setInt(3, user.getUserID());
+
+                return execSQLBool(stmt, db);
+            }
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
+    public boolean forceChangePassword(User user, String newPassword) {
+        Hasher hasher = new Hasher();
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+
+            String salt = hasher.hashSalt(System.currentTimeMillis() + "");
+
+            String hashedNewPassword = hasher.hash(newPassword, salt);
+
+            stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE userID = ?");
+            stmt.setString(1, hashedNewPassword);
+            stmt.setString(2, salt);
+            stmt.setInt(3, user.getUserID());
+
+            return execSQLBool(stmt, db);
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
+    public boolean DeleteUser(User user) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try{
+            if(db == null){
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE users SET userTypeID = ? WHERE userID = ?");
+
+            stmt.setInt(1, User.SOFTDELETE);
+            stmt.setInt(2, user.getUserID());
+
+            boolean output = execSQLBool(stmt, db);
+            stmt.close();
+            db.close();
+            return output;
+
+        } catch(SQLException ex){
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     //Martin

@@ -116,6 +116,7 @@ document.removeBike = function removeBike(id){
 document.addDock = function addDock(dock){
     var marker = new google.maps.Marker({
         position: {lat: dock.lat, lng: dock.lng},
+        //icon: "http://google.com/mapfiles/kml/paddle" + dock.id + ".png",
         map: map,
         id: dock.id
     });
@@ -156,7 +157,7 @@ document.addMarker = function addMarker(bike) {
     markers.push(marker);
 
     let infoWindow = new google.maps.InfoWindow({
-        content: "Bike Id: " + bike.id
+        content: "Bike id: " + bike.id
     });
     var counter = 0;
     google.maps.event.addListener(marker,'click',function(){

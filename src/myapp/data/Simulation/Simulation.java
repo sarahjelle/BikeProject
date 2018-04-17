@@ -19,7 +19,8 @@ public class Simulation implements Runnable{
     private int sleepTime = 2000; //millieconds
     private Boolean stop = false;
     private static final double ERROR_TOLERANSE = 0.0000001;
-    private final double percentageOfUsersToMove = 0.10;
+    private final double percentageOfUsersToMove = 1.0;
+    private Router[] routers;
 
     /*
         Simulate that users pay and check out a bike at a docking station.
@@ -61,13 +62,14 @@ public class Simulation implements Runnable{
         for (int i = 0; i < arr.size(); i++) {
             bikes[i] = arr.get(i);
         }
+        this.routers = null;
     }
 
     public void run(){
         System.out.println("Starting Simulation");
         User[] userSubset = getUserSubset();
 
-        Router[] routers = getRouters(userSubset);
+        this.routers = getRouters(userSubset);
 
         Thread[] threads = new Thread[routers.length];
         for (int i = 0; i < threads.length; i++) {
@@ -130,33 +132,50 @@ public class Simulation implements Runnable{
     }
 
     public User[] getUserSubset(){
-        int percentage = (int)(users.length * percentageOfUsersToMove );
+        int percentage;
+        if(percentageOfUsersToMove <= 1){
+            percentage = (int)(users.length * percentageOfUsersToMove );
+        } else{
+            percentage = users.length;
+        }
+
         if(percentage <= 0){
             percentage = 1;
         }
+
         User[] subset = new User[percentage];
-        Random rand = new Random();
-        for (int i = 0; i < subset.length; i++) {
-            boolean precentMoreThanOnceInSubset = false;
-            do{
-                subset[i] = users[rand.nextInt(users.length)];
-                for (int j = 0; j < subset.length; j++) {
-                    if(j != i){
-                        if(subset[j] != null){
-                            if(subset[j] == subset[i]){
-                                precentMoreThanOnceInSubset = true;
+        if(percentage == users.length){
+            for (int i = 0; i < subset.length; i++) {
+                subset[i] = users[i];
+            }
+            return subset;
+        } else{
+            Random rand = new Random();
+            for (int i = 0; i < subset.length; i++) {
+                boolean precentMoreThanOnceInSubset = false;
+                do{
+                    System.out.println("Finding user");
+                    subset[i] = users[rand.nextInt(users.length)];
+                    for (int j = 0; j < subset.length; j++) {
+                        if(j != i){
+                            if(subset[j] != null){
+                                if(subset[j] == subset[i]){
+                                    precentMoreThanOnceInSubset = true;
+                                }
                             }
                         }
                     }
-                }
-            } while(precentMoreThanOnceInSubset);
+                } while(precentMoreThanOnceInSubset);
+            }
+            return subset;
         }
-        return subset;
     }
 
     private Router[] getRouters(User[] userSubSet){
         Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
+        DBH handler = new DBH();
+        Bike[] undockedBikes = handler.getAllBikesOnTrip();
         for (int i = 0; i < routers.length; i++) {
             User customer = userSubSet[i];
             Docking start = null;
@@ -212,18 +231,26 @@ public class Simulation implements Runnable{
         return output;
     }
 
+    public void stop(){
+        for (int i = 0; i < routers.length; i++) {
+            routers[i].stop();
+        }
+        this.stop = true;
+    }
+
 }
-
-
 class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
-        sim.setUpdateInterval(10000);
+        sim.setUpdateInterval(3000);
 
         Thread simThread = new Thread(sim);
         simThread.start();
 
+
+        javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
+        sim.stop();
     }
 }
 
