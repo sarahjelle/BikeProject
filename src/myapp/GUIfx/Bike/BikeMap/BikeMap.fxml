@@ -10,7 +10,7 @@
 
 <?import javafx.scene.web.WebView?>
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="myapp.GUIfx.Map.MapController"
+            fx:controller="myapp.GUIfx.Bike.BikeMap.BikeMapController"
             prefHeight="400.0" prefWidth="600.0">
     <WebView fx:id="browser"/>
 

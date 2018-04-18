@@ -15,6 +15,10 @@ public class Docking {
     private int capacity;
     private Bike[] bikes;
 
+    private double power_usage;
+
+    private static int MINIMUM_BAT_LEVEL = 0;
+
     DBH dbh = new DBH();
 
     public Docking(int id, String name, Location location, int capacity) {
@@ -37,6 +41,14 @@ public class Docking {
         this.name = newName;
     }
 
+    public void setPowerUsage(double power_usage){
+        this.power_usage = power_usage;
+    }
+
+    public double getPowerUsage() {
+        return power_usage;
+    }
+
     public Location getLocation() {
         return location;
     }
@@ -49,8 +61,8 @@ public class Docking {
         return capacity;
     }
 
-    public int getOpenSpaces() {
-        return getCapacity() - openSpaces();
+    public int getFreeSpaces() {
+        return capacity - getUsedSpaces();
     }
 
     // To use when creating docking station from DB
@@ -69,7 +81,7 @@ public class Docking {
         return -1;
     }
 
-    public int openSpaces() {
+    public int getUsedSpaces() {
         int count = 0;
         for (int i = 0; i < bikes.length; i++){
             if(bikes[i] == null){
@@ -91,15 +103,52 @@ public class Docking {
 
     public boolean dockBike(Bike bike) {
         int spot = findFirstOpen() + 1;
-        if(dbh.dockBike(id, spot, bike)) {
+        if(dbh.endRent(bike,id, spot)) {
+            spot--;
             bikes[spot] = bike;
             return true;
         }
         return false;
     }
 
+    public Bike rentBike(User user) {
+        dbh.updateBikesInDockingStation(id, bikes);
+        Bike bike = null;
+        for(int i = 0; i < bikes.length; i++) {
+            if(bikes[i] != null) {
+                if(bikes[i].getStatus() == Bike.AVAILABLE) {
+                    if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
+                        bike = bikes[i];
+                        bikes[i] = null;
+                    }
+                }
+            }
+        }
+        if(bike != null) {
+            if(dbh.rentBike(user, bike, id)) {
+                Bike[] bArr = new Bike[1];
+                bike.setLocation(new Location(location.getLatitude(), location.getLatitude()));
+                bArr[0] = bike;
+                dbh.logBikes(bArr);
+                return bike;
+            }
+        }
+
+        return null;
+    }
+
     public Bike[] getBikes() {
         return bikes;
+    }
+
+    public String toString() {
+        String prBikes = "";
+        for (int i = 0; i < bikes.length; i++) {
+            if(bikes[i] != null){
+                prBikes += "\nSlot: " + (i + 1) + " - " + bikes[i].toString();
+            }
+        }
+        return "Name: " + name + " - With ID: " + id;// + "\nBikes:" + prBikes;
     }
 
 

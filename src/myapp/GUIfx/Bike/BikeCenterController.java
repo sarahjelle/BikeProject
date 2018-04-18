@@ -12,7 +12,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import myapp.data.Bike;
-import myapp.data.Location;
 
 import javax.swing.text.html.ImageView;
 import java.awt.*;
@@ -40,10 +39,10 @@ public class BikeCenterController implements Initializable{
     @FXML private Label priceError;
 
     //attributes for repair
-    @FXML private VBox repairBikePane;
+    @FXML private SplitPane repairBikePane;
 
     //attributes for info
-    @FXML private VBox bikeInfo;
+    @FXML private BorderPane bikeInfo;
     @FXML private Text bikeidOutput;
     @FXML private Text typeOutput;
     @FXML private Text makeOutput;
@@ -52,7 +51,6 @@ public class BikeCenterController implements Initializable{
     @FXML private Text batteryOutput;
     @FXML private Text availableOutput;
     @FXML private Text distanceOutput;
-    @FXML private BorderPane bikeInfoEdit;
 
     //attributes for edit
     @FXML private VBox bikeEditPane;
@@ -92,15 +90,14 @@ public class BikeCenterController implements Initializable{
             listView.getItems().add(bikes.get(i));
         }*/
 
-        for(int i = 0; i < 25; i++){
-            //int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased
-            Bike a = new Bike(i, "Trek", 899.90, "Electric", 0.5, 100, new Location(), Bike.AVAILABLE,  LocalDate.now());
-            //Bike b = new Bike(i+1, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
-            //Bike c = new Bike(i+2, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
-            //Bike d = new Bike(i+3, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
+        /*for(int i = 0; i < 25; i++){
+            Bike a = new Bike(i, "Electric", 899.90, LocalDate.now(), "Trek", 0.5, true, 100, null);
+            Bike b = new Bike(i+1, "Type 2", 599.87, LocalDate.now(), "DBS", 0.8, false, 200, null);
+            Bike c = new Bike(i+2, "Type 3", 699.87, LocalDate.now(), "Trek", 0.2, true, 300, null);
+            Bike d = new Bike(i+3, "Type 4", 799.87, LocalDate.now(), "DBS", 1, false, 400, null);
             //addBikeData(b); //hører til tabell
-            listView.getItems().add(a);
-        }
+            listView.getItems().addAll(a, b, c, d);
+        }*/
 
 
         System.out.println("Initialize Done");
@@ -200,7 +197,6 @@ public class BikeCenterController implements Initializable{
     //@FXML private ImageView image1;
     @ FXML private void showInfo(Bike bike){
         closeAll();
-        bikeInfoEdit.setVisible(true);
         bikeInfo.setVisible(true);
         bikeidOutput.setText(Integer.toString(bike.getId()));
         typeOutput.setText(bike.getType());
@@ -215,7 +211,7 @@ public class BikeCenterController implements Initializable{
         dateOutput.setText(purchaseDate);
         batteryOutput.setText(Double.toString(bike.getBatteryPercentage()));
 
-        if(bike.getStatus() == Bike.AVAILABLE){
+        /*if(bike.isAvailable()){
             availableOutput.setText("Available");
         }
         else{
@@ -223,7 +219,7 @@ public class BikeCenterController implements Initializable{
         }
 
         distanceOutput.setText(Integer.toString(bike.getDistanceTraveled()));
-
+*/
     }
 
     @FXML private void selectedRow(){
@@ -257,9 +253,8 @@ public class BikeCenterController implements Initializable{
     public void closeAll(){
         listView.setVisible(false);
         regBikePane.setVisible(false);
-        bikeInfo.setVisible(false);
         bikeEditPane.setVisible(false);
-        bikeInfoEdit.setVisible(false);
+        bikeInfo.setVisible(false);
         repairBikePane.setVisible(false);
     }
 
@@ -267,7 +262,6 @@ public class BikeCenterController implements Initializable{
 
     @FXML private void openEdit(){
         closeAll();
-        bikeInfoEdit.setVisible(true);
         bikeEditPane.setVisible(true);
        String bikeId = bikeidOutput.getText();
        int id = Integer.parseInt(bikeId);

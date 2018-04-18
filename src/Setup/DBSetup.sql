@@ -18,6 +18,8 @@ CREATE TABLE bikes (
   status int DEFAULT 1,
   make VARCHAR(25) NOT NULL,
   type VARCHAR(25) NOT NULL,
+  batteryPercentage DOUBLE DEFAULT 0.0,
+  totalKm int DEFAULT 0,
   PRIMARY KEY (bikeID)
 );
 
@@ -29,24 +31,12 @@ CREATE TABLE bikes (
 CREATE TABLE repair_cases (
   repairCaseID int NOT NULL AUTO_INCREMENT,
   bikeID int NOT NULL,
-  dateCreated DATETIME DEFAULT NOW(), -- timestamp?
-  dateReceived DATETIME DEFAULT NULL,
+  dateCreated DATE NOT NULL,
+  dateReceived DATE DEFAULT NULL,
+  description TEXT NOT NULL,
+  returnDescription TEXT DEFAULT NULL,
+  price DOUBLE DEFAULT NULL,
   PRIMARY KEY (repairCaseID)
-);
-#All repair options for a registered repair case on a bike
-CREATE TABLE repair_lists (
-  repairCaseID int NOT NULL,
-  repairOptionID int NOT NULL,
-  userID int NOT NULL,
-  status smallint NOT NULL,
-  PRIMARY KEY (repairCaseID, repairOptionID)
-);
-#Options for repairs, example: "Bytte dekk på forhjul", "Skifte bakre bremseklosser"
-CREATE TABLE repair_options (
-  repairOptionID int NOT NULL AUTO_INCREMENT,
-  description varchar(255) NOT NULL,
-  price decimal NOT NULL,
-  PRIMARY KEY (repairOptionID)
 );
 
 
@@ -81,8 +71,8 @@ CREATE TABLE docking_stations(
   stationID int NOT NULL AUTO_INCREMENT,
   stationName varchar(255) NOT NULL,
   maxSlots int NOT NULL DEFAULT 0,
-  longitude FLOAT( 10, 6 ) NOT NULL,
   latitude FLOAT( 10, 6 ) NOT NULL,
+  longitude FLOAT( 10, 6 ) NOT NULL,
   PRIMARY KEY(stationID)
 );
 
@@ -96,7 +86,7 @@ CREATE TABLE docking_log(
 
 CREATE TABLE slots(
   slotID int NOT NULL,
-  bikeID int,
+  bikeID int UNIQUE DEFAULT NULL,
   stationID int NOT NULL,
   PRIMARY KEY(stationID, slotID)
 );
@@ -108,10 +98,10 @@ CREATE TABLE slots(
 CREATE TABLE bike_logs(
   bikeID int NOT NULL,
   logTime DATETIME NOT NULL DEFAULT NOW(),
-  longitude FLOAT( 10, 6 ) NOT NULL,
   latitude FLOAT( 10, 6 ) NOT NULL,
+  longitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
-  batteryPercentage int NOT NULL,
+  batteryPercentage DOUBLE NOT NULL,
   totalKm int DEFAULT 0,
   PRIMARY KEY(bikeID, logTime)
 );
@@ -138,11 +128,6 @@ CREATE TABLE trips(
 ALTER TABLE repair_cases
   ADD FOREIGN KEY (bikeID) REFERENCES bikes(bikeID);
 
-ALTER TABLE repair_lists
-  ADD FOREIGN KEY (repairCaseID) REFERENCES repair_cases(repairCaseID),
-  ADD FOREIGN KEY (repairOptionID) REFERENCES repair_options(repairOptionID),
-  ADD FOREIGN KEY (userID) REFERENCES users(userID);
-
 ALTER TABLE users
   ADD FOREIGN KEY (userTypeID) REFERENCES user_types(userTypeID);
 
@@ -161,3 +146,36 @@ ALTER TABLE trips
   ADD FOREIGN KEY (endStation) REFERENCES docking_stations(stationID),
   ADD FOREIGN KEY (bikeID) REFERENCES bikes(bikeID),
   ADD FOREIGN KEY (userID) REFERENCES users(userID);
+
+DROP VIEW IF EXISTS newestLogs;
+DROP VIEW IF EXISTS undockedBikes;
+DROP VIEW IF EXISTS bikesWithDockingLocation;
+DROP VIEW IF EXISTS undockedBikesWithNewestLogLoc;
+DROP VIEW IF EXISTS allBikesWithLoc;
+
+CREATE VIEW newestLogs AS (SELECT b.*, l.latitude, l.longitude, l.altitude FROM bikes b JOIN bike_logs l WHERE b.bikeID = l.bikeID AND l.logTime = (SELECT MAX(logTime) FROM bike_logs log WHERE log.bikeID = b.bikeID));
+
+CREATE VIEW undockedBikes AS SELECT * FROM bikes WHERE bikeID NOT IN (SELECT bikeID FROM slots WHERE bikeID IS NOT NULL);
+
+CREATE VIEW bikesWithDockingLocation AS (SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, b.batteryPercentage, b.totalKm, fromDock.latitude, fromDock.longitude FROM bikes b INNER JOIN
+  (SELECT s.bikeID, s.stationID, ds.latitude, ds.longitude FROM slots s INNER JOIN
+    (SELECT d.stationID, d.latitude, d.longitude FROM docking_stations d) ds ON ds.stationID = s.stationID
+  WHERE s.bikeID IS NOT NULL) fromDock ON fromDock.bikeID = b.bikeID);
+
+CREATE VIEW undockedBikesWithNewestLogLoc AS (SELECT l.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, l.batteryPercentage, l.totalKm, l.latitude, l.longitude FROM newestLogs l LEFT JOIN (SELECT * FROM bikes) b ON b.bikeID = l.bikeID);
+
+CREATE VIEW allBikesWithLoc AS SELECT * FROM bikesWithDockingLocation b UNION (SELECT * FROM undockedBikesWithNewestLogLoc l WHERE l.bikeID != b.bikeID);
+
+
+CREATE VIEW undockedBikesNew AS (SELECT * FROM bikes b WHERE b.bikeID NOT IN (SELECT s.bikeID FROM slots s WHERE s.bikeID IS NOT NULL));
+
+CREATE VIEW newestLogsNew AS (SELECT l.bikeID, l.latitude, l.longitude FROM bike_logs l WHERE l.logTime = (SELECT MAX(log.logTime) AS logTime FROM bike_logs log WHERE log.bikeID = l.bikeID));
+
+CREATE VIEW dockedBikesWithDocLocNew AS (
+  SELECT * FROM (SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, b.batteryPercentage, b.totalKm, d.latitude, d.longitude FROM bikes b JOIN
+    (SELECT * FROM slots) AS s ON b.bikeID = s.bikeID JOIN (SELECT * FROM docking_stations) AS d ON d.stationID = s.stationID) AS total
+);
+
+CREATE VIEW undockedBikesWithNewestLogLocNew AS (SELECT und.*, logs.latitude, logs.longitude FROM undockedBikesNew und LEFT JOIN (SELECT * FROM newestLogsNew) AS logs ON und.bikeID = logs.bikeID);
+
+CREATE VIEW allBikesWithLocNew AS (SELECT * FROM (SELECT * FROM dockedBikesWithDocLocNew UNION (SELECT * FROM undockedBikesWithNewestLogLocNew) ORDER BY bikeID) AS total);
