@@ -232,6 +232,16 @@ public class DBH {
         return null;
     }
 
+    public Bike getBikeByID(Bike bikeToFind) {
+        ArrayList<Bike> bikes = getAllBikes();
+        for(Bike bike : bikes) {
+            if (bike.getId() == bikeToFind.getId()) {
+                return bike;
+            }
+        }
+        return null;
+    }
+
     private ArrayList<Bike> getBikesByStatus(int status) {
         ArrayList<Bike> bikes = getAllBikes();
         ArrayList<Bike> result = new ArrayList<>();
@@ -622,7 +632,8 @@ public class DBH {
                                 dockingSet.getDouble("latitude"),
                                 dockingSet.getDouble("longitude")
                         ),
-                        dockingSet.getInt("maxSlots")
+                        dockingSet.getInt("maxSlots"),
+                        dockingSet.getInt("status")
                 ));
             }
 
@@ -874,7 +885,7 @@ public class DBH {
         return null;
     }
 
-    public boolean editDocking(Docking dock) {
+    public boolean editDocking(Docking updatedDock) {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -882,12 +893,52 @@ public class DBH {
                 return false;
             }
 
-            stmt = db.prepareStatement("UPDATE dokcing_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ? WHERE stationID = ?");
-            stmt.setString(1, dock.getName());
-            stmt.setInt(2, dock.getCapacity());
-            stmt.setDouble(3, dock.getLocation().getLatitude());
-            stmt.setDouble(4, dock.getLocation().getLongitude());
-            stmt.setInt(4, dock.getId());
+            stmt = db.prepareStatement("UPDATE dokcing_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
+            stmt.setString(1, updatedDock.getName());
+            stmt.setInt(2, updatedDock.getCapacity());
+            stmt.setDouble(3, updatedDock.getLocation().getLatitude());
+            stmt.setDouble(4, updatedDock.getLocation().getLongitude());
+            stmt.setInt(5, updatedDock.getStatus());
+            stmt.setInt(6, updatedDock.getId());
+
+            Docking orgDock = getDockingByID(updatedDock.getId());
+
+            if(orgDock != null) {
+                if(orgDock.getCapacity() < updatedDock.getCapacity()) {
+                    //Mindre en det som blir nytt, da må det legges til mer i databasen.
+                    System.out.println("Her mangler det noe!");
+                } else if (orgDock.getCapacity() > updatedDock.getCapacity()) {
+                    //Mer en det som er blir nytt, da må det fjernes fra databasen.
+                    System.out.println("Her mangler det noe!");
+                }
+            }
+
+            if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
+    public boolean deleteDocking(Docking dock) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE dokcing_stations SET status = ? WHERE stationID = ?");
+            stmt.setInt(1, Docking.DELETED);
+            stmt.setInt(2, dock.getId());
 
             Docking orgDock = getDockingByID(dock.getId());
 
@@ -1252,6 +1303,114 @@ public class DBH {
         return false;
     }
 
+
+    /*
+     * MISC USE WITH CAUTION
+     */
+    private int[] getUnfinishedTripsBikeID() {
+        db = connect();
+        PreparedStatement stmt = null;
+        ArrayList<Integer> ids = new ArrayList<>();
+
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT bikeID FROM trips WHERE endTime IS NULL AND endStation IS NULL");
+
+            ResultSet resultSet = execSQLRS(stmt);
+            while(resultSet.next()){
+                ids.add(new Integer(resultSet.getInt("bikeID")));
+            }
+
+            stmt.close();
+            db.close();
+
+            int[] idsToSend = new int[ids.size()];
+
+            for(int i = 0; i < ids.size(); i++) {
+                idsToSend[i] = Integer.parseInt(ids.get(i).toString());
+            }
+
+            return idsToSend;
+
+        } catch(SQLException e) {
+            forceClose();
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
+    private BikeSlotPair[] findOpenSpaces() {
+        db = connect();
+        PreparedStatement stmt = null;
+        ArrayList<BikeSlotPair> spots = new ArrayList<>();
+
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL");
+
+            ResultSet resultSet = execSQLRS(stmt);
+            while(resultSet.next()){
+                spots.add(new BikeSlotPair(-1, resultSet.getInt("slotID"), resultSet.getInt("stationID")));
+            }
+
+            stmt.close();
+            db.close();
+
+            BikeSlotPair[] slots = new BikeSlotPair[spots.size()];
+            slots = spots.toArray(slots);
+
+            return slots;
+
+        } catch(SQLException e) {
+            forceClose();
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
+    public void removeAllUnfinishedTrips() {
+        BikeSlotPair[] slots = findOpenSpaces();
+        int[] bikeIDs = getUnfinishedTripsBikeID();
+
+        PreparedStatement stmt = null;
+        try{
+
+            if(javax.swing.JOptionPane.showConfirmDialog(null,"Are you sure?") == 0) {
+
+                for(int id : bikeIDs) {
+                    for (int j = 0; j < slots.length; j++) {
+                        if(slots[j] != null) {
+                            Bike bike = new Bike(id, " ", 0.0, " ", 0.0, 0, null, 1, null);
+                            endRent(bike, slots[j].getStation_id(), slots[j].getSlot_id());
+                            slots[j] = null;
+                            System.out.println("I GOT HERE WITH : " + id);
+                            break;
+                        }
+                    }
+                }
+
+                db = connect();
+                if(db == null){
+                    return;
+                }
+                stmt = db.prepareStatement("DELETE FROM trips WHERE endStation IS NULL AND endTime IS NULL");
+
+                execSQLBool(stmt, db);
+
+                stmt.close();
+                db.close();
+            }
+        } catch(SQLException ex){
+            forceClose();
+            ex.printStackTrace();
+        }
+    }
 }
 
 class BikeSlotPair{
@@ -1275,6 +1434,10 @@ class BikeSlotPair{
     public int getStation_id(){
         return station_id;
     }
+
+    public String toString() {
+        return "id: " + bike_id + ", slot: " + slot_id + ", station: " + station_id;
+    }
 }
 
 // Just for testing purposes
@@ -1282,7 +1445,20 @@ class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
 
-        dbh.getAllDockingStationsWithBikes();
+
+        /*BikeSlotPair[] slots = dbh.findOpenSpaces();
+
+        for(int i = 0; i < slots.length; i++) {
+            System.out.println(slots[i].toString());
+        }
+
+
+        int[] ids = dbh.getUnfinishedTripsBikeID();
+
+        for(int id : ids) {
+            System.out.println(id);
+        }*/
+        dbh.removeAllUnfinishedTrips();
 
     }
 }
