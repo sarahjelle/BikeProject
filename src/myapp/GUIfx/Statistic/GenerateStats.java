@@ -30,7 +30,7 @@ public class GenerateStats {
         for (int i = 0; i < docks.size(); i++) {
             stat1list[0][i] = docks.get(i).getName().split(",")[0];
             stat1list[1][i] = docks.get(i).getCapacity();
-            stat1list[2][i] = docks.get(i).getCapacity()-docks.get(i).getOpenSpaces();
+            stat1list[2][i] = docks.get(i).getCapacity()-docks.get(i).getFreeSpaces();
         }
         return stat1list;
     }
@@ -53,12 +53,11 @@ public class GenerateStats {
     }
 
     public int[][] bikeStats(){
-        int[][] bikeStatistics = new int[4][bikes.size()];
+        int[][] bikeStatistics = new int[3][bikes.size()];
         for (int i=0; i<bikes.size(); i++){
             bikeStatistics[0][i]=bikes.get(i).getId();
             bikeStatistics[1][i]=bikes.get(i).getDistanceTraveled();
             bikeStatistics[2][i]=bikes.get(i).getTotalTrips();
-            bikeStatistics[3][i]=(int)bikes.get(i).getBatteryPercentage();
         }
         return bikeStatistics;
     }
