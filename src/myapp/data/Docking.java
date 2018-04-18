@@ -127,7 +127,7 @@ public class Docking {
         if(bike != null) {
             if(dbh.rentBike(user, bike, id)) {
                 Bike[] bArr = new Bike[1];
-                bike.setLocation(new Location(location.getLatitude(), location.getLatitude()));
+                bike.setLocation(new Location(location.getLatitude(), location.getLongitude()));
                 bArr[0] = bike;
                 dbh.logBikes(bArr);
                 return bike;
