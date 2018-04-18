@@ -28,11 +28,12 @@ public class StatController2 {
     private BorderPane stat3Pane;
     @FXML
     private GenerateStats stats = new GenerateStats();
+    @FXML private TextField searchInput;
 
     public void initialize() {
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Docking station");
-        NumberAxis yAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis(0,100,5);
         yAxis.setLabel("Slots");
         XYChart.Series<String, Number> cap = new XYChart.Series();
         XYChart.Series<String, Number> taken = new XYChart.Series();
@@ -106,29 +107,23 @@ public class StatController2 {
     }
 
     public void stat4(){
-        //defining the axes
-        String bikeId = "100";
-        final NumberAxis xAxis = new NumberAxis();
+        int[][] bStats = stats.bikeStats();
+        final NumberAxis xAxis = new NumberAxis(0,250,10);
         final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Day of month");
-        yAxis.setLabel("Total km");
-        //creating the chart
-        final LineChart<Number,Number> lineChart =
-                new LineChart<Number,Number>(xAxis,yAxis);
-
-        lineChart.setTitle("Total km travelled each day in April");
-        //defining a series
-        XYChart.Series series = new XYChart.Series();
-        series.setName("BikeId: "+bikeId);
-        // the data from GenerateStats
-        int[] log = new int[]{5,15,20,2,57,20,13,23,45,33,55,12,13,14,62,5,15,20,2,57,20,13,23,45,33,55,12,13,14,62};
-        //populating the series with data
-        for (int i=0; i<log.length; i++) {
-            series.getData().add(new XYChart.Data(i+1, log[i]));
+        final ScatterChart<Number,Number> scatter = new ScatterChart<Number,Number>(xAxis,yAxis);
+        xAxis.setLabel("BikeID");
+        yAxis.setLabel("");
+        scatter.setTitle("Trip information on all bikes");
+        XYChart.Series series1 = new XYChart.Series();
+        series1.setName("Total km");
+        XYChart.Series series2 = new XYChart.Series();
+        series2.setName("Total trips");
+        for (int i=0; i<bStats[0].length; i++) {
+            series1.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+            series2.getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
         }
-
-        lineChart.getData().add(series);
-        stat3Pane.setCenter(lineChart);
+        scatter.getData().addAll(series1,series2);
+        stat3Pane.setCenter(scatter);
     }
 /*
     public void stat3(){

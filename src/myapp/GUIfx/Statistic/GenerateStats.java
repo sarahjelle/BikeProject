@@ -5,6 +5,7 @@ import myapp.data.Docking;
 import myapp.dbhandler.DBH;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /*
  Status:
@@ -21,7 +22,8 @@ public class GenerateStats {
     public GenerateStats() {
         this.dbh = new DBH();
         this.bikes = dbh.getAllBikes();
-        this.docks = dbh.getAllDockingStations();
+        Docking[] docksTmp = dbh.getAllDockingStationsWithBikes();
+        docks = new ArrayList<Docking>(Arrays.asList(docksTmp));
     }
 
     // Uses the ArrayList containing all docking stations and for each station returns name, capacity and taken slots.
@@ -30,7 +32,7 @@ public class GenerateStats {
         for (int i = 0; i < docks.size(); i++) {
             stat1list[0][i] = docks.get(i).getName().split(",")[0];
             stat1list[1][i] = docks.get(i).getCapacity();
-            stat1list[2][i] = docks.get(i).getCapacity()-docks.get(i).getFreeSpaces();
+            stat1list[2][i] = docks.get(i).getUsedSpaces();
         }
         return stat1list;
     }

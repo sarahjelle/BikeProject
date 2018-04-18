@@ -84,7 +84,7 @@ public class Docking {
     public int getUsedSpaces() {
         int count = 0;
         for (int i = 0; i < bikes.length; i++){
-            if(bikes[i] == null){
+            if(bikes[i] != null){
                 count++;
             }
         }
