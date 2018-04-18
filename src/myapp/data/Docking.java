@@ -19,7 +19,7 @@ public class Docking {
     private double power_usage;
 
     private static int MINIMUM_BAT_LEVEL = 0;
-    private static int  AVAILABLE = 1,
+    public static int  AVAILABLE = 1,
                         DELETED = 2;
 
     DBH dbh = new DBH();

@@ -257,6 +257,10 @@ public class Simulation implements Runnable{
 class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
+        if(javax.swing.JOptionPane.showConfirmDialog(null, "End unfinished trips, and dock bikes?") == 0){
+            DBH handler = new DBH();
+            //DBH.removeAllUnfinishedTrips();
+        }
         Simulation sim = new Simulation();
         sim.setUpdateInterval(3000);
         sim.setUserPercentage(0.1);

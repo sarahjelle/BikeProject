@@ -2,6 +2,7 @@ package myapp.GUIfx.Bike;
 
 //listview
 
+import com.sun.tools.javadoc.Start;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,9 +18,11 @@ import static myapp.data.Bike.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import  myapp.data.Bike;
+import myapp.data.Docking;
 import myapp.data.Repair;
 import myapp.dbhandler.DBH;
 
+import javax.print.Doc;
 import javax.xml.soap.Text;
 import java.net.URL;
 import java.time.LocalDate;
@@ -125,6 +128,8 @@ public class BikeController implements Initializable {
     private TextField makeReg;
 
     @FXML private WebView browser;
+    private BikeUpdater bu;
+    private Thread buThread;
 
 
     public void initialize(URL url, ResourceBundle rb) {
@@ -257,6 +262,7 @@ public class BikeController implements Initializable {
     @FXML
     private void showInfo(Bike bike) {
         System.out.println("Showing infopanel");
+        System.out.println("With bike: " + bike.getId());
         setId(bike.getId());
         closeAll();
         infoEditRepair.setVisible(true);
@@ -281,52 +287,26 @@ public class BikeController implements Initializable {
         if (!getStatus(bike).equals("")) {
             statusInfo.setText(getStatus(bike));
         }
+
         URL url = getClass().getResource("../Bike/BikeMap/BikeMap.html");
         browser.getEngine().load(url.toExternalForm());
         browser.getEngine().setJavaScriptEnabled(true);
         browser.setVisible(true);
+
         //Bike[] subset = new Bike[bikes.size()];
         //subset = bikes.toArray(subset);
-        Bike[] subset = {bike};
-        addBikes(subset, browser.getEngine());
-        centerMap(bike, browser.getEngine());
-    }
-
-    private void centerMap(Bike bike, WebEngine engine){
-        try{
-            Platform.runLater(() -> {
-                engine.getLoadWorker().stateProperty().addListener((e) -> {
-                    engine.executeScript("document.centerMap({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
-                            + ", lng: " + bike.getLocation().getLongitude() + "});");
-                });
-            });
-        } catch (Exception e){
-
+        //Bike[] subset = {bike};
+        //addBikes(subset, browser.getEngine());
+        //centerMap(bike, browser.getEngine());
+        if(bu == null){
+            bu = new BikeUpdater(bike);
+        } else{
+            bu.setCenterBike(bike);
         }
-    }
 
-    private void addBikes(Bike[] bikes, WebEngine engine){
-        String array = "";
-        for (int i = 0; i < bikes.length; i++) {
-            if(i == bikes.length - 1){
-                array += "{ id: " + bikes[i].getId() +
-                        ", lat: " + bikes[i].getLocation().getLatitude() +
-                        ", lng: " + bikes[i].getLocation().getLongitude() + "}";
-            } else{
-                array += "{ id: " + bikes[i].getId() +
-                        ", lat: " + bikes[i].getLocation().getLatitude() +
-                        ", lng: " + bikes[i].getLocation().getLongitude() + "},";
-            }
-        }
-        final String input = "[" + array + "]";
-        try{
-            Platform.runLater(() -> {
-                engine.getLoadWorker().stateProperty().addListener((e) -> {
-                    engine.executeScript("document.addBikes(" + input + ");");
-                });
-            });
-        } catch (Exception e){
-
+        if(buThread == null){
+            buThread = new Thread(bu);
+            buThread.start();
         }
     }
 
@@ -613,5 +593,131 @@ public class BikeController implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(information);
         alert.showAndWait();
+    }
+
+
+    class BikeUpdater implements Runnable{
+        private Boolean stop = false;
+        private int UPDATE_INTERVAL = 500;
+        private int DB_UPDATE_INTERVAL = 5000;
+        private Bike centerBike;
+
+        public BikeUpdater(Bike centerBike){
+            this.centerBike = centerBike;
+        }
+
+        public void setCenterBike(Bike bike){
+            this.centerBike = bike;
+        }
+
+        public void run(){
+            long StartTime = System.currentTimeMillis();
+            Docking[] d = null;
+            Bike[] in = null;
+            while(!stop){
+                if((System.currentTimeMillis() - StartTime) >= DB_UPDATE_INTERVAL || d == null || in == null){
+                    System.out.println("Updating from DB");
+                    DBH handler = new DBH();
+                    //Bike[] b = handler.getAllBikesOnTrip();
+
+                    ArrayList<Bike> inList = handler.getLoggedBikes();
+                    in = new Bike[inList.size()];
+                    in = inList.toArray(in);
+                    for (int i = 0; i < in.length; i++) {
+                        if(in[i].getId() == centerBike.getId()){
+                            centerBike = in[i];
+                            break;
+                        }
+                    }
+
+                    ArrayList<Docking> dList = handler.getAllDockingStations();
+                    d = new Docking[dList.size()];
+                    d = dList.toArray(d);
+                    StartTime = System.currentTimeMillis();
+                }
+
+                addDockings(d, browser.getEngine());
+
+                if(in != null){
+                    addBikes(in, browser.getEngine());
+                }
+                //Bike[] subset = {centerBike};
+                addBikes(in, browser.getEngine());
+                centerMap(centerBike, browser.getEngine());
+                try{
+                    Thread.sleep(UPDATE_INTERVAL);
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void stop(){
+            this.stop = true;
+        }
+
+        private void centerMap(Bike bike, WebEngine engine){
+            try{
+                Platform.runLater(() -> {
+                    engine.executeScript("document.centerMap({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
+                            + ", lng: " + bike.getLocation().getLongitude() + "});");
+                    //engine.getLoadWorker().stateProperty().addListener((e) -> {});
+                });
+            } catch (Exception e){
+
+            }
+        }
+
+        private void addBikes(Bike[] bikes, WebEngine engine){
+            String array = "";
+            for (int i = 0; i < bikes.length; i++) {
+                if(i == bikes.length - 1){
+                    array += "{ id: " + bikes[i].getId() +
+                            ", lat: " + bikes[i].getLocation().getLatitude() +
+                            ", lng: " + bikes[i].getLocation().getLongitude() + "}";
+                } else{
+                    array += "{ id: " + bikes[i].getId() +
+                            ", lat: " + bikes[i].getLocation().getLatitude() +
+                            ", lng: " + bikes[i].getLocation().getLongitude() + "},";
+                }
+            }
+            final String input = "[" + array + "]";
+            try{
+                Platform.runLater(() -> {
+                    engine.getLoadWorker().stateProperty().addListener((e) -> {
+                        engine.executeScript("document.addBikes(" + input + ");");
+                    });
+                });
+            } catch (Exception e){
+
+            }
+        }
+
+        private void addDockings(Docking[] dockings, WebEngine engine){
+            String array = "";
+            for (int i = 0; i < dockings.length; i++) {
+                if(i == dockings.length - 1){
+                    array += "{ id: " + dockings[i].getId() +
+                            ", lat: " + dockings[i].getLocation().getLatitude() +
+                            ", lng: " + dockings[i].getLocation().getLongitude() + "}";
+                } else{
+                    array += "{ id: " + dockings[i].getId() +
+                            ", lat: " + dockings[i].getLocation().getLatitude() +
+                            ", lng: " + dockings[i].getLocation().getLongitude() + "},";
+                }
+            }
+            final String input = "[" + array + "]";
+            System.out.println(input);
+            try{
+                Platform.runLater(() -> {
+                    engine.getLoadWorker().stateProperty().addListener((e) -> {
+                        engine.executeScript("document.addDocks(" + input + ");");
+                    });
+                });
+            } catch (Exception e){
+
+            }
+        }
+
     }
 }
