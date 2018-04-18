@@ -647,14 +647,14 @@ public class DBH {
         return null;
     }
 
-    public Bike[] updateBikesInDockingStation(int dockID, Bike[] bikes) {
+    public Bike[] updateBikesInDockingStation(int dockID) {
         Docking[] docks = getAllDockingStationsWithBikes();
         for (int i = 0; i < docks.length; i++) {
             if (docks[i].getId() == dockID) {
                 return docks[i].getBikes();
             }
         }
-        return bikes;
+        return null;
     }
 
     //Martin
@@ -685,6 +685,15 @@ public class DBH {
                     stmt.close();
                     db.close();
                     return true;
+                } else {
+                    stmt.close();
+                    db.close();
+                    db = connect();
+                    stmt = db.prepareStatement("DELETE FROM trips WHERE bikeID = ? AND startStation = ? AND usedID = ? AND endTime IS NULL");
+                    stmt.setInt(1, bikeToRent.getId());
+                    stmt.setInt(2, dockID);
+                    stmt.setInt(3, userRentingBike.getUserID());
+                    execSQLBool(stmt, db);
                 }
             }
             stmt.close();
