@@ -44,6 +44,9 @@ public class Router implements Runnable{
         this.bikeToMove = bikeToMove;
         this.start = bikeToMove.getLocation();
         this.end = end;
+        System.out.println(bikeToMove.getLocation().toString());
+        System.out.println("Start: " + start.getLocation().toString());
+        System.out.println("End: " + end.getLocation().toString());
         this.WayPoints = getWayPoints();
         if(WayPoints == null || WayPoints.length <= 0){
             hasArrived = true;

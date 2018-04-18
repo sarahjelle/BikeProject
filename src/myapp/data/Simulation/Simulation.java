@@ -109,7 +109,7 @@ public class Simulation implements Runnable{
                 } else if(routers[i].hasArrived() && !routers[i].isDocked()){
                     //Bike has arrived, but could not dock
                     try{
-                        Thread.sleep(1000);
+                        Thread.sleep(3000);
                     } catch(Exception e){
                         e.printStackTrace();
                     }
@@ -184,7 +184,7 @@ public class Simulation implements Runnable{
         Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
         DBH handler = new DBH();
-        Bike[] undockedBikes = handler.getAllBikesOnTrip();
+        //Bike[] undockedBikes = handler.getAllBikesOnTrip();
         for (int i = 0; i < routers.length; i++) {
             User customer = userSubSet[i];
             Docking start = null;
@@ -194,7 +194,7 @@ public class Simulation implements Runnable{
                 start = docking_stations[rand.nextInt(docking_stations.length)];
                 end = docking_stations[rand.nextInt(docking_stations.length)];
                 bike = start.rentBike(customer);
-            } while(start == null || end == null || bike == null);
+            } while(start == null || end == null || bike == null || start == end);
             routers[i] = new Router(customer, bike, start, end);
             routers[i].setUpdateInterval(UPDATE_INTERVAL);
         }
@@ -259,7 +259,7 @@ class SimTest{
 
 
         javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
-        sim.stop();
+        //sim.stop();
     }
 }
 
