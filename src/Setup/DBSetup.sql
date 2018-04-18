@@ -71,6 +71,7 @@ CREATE TABLE docking_stations(
   stationID int NOT NULL AUTO_INCREMENT,
   stationName varchar(255) NOT NULL,
   maxSlots int NOT NULL DEFAULT 0,
+  status int NOT NULL DEFAULT 1,
   latitude FLOAT( 10, 6 ) NOT NULL,
   longitude FLOAT( 10, 6 ) NOT NULL,
   PRIMARY KEY(stationID)

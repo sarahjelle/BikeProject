@@ -800,8 +800,6 @@ public class DBH {
                         if (slotPairs.get(m).getBike_id() == bikes.get(n).getId()) {
                             bikes.get(n).setLocation(new Location(stations[i].getLocation().getLatitude(), stations[i].getLocation().getLongitude()));
                             stations[i].forceAddBike(bikes.get(n), slotPairs.get(m).getSlot_id());
-
-                            System.out.println(bikes.get(n).getLocation().getLatitude() + " " + bikes.get(n).getLocation().getLongitude());
                         }
                     }
                 }
@@ -855,7 +853,7 @@ public class DBH {
                         dockingSet.getString("stationName"),
                         new Location(
                                 dockingSet.getDouble("latitude"),
-                                dockingSet.getDouble("latitude")
+                                dockingSet.getDouble("longitude")
                         ),
                         dockingSet.getInt("maxSlots")
                 );

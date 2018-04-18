@@ -19,7 +19,7 @@ public class Simulation implements Runnable{
     private int sleepTime = 2000; //millieconds
     private Boolean stop = false;
     private static final double ERROR_TOLERANSE = 0.0000001;
-    private final double percentageOfUsersToMove = 1.0;
+    private double percentageOfUsersToMove = 1.0;
     private final double STATION_POWER_USAGE_PR_BIKE = 230 * 2.5; //Volt * Amp
     private Router[] routers;
 
@@ -88,7 +88,8 @@ public class Simulation implements Runnable{
 
             for (int i = 0; i < routers.length; i++) {
                 if(routers[i].hasArrived() && routers[i].isDocked()){
-                    System.out.println("Router number: " + i + " has arrived and docked successfully");
+                    //System.out.println("Router number: " + i + " has arrived and docked successfully");
+                    routers[i].stop();
                     /*
                     //No problem, create new router
                     System.out.println("Bike has arrived, getting new router");
@@ -138,6 +139,7 @@ public class Simulation implements Runnable{
         for (int i = 0; i < routers.length; i++) {
             routers[i].stop();
         }
+        System.out.println("Simulation ended");
     }
 
     public User[] getUserSubset(){
@@ -247,19 +249,26 @@ public class Simulation implements Runnable{
         this.stop = true;
     }
 
+    public void setUserPercentage(double userPercentage){
+        this.percentageOfUsersToMove = userPercentage;
+    }
+
 }
 class SimTest{
     public static void main(String[]args){
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
         sim.setUpdateInterval(3000);
+        sim.setUserPercentage(0.1);
 
         Thread simThread = new Thread(sim);
         simThread.start();
 
 
         javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
-        //sim.stop();
+        sim.stop();
+
+        System.exit(0);
     }
 }
 

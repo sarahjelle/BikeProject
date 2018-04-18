@@ -13,11 +13,14 @@ public class Docking {
     private String name;
     private Location location;
     private int capacity;
+    private int status;
     private Bike[] bikes;
 
     private double power_usage;
 
     private static int MINIMUM_BAT_LEVEL = 0;
+    private static int  AVAILABLE = 1,
+                        DELETED = 2;
 
     DBH dbh = new DBH();
 
@@ -27,6 +30,33 @@ public class Docking {
         this.location = location;
         this.capacity = capacity;
         this.bikes = new Bike[capacity];
+        this.status = AVAILABLE;
+    }
+
+    public Docking(int id, String name, Location location, int capacity, int status) {
+        this.id = id;
+        this.name = name;
+        this.location = location;
+        this.capacity = capacity;
+        this.bikes = new Bike[capacity];
+        if(status == AVAILABLE || status == DELETED){
+            this.status = status;
+        } else{
+            throw new IllegalArgumentException("Status argument is invalid");
+        }
+    }
+
+    public int getStatus(){
+        return status;
+    }
+
+    public boolean setStatus(int status){
+        if(status == AVAILABLE || status == DELETED){
+            this.status = status;
+            return true;
+        } else{
+            return false;
+        }
     }
 
     public int getId() {
