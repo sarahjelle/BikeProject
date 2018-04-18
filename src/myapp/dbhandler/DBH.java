@@ -725,7 +725,12 @@ public class DBH {
                     db = connect();
                     bike.setStatus(Bike.AVAILABLE);
                     stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
-                    stmt.setInt(1, Bike.AVAILABLE);
+                    if(bike.getStatus() != Bike.TRIP){
+                        stmt.setInt(1, Bike.AVAILABLE);
+                    } else{
+                        stmt.setInt(1, bike.getStatus());
+                    }
+
                     stmt.setInt(2, bike.getId());
                     execSQLBool(stmt, db);
                     stmt.close();

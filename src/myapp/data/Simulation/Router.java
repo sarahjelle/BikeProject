@@ -184,7 +184,7 @@ public class Router implements Runnable{
                     //String address = map.getAddress(newLat, newLng);
                     //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
                     bikeToMove.setLocation(new Location(null, newLat, newLng));
-                    bikeToMove.setDistanceTraveled(bikeToMove.getDistanceTraveled() + (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)));
+                    bikeToMove.setDistanceTraveled(bikeToMove.getDistanceTraveled() + 1 );// + (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)));
 
                     System.out.println(newLat + ", " + newLng);
                     double checkLat = Math.abs(bikeToMove.getLocation().getLatitude() - nextLocation.getLatitude());
