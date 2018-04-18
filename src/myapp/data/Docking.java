@@ -19,7 +19,7 @@ public class Docking {
     private double power_usage;
 
     private static int MINIMUM_BAT_LEVEL = 0;
-    private static int  AVAILABLE = 1,
+    public static int  AVAILABLE = 1,
                         DELETED = 2;
 
     DBH dbh = new DBH();
@@ -114,7 +114,7 @@ public class Docking {
     public int getUsedSpaces() {
         int count = 0;
         for (int i = 0; i < bikes.length; i++){
-            if(bikes[i] == null){
+            if(bikes[i] != null){
                 count++;
             }
         }

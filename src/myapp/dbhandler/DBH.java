@@ -622,7 +622,8 @@ public class DBH {
                                 dockingSet.getDouble("latitude"),
                                 dockingSet.getDouble("longitude")
                         ),
-                        dockingSet.getInt("maxSlots")
+                        dockingSet.getInt("maxSlots"),
+                        dockingSet.getInt("status")
                 ));
             }
 
@@ -874,7 +875,7 @@ public class DBH {
         return null;
     }
 
-    public boolean editDocking(Docking dock) {
+    public boolean editDocking(Docking updatedDock) {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -882,12 +883,52 @@ public class DBH {
                 return false;
             }
 
-            stmt = db.prepareStatement("UPDATE dokcing_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ? WHERE stationID = ?");
-            stmt.setString(1, dock.getName());
-            stmt.setInt(2, dock.getCapacity());
-            stmt.setDouble(3, dock.getLocation().getLatitude());
-            stmt.setDouble(4, dock.getLocation().getLongitude());
-            stmt.setInt(4, dock.getId());
+            stmt = db.prepareStatement("UPDATE dokcing_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
+            stmt.setString(1, updatedDock.getName());
+            stmt.setInt(2, updatedDock.getCapacity());
+            stmt.setDouble(3, updatedDock.getLocation().getLatitude());
+            stmt.setDouble(4, updatedDock.getLocation().getLongitude());
+            stmt.setInt(5, updatedDock.getStatus());
+            stmt.setInt(6, updatedDock.getId());
+
+            Docking orgDock = getDockingByID(updatedDock.getId());
+
+            if(orgDock != null) {
+                if(orgDock.getCapacity() < updatedDock.getCapacity()) {
+                    //Mindre en det som blir nytt, da må det legges til mer i databasen.
+                    System.out.println("Her mangler det noe!");
+                } else if (orgDock.getCapacity() > updatedDock.getCapacity()) {
+                    //Mer en det som er blir nytt, da må det fjernes fra databasen.
+                    System.out.println("Her mangler det noe!");
+                }
+            }
+
+            if(!execSQLBool(stmt, db)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            System.out.println("Error: " + e);
+        }
+        return false;
+    }
+
+    public boolean deleteDocking(Docking dock) {
+        db = connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE dokcing_stations SET status = ? WHERE stationID = ?");
+            stmt.setInt(1, Docking.DELETED);
+            stmt.setInt(2, dock.getId());
 
             Docking orgDock = getDockingByID(dock.getId());
 
