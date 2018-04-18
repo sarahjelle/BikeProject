@@ -142,7 +142,7 @@ public class Docking {
     }
 
     public Bike rentBike(User user) {
-        dbh.updateBikesInDockingStation(id, bikes);
+        bikes = dbh.updateBikesInDockingStation(id);
         Bike bike = null;
         for(int i = 0; i < bikes.length; i++) {
             if(bikes[i] != null) {
@@ -150,19 +150,19 @@ public class Docking {
                     if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
                         bike = bikes[i];
                         bikes[i] = null;
+
+                        if(dbh.rentBike(user, bike, id)) {
+                            Bike[] bArr = new Bike[1];
+                            bike.setLocation(new Location(location.getLatitude(), location.getLongitude()));
+                            bArr[0] = bike;
+                            dbh.logBikes(bArr);
+                            return bike;
+                        }
                     }
                 }
             }
         }
-        if(bike != null) {
-            if(dbh.rentBike(user, bike, id)) {
-                Bike[] bArr = new Bike[1];
-                bike.setLocation(new Location(location.getLatitude(), location.getLongitude()));
-                bArr[0] = bike;
-                dbh.logBikes(bArr);
-                return bike;
-            }
-        }
+
 
         return null;
     }
