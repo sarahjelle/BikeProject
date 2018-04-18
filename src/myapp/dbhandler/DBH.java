@@ -49,6 +49,17 @@ public class DBH {
         return null;
     }
 
+    private void forceClose() {
+        try {
+            if(db != null) {
+                db.rollback();
+                db.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /*
      * TRANSLATION FOR TIME AND DATE.
      */
@@ -121,14 +132,7 @@ public class DBH {
 
         } catch (SQLException e) {
             System.out.println("Error: " + e);
-            try {
-                if (db != null) {
-                    db.rollback();
-                    db.close();
-                }
-            } catch (SQLException er) {
-                System.out.println("Error: " + er);
-            }
+            forceClose();
             return -1;
         }
     }
@@ -165,8 +169,8 @@ public class DBH {
 
         } catch(SQLException e) {
             System.out.println("Error: " + e);
+            forceClose();
         }
-
         return execSQLPK(stmt, db);
     }
 
@@ -222,6 +226,7 @@ public class DBH {
 
             return bikes;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
@@ -264,32 +269,17 @@ public class DBH {
                         dateTimeToDateOnly(set.getString("purchaseDate"))
                 ));
             }
-        } catch(SQLException e){
-            e.printStackTrace();
-        } finally {
-            if(stmt != null){
-                try{
-                    stmt.close();
-                } catch (SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-            if(db != null){
-                try{
-                    db.close();
-                } catch (SQLException ex){
-                    ex.printStackTrace();
-                }
-            }
-        }
-        if(outList != null){
-            Bike[] bikes = new Bike[outList.size()];
-            bikes = outList.toArray(bikes);
-            return bikes;
-        } else{
-            return null;
-        }
 
+            if(outList.size() > 0) {
+                Bike[] bikes = new Bike[outList.size()];
+                bikes = outList.toArray(bikes);
+                return bikes;
+            }
+        } catch(SQLException e){
+            forceClose();
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public ArrayList<Bike> getBikesWithStatusAvailable() {
@@ -355,6 +345,7 @@ public class DBH {
             db.close();
             return bikes;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
@@ -398,6 +389,7 @@ public class DBH {
             db.close();
             return bikes;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
@@ -423,6 +415,7 @@ public class DBH {
             db.close();
             return true;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return false;
@@ -466,6 +459,7 @@ public class DBH {
             db.close();
             return true;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return false;
@@ -503,6 +497,7 @@ public class DBH {
             db.close();
             return bikesNotUpdated.toArray(new Bike[bikesNotUpdated.size()]);
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return bikes;
@@ -527,6 +522,7 @@ public class DBH {
             db.close();
             return makesArray;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
@@ -551,6 +547,7 @@ public class DBH {
             db.close();
             return typeArray;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
@@ -576,6 +573,7 @@ public class DBH {
             stmt.close();
             db.close();
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
     }
@@ -600,9 +598,9 @@ public class DBH {
 
 
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
-
         return execSQLPK(stmt, db);
     }
 
@@ -632,19 +630,20 @@ public class DBH {
             db.close();
             return docks;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
     }
 
-    public void updateBikesInDockingStation(int dockID, Bike[] bikes) {
+    public Bike[] updateBikesInDockingStation(int dockID, Bike[] bikes) {
         Docking[] docks = getAllDockingStationsWithBikes();
         for (int i = 0; i < docks.length; i++) {
             if (docks[i].getId() == dockID) {
-                bikes = docks[i].getBikes();
-                break;
+                return docks[i].getBikes();
             }
         }
+        return bikes;
     }
 
     //Martin
@@ -680,6 +679,7 @@ public class DBH {
             stmt.close();
             db.close();
         } catch(SQLException ex){
+            forceClose();
             ex.printStackTrace();
         }
 
@@ -694,11 +694,9 @@ public class DBH {
             if(db == null){
                 return false;
             }
-            stmt = db.prepareStatement("UPDATE trips SET endTime = ?, endStation = ? WHERE bikeID = ? AND endStation IS NULL AND endTime IS NULL");
-            java.util.Date jutilDate = new java.util.Date();
-            stmt.setDate(1, new java.sql.Date(jutilDate.getTime()));
-            stmt.setInt(2, dockID);
-            stmt.setInt(3, bike.getId());
+            stmt = db.prepareStatement("UPDATE trips SET endTime = NOW(), endStation = ? WHERE bikeID = ? AND endStation IS NULL AND endTime IS NULL");
+            stmt.setInt(1, dockID);
+            stmt.setInt(2, bike.getId());
 
             if(execSQLBool(stmt, db)) {
                 if(dockBike(bike, dockID, spot)) {
@@ -719,6 +717,7 @@ public class DBH {
             db.close();
 
         } catch(SQLException ex){
+            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -741,6 +740,7 @@ public class DBH {
             db.close();
             return output;
         } catch(SQLException ex){
+            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -763,6 +763,7 @@ public class DBH {
             db.close();
             return output;
         } catch(SQLException ex){
+            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -799,6 +800,8 @@ public class DBH {
                         if (slotPairs.get(m).getBike_id() == bikes.get(n).getId()) {
                             bikes.get(n).setLocation(new Location(stations[i].getLocation().getLatitude(), stations[i].getLocation().getLongitude()));
                             stations[i].forceAddBike(bikes.get(n), slotPairs.get(m).getSlot_id());
+
+                            System.out.println(bikes.get(n).getLocation().getLatitude() + " " + bikes.get(n).getLocation().getLongitude());
                         }
                     }
                 }
@@ -808,6 +811,7 @@ public class DBH {
             return stations;
 
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return stations;
@@ -829,6 +833,7 @@ public class DBH {
             stmt.close();
             db.close();
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
     }
@@ -865,6 +870,7 @@ public class DBH {
 
             return null;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
@@ -906,6 +912,7 @@ public class DBH {
             db.close();
             return true;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return false;
@@ -939,6 +946,7 @@ public class DBH {
             user = null;
             return execSQLPK(stmt, db);
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
             return -1;
         }
@@ -978,6 +986,7 @@ public class DBH {
                 }
             }
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return null;
@@ -1005,6 +1014,7 @@ public class DBH {
                 return execSQLBool(stmt, db);
             }
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return false;
@@ -1030,6 +1040,7 @@ public class DBH {
 
             return execSQLBool(stmt, db);
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return false;
@@ -1053,6 +1064,7 @@ public class DBH {
             return output;
 
         } catch(SQLException ex){
+            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -1089,6 +1101,7 @@ public class DBH {
             users = usersList.toArray(users);
             return users;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return users;
@@ -1144,6 +1157,7 @@ public class DBH {
             repairs = repairList.toArray(repairs);
             return repairs;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return repairs;
@@ -1169,6 +1183,7 @@ public class DBH {
 
             return output;
         } catch(SQLException e) {
+            forceClose();
             System.out.println("Error: " + e);
         }
         return -1;
@@ -1204,6 +1219,7 @@ public class DBH {
 
             return true;
         } catch(SQLException ex){
+            forceClose();
             ex.printStackTrace();
         }
 
@@ -1232,6 +1248,7 @@ public class DBH {
 
             return true;
         } catch(SQLException ex){
+            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -1266,6 +1283,8 @@ class BikeSlotPair{
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
+
+        dbh.getAllDockingStationsWithBikes();
 
     }
 }
