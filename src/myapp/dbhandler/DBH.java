@@ -232,6 +232,16 @@ public class DBH {
         return null;
     }
 
+    public Bike getBikeByID(Bike bikeToFind) {
+        ArrayList<Bike> bikes = getAllBikes();
+        for(Bike bike : bikes) {
+            if (bike.getId() == bikeToFind.getId()) {
+                return bike;
+            }
+        }
+        return null;
+    }
+
     private ArrayList<Bike> getBikesByStatus(int status) {
         ArrayList<Bike> bikes = getAllBikes();
         ArrayList<Bike> result = new ArrayList<>();
