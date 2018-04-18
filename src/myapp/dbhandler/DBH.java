@@ -1303,6 +1303,114 @@ public class DBH {
         return false;
     }
 
+
+    /*
+     * MISC USE WITH CAUTION
+     */
+    private int[] getUnfinishedTripsBikeID() {
+        db = connect();
+        PreparedStatement stmt = null;
+        ArrayList<Integer> ids = new ArrayList<>();
+
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT bikeID FROM trips WHERE endTime IS NULL AND endStation IS NULL");
+
+            ResultSet resultSet = execSQLRS(stmt);
+            while(resultSet.next()){
+                ids.add(new Integer(resultSet.getInt("bikeID")));
+            }
+
+            stmt.close();
+            db.close();
+
+            int[] idsToSend = new int[ids.size()];
+
+            for(int i = 0; i < ids.size(); i++) {
+                idsToSend[i] = Integer.parseInt(ids.get(i).toString());
+            }
+
+            return idsToSend;
+
+        } catch(SQLException e) {
+            forceClose();
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
+    private BikeSlotPair[] findOpenSpaces() {
+        db = connect();
+        PreparedStatement stmt = null;
+        ArrayList<BikeSlotPair> spots = new ArrayList<>();
+
+        try {
+            if(db == null) {
+                return null;
+            }
+
+            stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL");
+
+            ResultSet resultSet = execSQLRS(stmt);
+            while(resultSet.next()){
+                spots.add(new BikeSlotPair(-1, resultSet.getInt("slotID"), resultSet.getInt("stationID")));
+            }
+
+            stmt.close();
+            db.close();
+
+            BikeSlotPair[] slots = new BikeSlotPair[spots.size()];
+            slots = spots.toArray(slots);
+
+            return slots;
+
+        } catch(SQLException e) {
+            forceClose();
+            System.out.println("Error: " + e);
+        }
+        return null;
+    }
+
+    public void removeAllUnfinishedTrips() {
+        BikeSlotPair[] slots = findOpenSpaces();
+        int[] bikeIDs = getUnfinishedTripsBikeID();
+
+        PreparedStatement stmt = null;
+        try{
+
+            if(javax.swing.JOptionPane.showConfirmDialog(null,"Are you sure?") == 0) {
+
+                for(int id : bikeIDs) {
+                    for (int j = 0; j < slots.length; j++) {
+                        if(slots[j] != null) {
+                            Bike bike = new Bike(id, " ", 0.0, " ", 0.0, 0, null, 1, null);
+                            endRent(bike, slots[j].getStation_id(), slots[j].getSlot_id());
+                            slots[j] = null;
+                            System.out.println("I GOT HERE WITH : " + id);
+                            break;
+                        }
+                    }
+                }
+
+                db = connect();
+                if(db == null){
+                    return;
+                }
+                stmt = db.prepareStatement("DELETE FROM trips WHERE endStation IS NULL AND endTime IS NULL");
+
+                execSQLBool(stmt, db);
+
+                stmt.close();
+                db.close();
+            }
+        } catch(SQLException ex){
+            forceClose();
+            ex.printStackTrace();
+        }
+    }
 }
 
 class BikeSlotPair{
@@ -1326,6 +1434,10 @@ class BikeSlotPair{
     public int getStation_id(){
         return station_id;
     }
+
+    public String toString() {
+        return "id: " + bike_id + ", slot: " + slot_id + ", station: " + station_id;
+    }
 }
 
 // Just for testing purposes
@@ -1333,7 +1445,20 @@ class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
 
-        dbh.getAllDockingStationsWithBikes();
+
+        /*BikeSlotPair[] slots = dbh.findOpenSpaces();
+
+        for(int i = 0; i < slots.length; i++) {
+            System.out.println(slots[i].toString());
+        }
+
+
+        int[] ids = dbh.getUnfinishedTripsBikeID();
+
+        for(int id : ids) {
+            System.out.println(id);
+        }*/
+        dbh.removeAllUnfinishedTrips();
 
     }
 }
