@@ -293,11 +293,6 @@ public class BikeController implements Initializable {
         browser.getEngine().setJavaScriptEnabled(true);
         browser.setVisible(true);
 
-        //Bike[] subset = new Bike[bikes.size()];
-        //subset = bikes.toArray(subset);
-        //Bike[] subset = {bike};
-        //addBikes(subset, browser.getEngine());
-        //centerMap(bike, browser.getEngine());
         if(bu == null){
             bu = new BikeUpdater(bike);
         } else{
