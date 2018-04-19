@@ -23,7 +23,6 @@ import myapp.data.Repair;
 import myapp.dbhandler.DBH;
 import org.w3c.dom.views.DocumentView;
 
-import javax.print.Doc;
 import javax.xml.soap.Text;
 import java.net.URL;
 import java.time.LocalDate;
@@ -138,8 +137,6 @@ public class BikeController implements Initializable {
 
     @FXML private WebView browser;
     @FXML private ComboBox<String> locationReg;
-    private BikeUpdater bu;
-    private Thread buThread;
 
 
     public void initialize(URL url, ResourceBundle rb) {
@@ -188,10 +185,6 @@ public class BikeController implements Initializable {
         thread.start();
     }
 
-    public void setId(int id){
-        this.id = id;
-    }
-
     //methodes for all panes
     public void openPane() {
         refresh();
@@ -205,9 +198,8 @@ public class BikeController implements Initializable {
     }
 
     public void closeAll() {
-        //refresh();
-        //closePane();
-
+        searchInput.clear();
+        searchInput.setPromptText("Bikeid");
         listPane.setVisible(false);
         infoEditRepair.setVisible(false);
         bikeInfo.setVisible(false);
@@ -296,21 +288,52 @@ public class BikeController implements Initializable {
         if (!getStatus(bike).equals("")) {
             statusInfo.setText(getStatus(bike));
         }
-
         URL url = getClass().getResource("../Bike/BikeMap/BikeMap.html");
         browser.getEngine().load(url.toExternalForm());
         browser.getEngine().setJavaScriptEnabled(true);
         browser.setVisible(true);
+        //Bike[] subset = new Bike[bikes.size()];
+        //subset = bikes.toArray(subset);
+        Bike[] subset = {bike};
+        addBikes(subset, browser.getEngine());
+        centerMap(bike, browser.getEngine());
+    }
 
-        if(bu == null){
-            bu = new BikeUpdater(bike);
-        } else{
-            bu.setCenterBike(bike);
+    private void centerMap(Bike bike, WebEngine engine){
+        try{
+            Platform.runLater(() -> {
+                engine.getLoadWorker().stateProperty().addListener((e) -> {
+                    engine.executeScript("document.centerMap({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
+                            + ", lng: " + bike.getLocation().getLongitude() + "});");
+                });
+            });
+        } catch (Exception e){
+
         }
+    }
 
-        if(buThread == null){
-            buThread = new Thread(bu);
-            buThread.start();
+    private void addBikes(Bike[] bikes, WebEngine engine){
+        String array = "";
+        for (int i = 0; i < bikes.length; i++) {
+            if(i == bikes.length - 1){
+                array += "{ id: " + bikes[i].getId() +
+                        ", lat: " + bikes[i].getLocation().getLatitude() +
+                        ", lng: " + bikes[i].getLocation().getLongitude() + "}";
+            } else{
+                array += "{ id: " + bikes[i].getId() +
+                        ", lat: " + bikes[i].getLocation().getLatitude() +
+                        ", lng: " + bikes[i].getLocation().getLongitude() + "},";
+            }
+        }
+        final String input = "[" + array + "]";
+        try{
+            Platform.runLater(() -> {
+                engine.getLoadWorker().stateProperty().addListener((e) -> {
+                    engine.executeScript("document.addBikes(" + input + ");");
+                });
+            });
+        } catch (Exception e){
+
         }
     }
 
@@ -547,9 +570,7 @@ public class BikeController implements Initializable {
         ArrayList<Docking> stations = dbh.getAllDockingStations();
 
         for(int i = 0; i < stations.size(); i++){
-            if(stations.get(i).getFreeSpaces() > 0) {
-                stationNames.add(stations.get(i).getName());
-            }
+            stationNames.add(stations.get(i).getName());
         }
 
         return stationNames;
@@ -601,16 +622,15 @@ public class BikeController implements Initializable {
             ok = false;
         }
 
-            if (priceReg.getText().trim().isEmpty()) {
-                priceReg.setText("Field is blank");
+        if (priceReg.getText().trim().isEmpty()) {
+            priceReg.setText("Field is blank");
+            ok = false;
+        } else {
+            try {
+                double price = Double.parseDouble(priceReg.getText());
+            } catch (Exception e) {
                 ok = false;
-            } else {
-                try {
-                    double price = Double.parseDouble(priceReg.getText());
-                } catch (Exception e) {
-                    ok = false;
-                    priceReg.setText("Write a number");
-                }
+                priceReg.setText("Write a number");
             }
         }
 
@@ -624,15 +644,11 @@ public class BikeController implements Initializable {
             LocalDate date = dateReg.getValue();
             String type = typeReg.getSelectionModel().getSelectedItem();
             String make = makeReg.getText();
-            String stationName = locationReg.getSelectionModel().getSelectedItem();
-            Docking dock = null; //dbh.getDockingByName(stationName);
 
             Bike bike = new Bike(price, date, type, make);
             int bikeId = dbh.registerBike(bike);
             if (bikeId > 0) {
                 //refresh();
-                //bike = dbh.getBikeByID(bikeID);
-                //dock.dockBike(bike);
                 dw.informationWindow("Bike were succsesfully added to the database!", "BikeID: " + bikeId);
                 //showInfo(bike);
                 openPane();

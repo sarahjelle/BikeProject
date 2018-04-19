@@ -24,60 +24,6 @@ function initMap(){
 
 document.addDocks = function addDocks(docks){
     // First remove any markers that are currently drawn, that are not present in docks
-    for(var i = 0; i < docking_stations.length; i++) {
-        var present = false;
-        var presentAtIndex = -1;
-        for (var j = 0; j < docks.length; j++) {
-            if (docking_stations[i].id == docks[j].id) {
-                present = true;
-                presentAtIndex = j;
-                break;
-            }
-        }
-        if (present) {
-            // Should not be added, only updated
-            for (var j = 0; j < docking_markers.length; j++) {
-                if (docking_markers[j].id == docking_stations[i].id) {
-                    docking_markers[j].setPosition(new google.maps.LatLng(docking_stations[i].lat, docking_stations[i].lng)
-                    );
-                    break;
-                }
-            }
-
-        } else {
-            //Remove bike and coresponding marker from docking_stations
-            for (var j = 0; j < docking_markers.length; j++) {
-                if (docking_markers[j].id == docking_stations[i].id) {
-                    docking_markers[j].setMap(null);
-                    docking_markers[j] = null;
-                    docking_markers.splice(j, 1);
-                    break;
-                }
-            }
-            docking_stations[i] = null;
-            docking_stations.splice(i, 1);
-            i--;
-        }
-    }
-    for(var i = 0; i < docks.length; i++){
-        var present = false;
-        for(var j = 0; j < docking_stations.length; j++){
-            if(docks[i].id == docking_stations[j].id){
-                docking_stations[j] = docks[i];
-                updateDockMarker(docking_stations[j]);
-                present = true;
-            }
-        }
-        if(!present){
-            docking_stations.push(docks[i]);
-            addDockMarker(docks[i]);
-        }
-    }
-    manageDockMarkers(docks);
-
-
-
-    /*
     for(var i = 0; i < docking_stations.length; i++){
         var present = false;
         var presentAtIndex = -1;
@@ -115,24 +61,7 @@ document.addDocks = function addDocks(docks){
             i--;
         }
     }
-    manageDockMarkers(docks);
     // Then update/add all the docks markers
-    /*
-    for(var i = 0; i < docks.length; i++){
-        var present = false;
-        for(var j = 0; j < docking_stations.length; j++){
-            if(docking_stations[j].id == docks[i].id){
-                docking_stations[j] = docks[i];
-                manageDockMarkers(docks[i]);
-                break;
-            }
-        }
-        if(!present){
-            docking_stations.push(docks[i]);
-            manageDockMarkers(docks[i]);
-        }
-    }
-    */
 
 }
 
@@ -162,16 +91,11 @@ document.centerMap = function centerMap(bike){
     if(!present){
         all_bikes.push(bike);
         var marker = addBikeMarker(bike);
-        if(center_marker == null){
-            center_marker = marker;
-            center_marker.setIcon("green_bike.png");
-        } else{
-            center_marker.setIcon("bike.png");
-            center_marker = marker;
-            marker.setIcon("green_bike.png");
-            center_bike = bike;
-        }
-        map.panTo(marker.getPosition());
+        center_marker.setIcon("bike.png");
+        center_marker = marker;
+        marker.setIcon("green_bike.png");
+        center_bike = bike;
+        map.setCenter(marker.getPosition());
     }
 }
 
@@ -199,7 +123,7 @@ function addDockMarker(dock){
     var marker = new google.maps.Marker({
         position: {lat: dock.lat, lng: dock.lng}, //"http://labs.google.com/ridefinder/images/mm_20_blue.png",
         map: map,
-        //icon: "bike.png",
+        icon: "bike.png",
         id: dock.id
     });
     docking_markers.push(marker);
@@ -245,14 +169,12 @@ document.addBikes = function addBikes(bikes){
         }
         if(present){
             // Should not be added, only updated
-            if(center_bike != null){
-                if(bikes[presentAtIndex].id == center_bike.id){ // If bikes[presentAtIndex] = bike to center map to
-                    //should recenter map around new centerbike position
-                    center_bike.lat = bikes[presentAtIndex].lat;
-                    center_bike.lng = bikes[presentAtIndex].lng;
-                    center_marker.setPosition( new google.maps.LatLng(center_bike.lat, center_bike.lng));
-                    map.setCenter(center_marker.getPosition);
-                }
+            if(bikes[presentAtIndex].id == center_bike.id){ // If bikes[presentAtIndex] = bike to center map to
+                //should recenter map around new centerbike position
+                center_bike.lat = bikes[presentAtIndex].lat;
+                center_bike.lng = bikes[presentAtIndex].lng;
+                center_marker.setPosition( new google.maps.LatLng(center_bike.lat, center_bike.lng));
+                map.setCenter(center_marker.getPosition);
             } else{
                 // Bike is in the all_bikes array
                 // Its position and marker should be updated
@@ -262,7 +184,6 @@ document.addBikes = function addBikes(bikes){
                 //updateBikeMarker(all_bikes[i]);
                 manageMarkers(all_bikes[i]);
             }
-
         } else{
             //Remove bike and coresponding marker from all_bikes
             for(var j = 0; j < uncentered_bike_markers.length; j++){

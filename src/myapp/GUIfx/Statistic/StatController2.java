@@ -1,6 +1,5 @@
 package myapp.GUIfx.Statistic;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,37 +13,37 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import myapp.Stats.DummyBikeInfo;
-import myapp.data.Bike;
 
 public class StatController2 {
+    @FXML
+    private BorderPane stat1Pane;
     @FXML
     private BorderPane statPane;
     @FXML
     private TextField bikeIdInput;
     @FXML
-    private BorderPane stat1Pane;
-    private PieChart pieChart;
-    @FXML
     private BorderPane stat2Pane;
-    private BarChart<String, Number> dockStat;
     @FXML
     private BorderPane stat3Pane;
-    private BarChart<String, Number> bikeStat;
     @FXML
     private GenerateStats stats = new GenerateStats();
 
-    private BikeAvailiabilityUpdater bau;
-    private Thread bauThread;
-
-    private DockingChartUpdater dcu;
-    private Thread dcuThread;
-
-    private BikeBatteryUpdater bbu;
-    private Thread bbuThread;
-
-
     public void initialize() {
-        openStat1();
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Docking station name");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Bike capacity");
+        XYChart.Series<String, Number> dock = new XYChart.Series();
+        XYChart.Series<String, Number> capacity = new XYChart.Series();
+        int[] cap = stats.dockCapacity();
+        String[] name = stats.dockingName();
+        for (int i=0; i<cap.length; i++){
+            dock.getData().add(new XYChart.Data(name[i], cap[i]));
+            //capacity.getData().add(new XYChart.Data());
+        }
+        BarChart<String, Number> dockStat = new BarChart<>(xAxis,yAxis);
+        dockStat.getData().addAll(dock);
+        stat2Pane.setCenter(dockStat);
     }
 
     public void closePane() {
@@ -65,7 +64,6 @@ public class StatController2 {
 
     @FXML private void openStat2() {
         closeAll();
-        stat2();
         stat2Pane.setVisible(true);
     }
 
@@ -82,210 +80,41 @@ public class StatController2 {
     }
 
     public void stat1() {
-        if(bau == null){
-            bau = new BikeAvailiabilityUpdater();
-        }
-        if(bauThread == null){
-            bauThread = new Thread(bau);
-            bauThread.start();
-        }
-    }
-
-    public void stat2(){
-        if(dcu == null){
-            dcu = new DockingChartUpdater();
-        }
-        if(dcuThread == null){
-            dcuThread = new Thread(dcu);
-            dcuThread.start();
-        }
+        int[] bikeAv = stats.bikeAvailability();
+        ObservableList<PieChart.Data> pieChartData =
+                FXCollections.observableArrayList(
+                        new PieChart.Data("Available", bikeAv[0]),
+                        new PieChart.Data("On trip", bikeAv[1]),
+                        new PieChart.Data("In repair", bikeAv[2]));
+        final PieChart chart = new PieChart(pieChartData);
+        chart.setTitle("");
+        stat1Pane.setCenter(chart);
     }
 
     public void stat3(){
-        if(bbu == null){
-            bbu = new BikeBatteryUpdater();
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("BikeId");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Value");
+        XYChart.Series distTrav = new XYChart.Series();
+        distTrav.setName("Distance travelled");
+        XYChart.Series totTrips = new XYChart.Series();
+        totTrips.setName("Total number of trips");
+        XYChart.Series battery = new XYChart.Series();
+        battery.setName("Battery percentage");
+
+        int[][] bStats = stats.bikeStats();
+        for (int i=0; i<10; i++){
+            distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[1][i]));
+            totTrips.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[2][i]));
+            battery.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[3][i]));
+           /* distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+            distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
+            distTrav.getData().add(new XYChart.Data(bStats[0][i], bStats[3][i]));*/
         }
-        if(bbuThread == null){
-            bbuThread = new Thread(bbu);
-            bbuThread.start();
-        }
-    }
-
-    private class BikeAvailiabilityUpdater implements Runnable{
-        private Boolean stop = false;
-        private int UPDATE_INTERVAL = 5000; //ms
-
-        public BikeAvailiabilityUpdater(){}
-
-        public BikeAvailiabilityUpdater(int UPDATE_INTERVAL){
-            this.UPDATE_INTERVAL = UPDATE_INTERVAL;
-        }
-
-        public void run(){
-            while(!stop){
-                System.out.println("Updating bike availiablility chart");
-                int[] bikeAv = stats.bikeAvailability();
-                if(pieChart == null){
-                    ObservableList<PieChart.Data> pieChartData =
-                            FXCollections.observableArrayList(
-                                    new PieChart.Data("Available", bikeAv[0]),
-                                    new PieChart.Data("On trip", bikeAv[1]),
-                                    new PieChart.Data("In repair", bikeAv[2]));
-                    pieChart = new PieChart(pieChartData);
-                    pieChart.setTitle("");
-
-                    Platform.runLater(() -> {
-                        stat1Pane.setCenter(pieChart);
-                    });
-                } else{
-                    //pieChart.getData().clear();
-                    int valueCounter = 0;
-                    for(final PieChart.Data data : pieChart.getData()){
-                        data.setPieValue(bikeAv[valueCounter]);
-                        valueCounter++;
-                    }
-                }
-                try{
-                    Thread.sleep(UPDATE_INTERVAL);
-                } catch (InterruptedException ex){
-                    ex.printStackTrace();
-                }
-            }
-        }
-
-        public void stop(){
-            this.stop = true;
-        }
-
-
-    }
-
-    private class DockingChartUpdater implements Runnable{
-        private Boolean stop = false;
-        private int UPDATE_INTERVAL = 5000; //ms
-
-        public DockingChartUpdater(){}
-
-        public DockingChartUpdater(int UPDATE_INTERVAL){
-            this.UPDATE_INTERVAL = UPDATE_INTERVAL;
-        }
-
-        public void run(){
-            while(!stop){
-                int[] cap = stats.dockCapacity();
-                String[] name = stats.dockingName();
-
-                if(dockStat == null){
-                    CategoryAxis xAxis = new CategoryAxis();
-                    xAxis.setLabel("Docking station name");
-                    NumberAxis yAxis = new NumberAxis();
-                    yAxis.setLabel("Bike capacity");
-                    XYChart.Series<String, Number> dock = new XYChart.Series();
-                    XYChart.Series<String, Number> capacity = new XYChart.Series();
-                    for (int i=0; i<cap.length; i++){
-                        dock.getData().add(new XYChart.Data(name[i], cap[i]));
-                        //capacity.getData().add(new XYChart.Data());
-                    }
-                    dockStat = new BarChart<>(xAxis,yAxis);
-                    dockStat.getData().addAll(dock);
-                    Platform.runLater(() -> {
-                        stat2Pane.setCenter(dockStat);
-                    });
-                } else{
-                    int valueCounter = 0;
-                    for(XYChart.Series<String, Number> data : dockStat.getData()){
-                        for(XYChart.Data<String, Number> d : data.getData()){
-                            d.setYValue(cap[valueCounter]);
-                            valueCounter++;
-                        }
-                    }
-                }
-
-
-
-
-                try{
-                    Thread.sleep(UPDATE_INTERVAL);
-                } catch (InterruptedException ex){
-                    ex.printStackTrace();
-                }
-            }
-        }
-
-        public void stop(){
-            this.stop = true;
-        }
-    }
-
-    private class BikeBatteryUpdater implements Runnable{
-        private Boolean stop = false;
-        private int UPDATE_INTERVAL = 5000; //ms
-        private int last_update_size = 0;
-
-        public BikeBatteryUpdater(){}
-
-        public BikeBatteryUpdater(int UPDATE_INTERVAL){
-            this.UPDATE_INTERVAL = UPDATE_INTERVAL;
-        }
-
-        public void run(){
-            while(!stop){
-                int[][] bStats = stats.bikeStats();
-                if(bikeStat == null){
-                    last_update_size = bStats[0].length;
-                    CategoryAxis xAxis = new CategoryAxis();
-                    xAxis.setLabel("BikeId");
-                    NumberAxis yAxis = new NumberAxis();
-                    yAxis.setLabel("Value");
-                    //XYChart.Series distTrav = new XYChart.Series();
-                    //distTrav.setName("Distance travelled");
-                    //XYChart.Series totTrips = new XYChart.Series();
-                    //totTrips.setName("Total number of trips");
-                    XYChart.Series battery = new XYChart.Series();
-                    battery.setName("Battery percentage");
-                    for (int i=0; i<bStats[0].length; i++){
-                        //distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[1][i]));
-                        //totTrips.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[2][i]));
-                        battery.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[3][i]));
-                    }
-                    bikeStat = new BarChart<>(xAxis,yAxis);
-                    //bikeStat.getData().addAll(distTrav,totTrips,battery);
-                    bikeStat.getData().addAll(battery);
-                    Platform.runLater(() -> {
-                        stat3Pane.setCenter(bikeStat);
-                    });
-                } else if(bStats[0].length != last_update_size){
-                    //More bikes has been registered
-                    for (int i = bikeStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
-                        bikeStat.getData().get(0).getData().addAll(new XYChart.Data<>(String.valueOf(bStats[0][i]), bStats[3][i]));
-                    }
-                } else{
-                    int valueCounter = 0;
-                    int seriesCounter = 1;
-                    int bikeCounter = 0;
-                    for(final XYChart.Series<String, Number> dataSeries : bikeStat.getData()){
-                        for(final XYChart.Data<String, Number> data : dataSeries.getData()){
-                            System.out.println("Updating stats chart");
-                            data.setYValue(bStats[3][valueCounter]);
-                            valueCounter++;
-                        }
-                        seriesCounter++;
-                    }
-                }
-
-                last_update_size = bStats[0].length;
-
-                try{
-                    Thread.sleep(UPDATE_INTERVAL);
-                } catch (InterruptedException ex){
-                    ex.printStackTrace();
-                }
-            }
-        }
-
-        public void stop(){
-            this.stop = true;
-        }
+        BarChart<String, Number> bikeStat = new BarChart<>(xAxis,yAxis);
+        bikeStat.getData().addAll(distTrav,totTrips,battery);
+        stat3Pane.setCenter(bikeStat);
     }
 }
 

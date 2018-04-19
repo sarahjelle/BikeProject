@@ -20,8 +20,7 @@ import java.util.ArrayList;
 
 public class MapsAPI {
 
-    //private static final String API_KEY = "AIzaSyDcg5pjzr05qM86p9gEDLYy8i8IcpKjT6w";
-    private static final String API_KEY = "AIzaSyC5D_RW75xiKkp1JjpzgEaANbWmP17Bf9k";
+    private static final String API_KEY = "AIzaSyDcg5pjzr05qM86p9gEDLYy8i8IcpKjT6w";
     private static final String ROADS_API_KEY = "AIzaSyDlJ5qke9-Dw-3-cpk1okWXSXWg3MIRSLc";
     // Sindre Toft Nordal API KEY:
     // https://maps.googleapis.com/maps/api/elevation/json?locations=LATITUDE,LONGITUDE&key=YOUR_API_KEY

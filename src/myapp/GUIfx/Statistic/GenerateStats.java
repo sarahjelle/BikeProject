@@ -17,17 +17,12 @@ public class GenerateStats {
     private DBH dbh;
     private ArrayList<Bike> bikes;
     private ArrayList<Docking> docks;
-    private DataUpdater du;
-    private Thread duThread;
 
     public GenerateStats() {
         this.dbh = new DBH();
         this.bikes = null;
         this.bikes = dbh.getAllBikes();
         this.docks = dbh.getAllDockingStations();
-        this.du = new DataUpdater();
-        this.duThread = new Thread(du);
-        duThread.start();
     }
 
     public String[] dockingName() {
@@ -49,13 +44,13 @@ public class GenerateStats {
     public int[] bikeAvailability(){
         int[] availStats = new int[3];
         for (Bike b : bikes){
-            if (b.getStatus() == 1){
+            if (b.getStatus()==1){
                 availStats[0]++;
             }
-            if (b.getStatus() == 2){
+            if (b.getStatus()==2){
                 availStats[1]++;
             }
-            if (b.getStatus() == 3){
+            if (b.getStatus()==3){
                 availStats[2]++;
             }
         }
@@ -71,32 +66,5 @@ public class GenerateStats {
             bikeStatistics[3][i]=(int)bikes.get(i).getBatteryPercentage();
         }
         return bikeStatistics;
-    }
-
-    class DataUpdater implements Runnable{
-        public Boolean stop = false;
-        private int UPDATE_INTERVAL = 5000; // ms
-        public DataUpdater(){}
-
-        public DataUpdater(int UPDATE_INTERVAL){
-            this.UPDATE_INTERVAL = UPDATE_INTERVAL;
-        }
-
-        public void run(){
-            while(!stop){
-                //Do work
-                bikes = dbh.getAllBikes();
-                docks = dbh.getAllDockingStations();
-                try{
-                    Thread.sleep(UPDATE_INTERVAL);
-                } catch(InterruptedException ex){
-                    ex.printStackTrace();
-                }
-            }
-        }
-
-        public void stop(){
-            this.stop = true;
-        }
     }
 }

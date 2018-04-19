@@ -10,7 +10,7 @@ import javafx.stage.*;
 
 public class Main extends Application{
     private void login(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource(".../SignIn/SignIn.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("myapp/GUIfx/SignIn/SignIn.fxml"));
         Scene scene = new Scene(root, 300, 300);
 
         primaryStage.setTitle("FXML Welcome");
