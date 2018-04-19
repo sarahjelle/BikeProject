@@ -850,7 +850,7 @@ public class DBH {
                         dockingSet.getString("stationName"),
                         new Location(
                                 dockingSet.getDouble("latitude"),
-                                dockingSet.getDouble("latitude")
+                                dockingSet.getDouble("longitude")
                         ),
                         dockingSet.getInt("maxSlots")
                 );
