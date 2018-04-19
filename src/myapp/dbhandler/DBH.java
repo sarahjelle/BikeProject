@@ -630,7 +630,7 @@ public class DBH {
             }
 
             Location loc = new Location(dock.getName(), true);
-            stmt = db.prepareStatement("INSERT INTO dokcing_stations (name, maxSlots, latitude, longitude) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            stmt = db.prepareStatement("INSERT INTO docking_stations (name, maxSlots, latitude, longitude) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, dock.getName());
             stmt.setInt(2, dock.getCapacity());
             stmt.setDouble(3, dock.getLocation().getLatitude());
@@ -706,7 +706,8 @@ public class DBH {
                                 dockingSet.getDouble("latitude"),
                                 dockingSet.getDouble("longitude")
                         ),
-                        dockingSet.getInt("maxSlots")
+                        dockingSet.getInt("maxSlots"),
+                        dockingSet.getInt("status")
                 );
                 stmt.close();
                 db.close();
@@ -948,7 +949,8 @@ public class DBH {
                                 dockingSet.getDouble("latitude"),
                                 dockingSet.getDouble("longitude")
                         ),
-                        dockingSet.getInt("maxSlots")
+                        dockingSet.getInt("maxSlots"),
+                        dockingSet.getInt("status")
                 );
                 stmt.close();
                 db.close();
