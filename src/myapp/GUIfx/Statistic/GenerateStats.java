@@ -37,7 +37,7 @@ public class GenerateStats {
         for (int i=0; i<docks.size(); i++) {
             dockName[i] = docks.get(i).getName().split(",")[0];
         }
-      return dockName;
+        return dockName;
     }
 
     public int[] dockCapacity(){
