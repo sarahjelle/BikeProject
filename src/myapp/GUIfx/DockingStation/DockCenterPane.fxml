@@ -4,14 +4,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.geometry.Insets?>
 <AnchorPane stylesheets="@DockCenterPane.css" visible="false" fx:id="dockPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="myapp.GUIfx.DockingStation.DockStationCenter">
     <BorderPane fx:id="listPane" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
         <top>
-            <HBox>
-                <Label text="ID"/>
-                <Label text="Address"/>
-                <Label text="Open spaces"/>
-                <Label text="Bikes at station"/>
+            <HBox spacing="50">
+                <Label text="ID" prefWidth="30"/>
+                <Label text="Address" prefWidth="300"/>
+                <Label text="Capacity" prefWidth="100"/>
+                <!--<Label text="Open spaces" prefWidth="100"/>-->
+                <Label text="Docked bikes" prefWidth="100"/>
+                <padding>
+                    <Insets left="8"/>
+                </padding>
             </HBox>
         </top>
         <center>
@@ -43,18 +48,31 @@
     <BorderPane  visible="false" fx:id="dockInfo" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0">
         <top>
             <HBox fx:id="infoTop">
-                <Label text="Docking station: "/>
-                <Label fx:id="nameOutput"/>
+                <Label fx:id="addressInfo"/>
+                <padding>
+                    <Insets left="10"/>
+                </padding>
             </HBox>
+
         </top>
         <center>
             <SplitPane>
                 <VBox alignment="CENTER">
                     <GridPane alignment="CENTER" hgap="10" vgap="10">
-                        <Label text="Docking station id: "/>
-                        <Label fx:id="dockIdOutput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                        <Label text="OpenSpaces: " GridPane.rowIndex="1"/>
-                        <Label fx:id="openSpaces" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Docking ID: "/>
+                        <Label fx:id="idInfo" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <Label text="Capacity: " GridPane.rowIndex="1"/>
+                        <Label fx:id="capacityInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Available sloths: " GridPane.rowIndex="2"/>
+                        <Label fx:id="openSpacesInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="Used spaces: " GridPane.rowIndex="3"/>
+                        <Label fx:id="usedSpacesInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <Label text="Battery usage: " GridPane.rowIndex="4"/>
+                        <Label fx:id="batteryInfo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
                     </GridPane>
                     <Region VBox.vgrow="ALWAYS"/>
                     <HBox alignment="CENTER" spacing="10">

@@ -33,9 +33,12 @@ public class DockStationCenter implements Initializable{
 
     //dockInfo
     @FXML private BorderPane dockInfo;
-    @FXML private Label dockIdOutput;
-    @FXML private Label nameOutput;
-    @FXML private Label openSpaces;
+    @FXML private Label idInfo;
+    @FXML private Label addressInfo;
+    @FXML private Label capacityInfo;
+    @FXML private Label openSpacesInfo;
+    @FXML private Label usedSpacesInfo;
+    @FXML private Label batteryInfo;
 
     //bikelist
     @FXML private ListView<DockBikeData> bikeList;
@@ -46,25 +49,8 @@ public class DockStationCenter implements Initializable{
         System.out.println("Initialize start");
         refresh();
 
-        /*Docking a = new Docking(1, "Kalvskinnet", null, 100);
-        Docking b = new Docking(2, "Solsiden", null, 50);
-        Docking c = new Docking(3, "Moholt", null, 20);
-        Docking d = new Docking(4, "Lerkendal", null, 30);
-
-        for(int i= 0; i < 25; i++ ) {
-            dockingList.getItems().addAll(a, b, c, d);
-        }*/
-
         //list at the infopage
         bikeList.setCellFactory(e -> new BikeAtDock());
-        //Bike bike1 = new Bike(1, 500, "DBS", "Electric", 0.2, 100);
-        //Bike bike2 = new Bike(1, 500, "DBS", "Electric", 0.2, 100);
-
-        //DockBikeData en = new DockBikeData(bike1, 1);
-        //DockBikeData to = new DockBikeData(bike2, 2);
-
-        //bikeList.getItems().addAll(en, to);
-        System.out.println(bikeList.getItems().size());
     }
 
     public void openPane(){
@@ -127,11 +113,18 @@ public class DockStationCenter implements Initializable{
     //Register new docking station
     @FXML private VBox regDock;
 
+    private void showInfo(Docking dock){
+        idInfo.setText(Integer.toString(dock.getId()));
+        addressInfo.setText(dock.getName());
+        capacityInfo.setText(Integer.toString(dock.getCapacity()));
+        openSpacesInfo.setText(Integer.toString(dock.getFreeSpaces()));
+        usedSpacesInfo.setText(Integer.toString(dock.getUsedSpaces()));
+        batteryInfo.setText(Double.toString(dock.getPowerUsage()));
+    }
+
     @FXML private void selectedRow() {
         Docking dock = (Docking) dockingList.getItems().get(dockingList.getSelectionModel().getSelectedIndex());
-        dockIdOutput.setText(Integer.toString(dock.getId()));
-        nameOutput.setText(dock.getName());
-        //openSpaces.setText(Integer.toString(dock.getOpenSpaces()));
+        showInfo(dock);
         closeAll();
         dockInfo.setVisible(true);
     }
