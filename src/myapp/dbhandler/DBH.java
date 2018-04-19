@@ -484,6 +484,26 @@ public class DBH {
         return false;
     }
 
+    private void updateBikeTotalDistance(Bike bike) {
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return;
+            }
+
+            stmt = db.prepareStatement("UPDATE bikes SET totalKm = ? WHERE bikeID = ?");
+            stmt.setInt(1, bike.getDistanceTraveled());
+            stmt.setInt(2, bike.getId());
+
+            execSQLBool(stmt, db);
+
+            stmt.close();
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+    }
+
     public Bike[] logBikes(Bike[] bikes) {
         db = connect();
         PreparedStatement stmt = null;
@@ -510,6 +530,7 @@ public class DBH {
 
                 if(!execSQLBool(stmt, db)) {
                     bikesNotUpdated.add(bikes[i]);
+                    updateBikeTotalDistance(bikes[i]);
                 }
             }
             stmt.close();
