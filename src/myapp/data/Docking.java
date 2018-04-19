@@ -134,7 +134,7 @@ public class Docking {
     public boolean dockBike(Bike bike) {
         int spot = findFirstOpen() + 1;
         bike.setStatus(dbh.getBikeByID(bike).getStatus());
-        if(dbh.endRent(bike,id, spot)) {
+        if(dbh.endRent(bike, id, spot)) {
             spot--;
             bikes[spot] = bike;
             return true;
