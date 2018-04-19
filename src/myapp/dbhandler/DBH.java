@@ -544,7 +544,7 @@ public class DBH {
             ArrayList<String> typeArray = new ArrayList<>();
 
             while(type.next()) {
-                typeArray.add(type.getString("make"));
+                typeArray.add(type.getString("type"));
             }
 
             stmt.close();
