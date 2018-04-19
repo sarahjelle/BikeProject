@@ -747,6 +747,7 @@ public class BikeController implements Initializable {
             }
         }
 
+        
         public void stop(){
             this.stop = true;
         }
