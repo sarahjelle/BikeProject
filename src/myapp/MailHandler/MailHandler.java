@@ -1,3 +1,6 @@
+/*
+ * Created by Fredrik Mediå
+ */
 package myapp.MailHandler;
 
 import javax.mail.*;
