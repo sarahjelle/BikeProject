@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import myapp.GUIfx.Bike.BikeData;
@@ -24,14 +25,18 @@ public class DockStationCenter implements Initializable{
     int idTmp = -1;
     private Bike[] bikes;
 
+    @FXML private AnchorPane dockPane;
+
+    //Pane with list and search
     @FXML private ListView dockingList;
-    @FXML private BorderPane dockPane;
+    @FXML private BorderPane listPane;
 
     //dockInfo
     @FXML private BorderPane dockInfo;
     @FXML private Label dockIdOutput;
     @FXML private Label nameOutput;
     @FXML private Label openSpaces;
+
     //bikelist
     @FXML private ListView<DockBikeData> bikeList;
 
@@ -64,13 +69,24 @@ public class DockStationCenter implements Initializable{
 
     public void openPane(){
         dockPane.setVisible(true);
-        dockingList.setVisible(true);
+        listPane.setVisible(true);
     }
 
     public void closePane(){
         closeAll();
         dockPane.setVisible(false);
 
+    }
+
+    public void closeAll(){
+        regDock.setVisible(false);
+        dockInfo.setVisible(false);
+        listPane.setVisible(false);
+
+    }
+    @FXML private void cancel(){
+        closeAll();
+        listPane.setVisible(true);
     }
 
     //refresh information from database
@@ -125,16 +141,6 @@ public class DockStationCenter implements Initializable{
         regDock.setVisible(true);
     }
 
-    public void closeAll(){
-        regDock.setVisible(false);
-        dockInfo.setVisible(false);
-        dockingList.setVisible(false);
-
-    }
-    @FXML private void cancel(){
-        closeAll();
-        dockingList.setVisible(true);
-    }
     @FXML private void regDock(){
         //code to register docking station
     }
