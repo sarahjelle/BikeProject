@@ -102,10 +102,7 @@ public class AppController {
             WebEngine engine = mapPane.getEngine();
             for (int i = 0; i < bikes.length; i++) {
                 addBike(bikes[i], engine);
-                //System.out.println(bikes[i].toString());
             }
-            //engine.reload();
-
         }
 
         public void run(){
@@ -127,7 +124,6 @@ public class AppController {
 
                     WebEngine engine = mapPane.getEngine();
                     //initMap(engine);
-                    System.out.println();
                     //removeAll(engine);//removeBike(bikes[i], engine);
                     updateBikes(bikes, engine);
                     StartTime = System.currentTimeMillis();

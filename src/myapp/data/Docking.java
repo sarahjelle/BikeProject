@@ -179,7 +179,7 @@ public class Docking {
                 prBikes += "\nSlot: " + (i + 1) + " - " + bikes[i].toString();
             }
         }
-        return "Name: " + name + " - With ID: " + id;// + "\nBikes:" + prBikes;
+        return "Name: " + name + " - With ID: " + id + "\nBikes:" + prBikes;
     }
 
 

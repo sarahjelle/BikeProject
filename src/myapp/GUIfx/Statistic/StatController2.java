@@ -123,7 +123,6 @@ public class StatController2 {
 
         public void run(){
             while(!stop){
-                System.out.println("Updating bike availiablility chart");
                 int[] bikeAv = stats.bikeAvailability();
                 if(pieChart == null){
                     ObservableList<PieChart.Data> pieChartData =
@@ -179,7 +178,7 @@ public class StatController2 {
                     CategoryAxis xAxis = new CategoryAxis();
                     xAxis.setLabel("Docking station name");
                     NumberAxis yAxis = new NumberAxis();
-                    yAxis.setLabel("Bike capacity");
+                    yAxis.setLabel("Bikes docked");
                     XYChart.Series<String, Number> dock = new XYChart.Series();
                     XYChart.Series<String, Number> capacity = new XYChart.Series();
                     for (int i=0; i<cap.length; i++){
@@ -192,12 +191,18 @@ public class StatController2 {
                         stat2Pane.setCenter(dockStat);
                     });
                 } else{
+                    // Update already present columns
                     int valueCounter = 0;
                     for(XYChart.Series<String, Number> data : dockStat.getData()){
                         for(XYChart.Data<String, Number> d : data.getData()){
                             d.setYValue(cap[valueCounter]);
                             valueCounter++;
                         }
+                    }
+                    // Add columns that are not present
+                    for(int i = dockStat.getData().size(); i < cap.length; i++){
+                        // There is only one data-series, so get(0) works
+                        dockStat.getData().get(0).getData().add(new XYChart.Data(name[i], cap[i]));
                     }
                 }
 
@@ -265,7 +270,6 @@ public class StatController2 {
                     int bikeCounter = 0;
                     for(final XYChart.Series<String, Number> dataSeries : bikeStat.getData()){
                         for(final XYChart.Data<String, Number> data : dataSeries.getData()){
-                            System.out.println("Updating stats chart");
                             data.setYValue(bStats[3][valueCounter]);
                             valueCounter++;
                         }

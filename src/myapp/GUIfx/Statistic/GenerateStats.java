@@ -4,7 +4,9 @@ import myapp.data.Bike;
 import myapp.data.Docking;
 import myapp.dbhandler.DBH;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /*
  Status:
@@ -24,7 +26,7 @@ public class GenerateStats {
         this.dbh = new DBH();
         this.bikes = null;
         this.bikes = dbh.getAllBikes();
-        this.docks = dbh.getAllDockingStations();
+        this.docks = new ArrayList<Docking>(Arrays.asList(dbh.getAllDockingStationsWithBikes()));
         this.du = new DataUpdater();
         this.duThread = new Thread(du);
         duThread.start();
@@ -41,7 +43,7 @@ public class GenerateStats {
     public int[] dockCapacity(){
         int[] dockCap = new int[docks.size()];
         for (int i=0; i<docks.size(); i++) {
-            dockCap[i] = docks.get(i).getCapacity();
+            dockCap[i] = docks.get(i).getUsedSpaces();
         }
         return dockCap;
     }
@@ -86,7 +88,7 @@ public class GenerateStats {
             while(!stop){
                 //Do work
                 bikes = dbh.getAllBikes();
-                docks = dbh.getAllDockingStations();
+                docks = new ArrayList<>(Arrays.asList(dbh.getAllDockingStationsWithBikes()));
                 try{
                     Thread.sleep(UPDATE_INTERVAL);
                 } catch(InterruptedException ex){
