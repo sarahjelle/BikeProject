@@ -207,7 +207,7 @@
                     </center>
                     <bottom>
                         <HBox alignment="CENTER">
-                            <Button text="Submit changes" onAction="#edit" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                            <!--<Button text="Submit changes" onAction="#edit" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>-->
                             <Button text="Cancel" onAction="#showInfoBack" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                         </HBox>
                     </bottom>
