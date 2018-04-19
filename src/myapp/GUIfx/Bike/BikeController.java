@@ -302,25 +302,26 @@ public class BikeController implements Initializable {
         centerMap(bike, browser.getEngine());
     }
 
-    private void centerMap(Bike bike, WebEngine engine){
-        try{
+    private void centerMap(Bike bike, WebEngine engine) {
+        try {
             Platform.runLater(() -> {
                 engine.getLoadWorker().stateProperty().addListener((e) -> {
                     engine.executeScript("document.centerMap({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
                             + ", lng: " + bike.getLocation().getLongitude() + "});");
                 });
             });
-        } catch (Exception e){
+        } catch (Exception e) {
 
-        if(bu == null){
-            bu = new BikeUpdater(bike);
-        } else{
-            bu.setCenterBike(bike);
-        }
+            if (bu == null) {
+                bu = new BikeUpdater(bike);
+            } else {
+                bu.setCenterBike(bike);
+            }
 
-        if(buThread == null){
-            buThread = new Thread(bu);
-            buThread.start();
+            if (buThread == null) {
+                buThread = new Thread(bu);
+                buThread.start();
+            }
         }
     }
 
