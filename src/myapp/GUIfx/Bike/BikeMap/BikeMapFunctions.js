@@ -175,6 +175,7 @@ document.centerMap = function centerMap(bike){
     }
 }
 
+
 function manageDockMarkers(dock){
     var markerPresent = false;
     for(var i = 0; i < docking_markers.length; i++){
