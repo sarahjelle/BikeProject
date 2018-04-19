@@ -145,7 +145,7 @@ public class BikeController implements Initializable {
         refresh();
 
         /*Bike bike = new Bike(1, "DBS", 900, "Electric", 0.5, 100);
-
+//
         for (int i = 0; i < 100; i++) {
             bikeList.getItems().add(bike);
         }*/
