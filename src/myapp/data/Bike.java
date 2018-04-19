@@ -89,16 +89,34 @@ public class Bike {
         return make;
     }
 
+    public void setMake(String make){
+        this.make = make;
+    }
+
+
+
     public double getPrice() {
         return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public LocalDate getPurchased() {
         return purchased;
     }
 
+    public void setPurchased(LocalDate purchased) {
+        this.purchased = purchased;
+    }
+
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public double getBatteryPercentage() {

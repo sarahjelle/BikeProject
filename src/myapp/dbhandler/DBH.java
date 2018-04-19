@@ -15,11 +15,9 @@ import static java.lang.Math.toIntExact;
 
 import com.sun.org.apache.regexp.internal.RE;
 import myapp.GUIfx.Map.MapsAPI;
-import myapp.MailHandler.MailHandler;
 import myapp.data.*;
 import myapp.hasher.*;
 
-import javax.mail.MessagingException;
 import javax.print.Doc;
 
 import static myapp.data.User.*;
@@ -39,29 +37,16 @@ public class DBH {
      */
     private Connection connect() {
         try {
-            if(db != null) {
-                db.close();
-            }
             Connection DBCon = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password + "&useSSL=false");
             DBCon.setAutoCommit(false);
             return DBCon;
-
         } catch (SQLException e) {
             // Handling any errors
-            e.printStackTrace();
+            System.out.println("SQLException: " + e.getMessage());
+            System.out.println("SQLState: " + e.getSQLState());
+            System.out.println("VendorError: " + e.getErrorCode());
         }
         return null;
-    }
-
-    private void forceClose() {
-        try {
-            if(db != null) {
-                db.rollback();
-                db.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /*
@@ -102,13 +87,13 @@ public class DBH {
             db.commit();
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e);
             try {
                 if (db != null) {
                     db.rollback();
                 }
             } catch (SQLException er) {
-                er.printStackTrace();
+                System.out.println("Error: " + er);
             }
             return false;
         }
@@ -135,8 +120,15 @@ public class DBH {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            forceClose();
+            System.out.println("Error: " + e);
+            try {
+                if (db != null) {
+                    db.rollback();
+                    db.close();
+                }
+            } catch (SQLException er) {
+                System.out.println("Error: " + er);
+            }
             return -1;
         }
     }
@@ -145,7 +137,7 @@ public class DBH {
         try {
             return sql.executeQuery();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e);
             return null;
         }
     }
@@ -172,9 +164,9 @@ public class DBH {
             stmt.setString(4, bike.getType());
 
         } catch(SQLException e) {
-            e.printStackTrace();
-            forceClose();
+            System.out.println("Error: " + e);
         }
+
         return execSQLPK(stmt, db);
     }
 
@@ -209,7 +201,7 @@ public class DBH {
                         dateTimeToDateOnly(bikeset.getString("purchaseDate"))
                 ));
             }
-
+            
             stmt.close();
             db.close();
 
@@ -230,25 +222,9 @@ public class DBH {
 
             return bikes;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
-    }
-
-    public Bike getBikeByID(Bike bikeToFind) {
-        ArrayList<Bike> bikes = getAllBikes();
-        for(Bike bike : bikes) {
-            if (bike.getId() == bikeToFind.getId()) {
-                return bike;
-            }
-        }
-        return null;
-    }
-
-    public Bike getBikeByID(int bikeID) {
-        Bike bike = new Bike(bikeID, null, 0.0, null, 0.0, 0, null, 1, null);
-        return getBikeByID(bike);
     }
 
     private ArrayList<Bike> getBikesByStatus(int status) {
@@ -288,17 +264,32 @@ public class DBH {
                         dateTimeToDateOnly(set.getString("purchaseDate"))
                 ));
             }
-
-            if(outList.size() > 0) {
-                Bike[] bikes = new Bike[outList.size()];
-                bikes = outList.toArray(bikes);
-                return bikes;
-            }
         } catch(SQLException e){
-            forceClose();
             e.printStackTrace();
+        } finally {
+            if(stmt != null){
+                try{
+                    stmt.close();
+                } catch (SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
+            if(db != null){
+                try{
+                    db.close();
+                } catch (SQLException ex){
+                    ex.printStackTrace();
+                }
+            }
         }
-        return null;
+        if(outList != null){
+            Bike[] bikes = new Bike[outList.size()];
+            bikes = outList.toArray(bikes);
+            return bikes;
+        } else{
+            return null;
+        }
+
     }
 
     public ArrayList<Bike> getBikesWithStatusAvailable() {
@@ -364,8 +355,7 @@ public class DBH {
             db.close();
             return bikes;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
     }
@@ -408,8 +398,7 @@ public class DBH {
             db.close();
             return bikes;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
     }
@@ -434,8 +423,7 @@ public class DBH {
             db.close();
             return true;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return false;
     }
@@ -478,30 +466,9 @@ public class DBH {
             db.close();
             return true;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return false;
-    }
-
-    private void updateBikeTotalDistance(Bike bike) {
-        PreparedStatement stmt = null;
-        try {
-            if(db == null) {
-                return;
-            }
-
-            stmt = db.prepareStatement("UPDATE bikes SET totalKm = ? WHERE bikeID = ?");
-            stmt.setInt(1, bike.getDistanceTraveled());
-            stmt.setInt(2, bike.getId());
-
-            execSQLBool(stmt, db);
-
-            stmt.close();
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
-        }
     }
 
     public Bike[] logBikes(Bike[] bikes) {
@@ -530,15 +497,13 @@ public class DBH {
 
                 if(!execSQLBool(stmt, db)) {
                     bikesNotUpdated.add(bikes[i]);
-                    updateBikeTotalDistance(bikes[i]);
                 }
             }
             stmt.close();
             db.close();
             return bikesNotUpdated.toArray(new Bike[bikesNotUpdated.size()]);
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return bikes;
     }
@@ -562,8 +527,7 @@ public class DBH {
             db.close();
             return makesArray;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
     }
@@ -580,15 +544,14 @@ public class DBH {
             ArrayList<String> typeArray = new ArrayList<>();
 
             while(type.next()) {
-                typeArray.add(type.getString("make"));
+                typeArray.add(type.getString("type"));
             }
 
             stmt.close();
             db.close();
             return typeArray;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
     }
@@ -613,8 +576,7 @@ public class DBH {
             stmt.close();
             db.close();
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
     }
 
@@ -638,9 +600,9 @@ public class DBH {
 
 
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
+
         return execSQLPK(stmt, db);
     }
 
@@ -662,8 +624,7 @@ public class DBH {
                                 dockingSet.getDouble("latitude"),
                                 dockingSet.getDouble("longitude")
                         ),
-                        dockingSet.getInt("maxSlots"),
-                        dockingSet.getInt("status")
+                        dockingSet.getInt("maxSlots")
                 ));
             }
 
@@ -671,58 +632,19 @@ public class DBH {
             db.close();
             return docks;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
     }
 
-    public Bike[] updateBikesInDockingStation(int dockID) {
+    public void updateBikesInDockingStation(int dockID, Bike[] bikes) {
         Docking[] docks = getAllDockingStationsWithBikes();
         for (int i = 0; i < docks.length; i++) {
             if (docks[i].getId() == dockID) {
-                return docks[i].getBikes();
+                bikes = docks[i].getBikes();
+                break;
             }
         }
-        return null;
-    }
-
-    public Docking getDockingStationByName(String name) {
-        db = connect();
-        PreparedStatement stmt = null;
-        try {
-            if(db == null) {
-                return null;
-            }
-
-            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE stationName = ?");
-            stmt.setString(1, name);
-            ResultSet dockingSet = execSQLRS(stmt);
-            while(dockingSet.next()) {
-                Docking dock = new Docking(
-                        dockingSet.getInt("stationID"),
-                        dockingSet.getString("stationName"),
-                        new Location(
-                                dockingSet.getDouble("latitude"),
-                                dockingSet.getDouble("longitude")
-                        ),
-                        dockingSet.getInt("maxSlots")
-                );
-                stmt.close();
-                db.close();
-
-                return dock;
-            }
-
-            stmt.close();
-            db.close();
-
-            return null;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
-        }
-        return null;
     }
 
     //Martin
@@ -753,21 +675,11 @@ public class DBH {
                     stmt.close();
                     db.close();
                     return true;
-                } else {
-                    stmt.close();
-                    db.close();
-                    db = connect();
-                    stmt = db.prepareStatement("DELETE FROM trips WHERE bikeID = ? AND startStation = ? AND usedID = ? AND endTime IS NULL");
-                    stmt.setInt(1, bikeToRent.getId());
-                    stmt.setInt(2, dockID);
-                    stmt.setInt(3, userRentingBike.getUserID());
-                    execSQLBool(stmt, db);
                 }
             }
             stmt.close();
             db.close();
         } catch(SQLException ex){
-            forceClose();
             ex.printStackTrace();
         }
 
@@ -782,9 +694,11 @@ public class DBH {
             if(db == null){
                 return false;
             }
-            stmt = db.prepareStatement("UPDATE trips SET endTime = NOW(), endStation = ? WHERE bikeID = ? AND endStation IS NULL AND endTime IS NULL");
-            stmt.setInt(1, dockID);
-            stmt.setInt(2, bike.getId());
+            stmt = db.prepareStatement("UPDATE trips SET endTime = ?, endStation = ? WHERE bikeID = ? AND endStation IS NULL AND endTime IS NULL");
+            java.util.Date jutilDate = new java.util.Date();
+            stmt.setDate(1, new java.sql.Date(jutilDate.getTime()));
+            stmt.setInt(2, dockID);
+            stmt.setInt(3, bike.getId());
 
             if(execSQLBool(stmt, db)) {
                 if(dockBike(bike, dockID, spot)) {
@@ -793,12 +707,7 @@ public class DBH {
                     db = connect();
                     bike.setStatus(Bike.AVAILABLE);
                     stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
-                    if(bike.getStatus() != Bike.TRIP){
-                        stmt.setInt(1, Bike.AVAILABLE);
-                    } else{
-                        stmt.setInt(1, bike.getStatus());
-                    }
-
+                    stmt.setInt(1, Bike.AVAILABLE);
                     stmt.setInt(2, bike.getId());
                     execSQLBool(stmt, db);
                     stmt.close();
@@ -810,7 +719,6 @@ public class DBH {
             db.close();
 
         } catch(SQLException ex){
-            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -833,7 +741,6 @@ public class DBH {
             db.close();
             return output;
         } catch(SQLException ex){
-            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -856,7 +763,6 @@ public class DBH {
             db.close();
             return output;
         } catch(SQLException ex){
-            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -902,8 +808,7 @@ public class DBH {
             return stations;
 
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return stations;
     }
@@ -924,8 +829,7 @@ public class DBH {
             stmt.close();
             db.close();
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
     }
 
@@ -946,7 +850,7 @@ public class DBH {
                         dockingSet.getString("stationName"),
                         new Location(
                                 dockingSet.getDouble("latitude"),
-                                dockingSet.getDouble("longitude")
+                                dockingSet.getDouble("latitude")
                         ),
                         dockingSet.getInt("maxSlots")
                 );
@@ -961,13 +865,12 @@ public class DBH {
 
             return null;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
     }
 
-    public boolean editDocking(Docking updatedDock) {
+    public boolean editDocking(Docking dock) {
         db = connect();
         PreparedStatement stmt = null;
         try {
@@ -975,52 +878,12 @@ public class DBH {
                 return false;
             }
 
-            stmt = db.prepareStatement("UPDATE docking_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
-            stmt.setString(1, updatedDock.getName());
-            stmt.setInt(2, updatedDock.getCapacity());
-            stmt.setDouble(3, updatedDock.getLocation().getLatitude());
-            stmt.setDouble(4, updatedDock.getLocation().getLongitude());
-            stmt.setInt(5, updatedDock.getStatus());
-            stmt.setInt(6, updatedDock.getId());
-
-            Docking orgDock = getDockingByID(updatedDock.getId());
-
-            if(orgDock != null) {
-                if(orgDock.getCapacity() < updatedDock.getCapacity()) {
-                    //Mindre en det som blir nytt, da må det legges til mer i databasen.
-                    System.out.println("Her mangler det noe!");
-                } else if (orgDock.getCapacity() > updatedDock.getCapacity()) {
-                    //Mer en det som er blir nytt, da må det fjernes fra databasen.
-                    System.out.println("Her mangler det noe!");
-                }
-            }
-
-            if(!execSQLBool(stmt, db)) {
-                stmt.close();
-                db.close();
-                return false;
-            }
-            stmt.close();
-            db.close();
-            return true;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean deleteDocking(Docking dock) {
-        db = connect();
-        PreparedStatement stmt = null;
-        try {
-            if(db == null) {
-                return false;
-            }
-
-            stmt = db.prepareStatement("UPDATE docking_stations SET status = ? WHERE stationID = ?");
-            stmt.setInt(1, Docking.DELETED);
-            stmt.setInt(2, dock.getId());
+            stmt = db.prepareStatement("UPDATE dokcing_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ? WHERE stationID = ?");
+            stmt.setString(1, dock.getName());
+            stmt.setInt(2, dock.getCapacity());
+            stmt.setDouble(3, dock.getLocation().getLatitude());
+            stmt.setDouble(4, dock.getLocation().getLongitude());
+            stmt.setInt(4, dock.getId());
 
             Docking orgDock = getDockingByID(dock.getId());
 
@@ -1043,8 +906,7 @@ public class DBH {
             db.close();
             return true;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return false;
     }
@@ -1052,82 +914,34 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
-
-    public boolean checkIfUserExist(String mail) {
-        db = connect();
+    public int registerUser(User user) {
         Hasher hasher = new Hasher();
+        db = connect();
         PreparedStatement stmt = null;
-        boolean exsist = false;
-
         try {
             if(db == null) {
-                return true;
-            }
-            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ?");
-            stmt.setString(1, mail);
-
-            ResultSet rs =execSQLRS(stmt);
-
-            if(rs.next()) {
-                exsist = true;
-            }
-            stmt.close();
-            db.close();
-            return exsist;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
-        }
-        return true;
-    }
-
-    public int registerUser(User user, boolean sendMail) {
-        Hasher hasher = new Hasher();
-        if(!checkIfUserExist(user.getEmail())) {
-            db = connect();
-            PreparedStatement stmt = null;
-            try {
-                if(db == null) {
-                    return -1;
-                }
-                String salt = hasher.hashSalt(System.currentTimeMillis() + "");
-
-                String password = hasher.hash(user.getPassword(), salt);
-
-                stmt = db.prepareStatement("INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-                stmt.setInt(1, user.getUserClass());
-                stmt.setString(2, user.getEmail());
-                stmt.setString(3, password);
-                stmt.setString(4, salt);
-                stmt.setString(5, user.getFirstname());
-                stmt.setString(6, user.getLastname());
-                stmt.setInt(7, user.getPhone());
-                stmt.setString(8, user.getLandcode());
-
-                int pk = execSQLPK(stmt, db);
-
-                if(pk > 0 && sendMail) {
-                    String subj = "Welcome, " + user.getFirstname();
-
-                    String mail = user.getEmail();
-
-                    String msg = "You have now been registered to RentaBike!\n\nYour user details are displayed below\nUsername: " + user.getEmail() + "\nPassword: " + user.getPassword() + "\n\nWe kindly ask you to change you password at first chance.\n\n\nBest Regards,\nRentaBike Team";
-                    try {
-                        System.out.println("Sending mail!");
-                        new MailHandler(subj, mail, msg);
-                    } catch (MessagingException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-                user = null;
-                return pk;
-            } catch(SQLException e) {
-                forceClose();
-                e.printStackTrace();
                 return -1;
             }
+            String salt = hasher.hashSalt(System.currentTimeMillis() + "");
+
+            String password = hasher.hash(user.getPassword(), salt);
+
+            stmt = db.prepareStatement("INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            stmt.setInt(1, user.getUserClass());
+            stmt.setString(2, user.getEmail());
+            stmt.setString(3, password);
+            stmt.setString(4, salt);
+            stmt.setString(5, user.getFirstname());
+            stmt.setString(6, user.getLastname());
+            stmt.setInt(7, user.getPhone());
+            stmt.setString(8, user.getLandcode());
+
+            user = null;
+            return execSQLPK(stmt, db);
+        } catch(SQLException e) {
+            System.out.println("Error: " + e);
+            return -1;
         }
-        return -1;
     }
 
     public User loginUser(String email, String password) {
@@ -1138,9 +952,8 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ? AND status = ?");
+            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ?");
             stmt.setString(1, email);
-            stmt.setInt(2, User.ADMINISTRATOR);
 
             ResultSet rs =execSQLRS(stmt);
             User correctUser = null;
@@ -1165,8 +978,7 @@ public class DBH {
                 }
             }
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return null;
     }
@@ -1193,8 +1005,7 @@ public class DBH {
                 return execSQLBool(stmt, db);
             }
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return false;
     }
@@ -1219,8 +1030,7 @@ public class DBH {
 
             return execSQLBool(stmt, db);
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return false;
     }
@@ -1243,7 +1053,6 @@ public class DBH {
             return output;
 
         } catch(SQLException ex){
-            forceClose();
             ex.printStackTrace();
         }
         return false;
@@ -1280,8 +1089,7 @@ public class DBH {
             users = usersList.toArray(users);
             return users;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return users;
     }
@@ -1336,8 +1144,7 @@ public class DBH {
             repairs = repairList.toArray(repairs);
             return repairs;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return repairs;
     }
@@ -1362,8 +1169,7 @@ public class DBH {
 
             return output;
         } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
+            System.out.println("Error: " + e);
         }
         return -1;
     }
@@ -1398,7 +1204,6 @@ public class DBH {
 
             return true;
         } catch(SQLException ex){
-            forceClose();
             ex.printStackTrace();
         }
 
@@ -1427,120 +1232,11 @@ public class DBH {
 
             return true;
         } catch(SQLException ex){
-            forceClose();
             ex.printStackTrace();
         }
         return false;
     }
 
-
-    /*
-     * MISC USE WITH CAUTION
-     */
-    private int[] getUnfinishedTripsBikeID() {
-        db = connect();
-        PreparedStatement stmt = null;
-        ArrayList<Integer> ids = new ArrayList<>();
-
-        try {
-            if(db == null) {
-                return null;
-            }
-
-            stmt = db.prepareStatement("SELECT bikeID FROM trips WHERE endTime IS NULL AND endStation IS NULL");
-
-            ResultSet resultSet = execSQLRS(stmt);
-            while(resultSet.next()){
-                ids.add(new Integer(resultSet.getInt("bikeID")));
-            }
-
-            stmt.close();
-            db.close();
-
-            int[] idsToSend = new int[ids.size()];
-
-            for(int i = 0; i < ids.size(); i++) {
-                idsToSend[i] = Integer.parseInt(ids.get(i).toString());
-            }
-
-            return idsToSend;
-
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private BikeSlotPair[] findOpenSpaces() {
-        db = connect();
-        PreparedStatement stmt = null;
-        ArrayList<BikeSlotPair> spots = new ArrayList<>();
-
-        try {
-            if(db == null) {
-                return null;
-            }
-
-            stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL");
-
-            ResultSet resultSet = execSQLRS(stmt);
-            while(resultSet.next()){
-                spots.add(new BikeSlotPair(-1, resultSet.getInt("slotID"), resultSet.getInt("stationID")));
-            }
-
-            stmt.close();
-            db.close();
-
-            BikeSlotPair[] slots = new BikeSlotPair[spots.size()];
-            slots = spots.toArray(slots);
-
-            return slots;
-
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void removeAllUnfinishedTrips() {
-        BikeSlotPair[] slots = findOpenSpaces();
-        int[] bikeIDs = getUnfinishedTripsBikeID();
-
-        PreparedStatement stmt = null;
-        try{
-
-            if(javax.swing.JOptionPane.showConfirmDialog(null,"Are you sure?") == 0) {
-
-                for(int id : bikeIDs) {
-                    for (int j = 0; j < slots.length; j++) {
-                        if(slots[j] != null) {
-                            Bike bike = new Bike(id, " ", 0.0, " ", 0.0, 0, null, 1, null);
-                            endRent(bike, slots[j].getStation_id(), slots[j].getSlot_id());
-                            slots[j] = null;
-                            System.out.println("I GOT HERE WITH : " + id);
-                            break;
-                        }
-                    }
-                }
-
-                db = connect();
-                if(db == null){
-                    return;
-                }
-                stmt = db.prepareStatement("DELETE FROM trips WHERE endStation IS NULL AND endTime IS NULL");
-
-                execSQLBool(stmt, db);
-
-                stmt.close();
-                db.close();
-            }
-        } catch(SQLException ex){
-            forceClose();
-            ex.printStackTrace();
-        }
-    }
 }
 
 class BikeSlotPair{
@@ -1564,18 +1260,12 @@ class BikeSlotPair{
     public int getStation_id(){
         return station_id;
     }
-
-    public String toString() {
-        return "id: " + bike_id + ", slot: " + slot_id + ", station: " + station_id;
-    }
 }
 
 // Just for testing purposes
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-
-        dbh.registerUser(new User(1,"Fredrik", "Mediå", 47366074, "fredrikkarst@gmail.com", "+47"), false);
 
     }
 }
