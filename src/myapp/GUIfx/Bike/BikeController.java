@@ -616,7 +616,6 @@ public class BikeController implements Initializable {
             Bike[] in = null;
             while(!stop){
                 if((System.currentTimeMillis() - StartTime) >= DB_UPDATE_INTERVAL || d == null || in == null){
-                    System.out.println("Updating from DB");
                     DBH handler = new DBH();
                     //Bike[] b = handler.getAllBikesOnTrip();
 
@@ -707,7 +706,6 @@ public class BikeController implements Initializable {
                 }
             }
             final String input = "[" + array + "]";
-            System.out.println(input);
             try{
                 Platform.runLater(() -> {
                     engine.getLoadWorker().stateProperty().addListener((e) -> {
