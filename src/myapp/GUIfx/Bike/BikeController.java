@@ -23,6 +23,7 @@ import myapp.data.Repair;
 import myapp.dbhandler.DBH;
 import org.w3c.dom.views.DocumentView;
 
+import javax.print.Doc;
 import javax.xml.soap.Text;
 import java.net.URL;
 import java.time.LocalDate;
@@ -137,6 +138,8 @@ public class BikeController implements Initializable {
 
     @FXML private WebView browser;
     @FXML private ComboBox<String> locationReg;
+    private BikeUpdater bu;
+    private Thread buThread;
 
 
     public void initialize(URL url, ResourceBundle rb) {
@@ -185,6 +188,10 @@ public class BikeController implements Initializable {
         thread.start();
     }
 
+    public void setId(int id){
+        this.id = id;
+    }
+
     //methodes for all panes
     public void openPane() {
         refresh();
@@ -198,8 +205,9 @@ public class BikeController implements Initializable {
     }
 
     public void closeAll() {
-        searchInput.clear();
-        searchInput.setPromptText("Bikeid");
+        //refresh();
+        //closePane();
+
         listPane.setVisible(false);
         infoEditRepair.setVisible(false);
         bikeInfo.setVisible(false);
@@ -288,52 +296,21 @@ public class BikeController implements Initializable {
         if (!getStatus(bike).equals("")) {
             statusInfo.setText(getStatus(bike));
         }
+
         URL url = getClass().getResource("../Bike/BikeMap/BikeMap.html");
         browser.getEngine().load(url.toExternalForm());
         browser.getEngine().setJavaScriptEnabled(true);
         browser.setVisible(true);
-        //Bike[] subset = new Bike[bikes.size()];
-        //subset = bikes.toArray(subset);
-        Bike[] subset = {bike};
-        addBikes(subset, browser.getEngine());
-        centerMap(bike, browser.getEngine());
-    }
 
-    private void centerMap(Bike bike, WebEngine engine){
-        try{
-            Platform.runLater(() -> {
-                engine.getLoadWorker().stateProperty().addListener((e) -> {
-                    engine.executeScript("document.centerMap({id: " + bike.getId() + ", lat: " + bike.getLocation().getLatitude()
-                            + ", lng: " + bike.getLocation().getLongitude() + "});");
-                });
-            });
-        } catch (Exception e){
-
+        if(bu == null){
+            bu = new BikeUpdater(bike);
+        } else{
+            bu.setCenterBike(bike);
         }
-    }
 
-    private void addBikes(Bike[] bikes, WebEngine engine){
-        String array = "";
-        for (int i = 0; i < bikes.length; i++) {
-            if(i == bikes.length - 1){
-                array += "{ id: " + bikes[i].getId() +
-                        ", lat: " + bikes[i].getLocation().getLatitude() +
-                        ", lng: " + bikes[i].getLocation().getLongitude() + "}";
-            } else{
-                array += "{ id: " + bikes[i].getId() +
-                        ", lat: " + bikes[i].getLocation().getLatitude() +
-                        ", lng: " + bikes[i].getLocation().getLongitude() + "},";
-            }
-        }
-        final String input = "[" + array + "]";
-        try{
-            Platform.runLater(() -> {
-                engine.getLoadWorker().stateProperty().addListener((e) -> {
-                    engine.executeScript("document.addBikes(" + input + ");");
-                });
-            });
-        } catch (Exception e){
-
+        if(buThread == null){
+            buThread = new Thread(bu);
+            buThread.start();
         }
     }
 
@@ -624,20 +601,17 @@ public class BikeController implements Initializable {
             ok = false;
         }
 
-        if (priceReg.getText().trim().isEmpty()) {
-            priceReg.setText("Field is blank");
-            ok = false;
-        } else {
-            try {
-                double price = Double.parseDouble(priceReg.getText());
-            } catch (Exception e) {
+            if (priceReg.getText().trim().isEmpty()) {
+                priceReg.setText("Field is blank");
                 ok = false;
-                priceReg.setText("Write a number");
+            } else {
+                try {
+                    double price = Double.parseDouble(priceReg.getText());
+                } catch (Exception e) {
+                    ok = false;
+                    priceReg.setText("Write a number");
+                }
             }
-        }
-
-        if(locationReg.getSelectionModel().getSelectedItem() == null){
-            ok = false;
         }
 
         return ok;

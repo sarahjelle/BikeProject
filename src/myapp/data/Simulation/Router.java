@@ -19,6 +19,7 @@ public class Router implements Runnable{
     private static int UPDATE_INTERVAL = 60000; //milliseconds
 
     private MapsAPI map = new MapsAPI();
+    private static DBH handler = new DBH();
     private final double AVRG_BIKE_SPEED = 0.4305; // m/s
     private static final double ERROR_TOLERANCE = 0.0000001;
     private int WayPointsIterator = 1;
@@ -44,6 +45,9 @@ public class Router implements Runnable{
         this.bikeToMove = bikeToMove;
         this.start = bikeToMove.getLocation();
         this.end = end;
+        System.out.println(bikeToMove.getLocation().toString());
+        System.out.println("Start: " + start.getLocation().toString());
+        System.out.println("End: " + end.getLocation().toString());
         this.WayPoints = getWayPoints();
         if(WayPoints == null || WayPoints.length <= 0){
             hasArrived = true;
@@ -80,7 +84,7 @@ public class Router implements Runnable{
                 }
                 if((System.currentTimeMillis() - StartTime) >= UPDATE_INTERVAL){
                     //Update loc to DB
-                    DBH handler = new DBH();
+                    //DBH handler = new DBH();
                     Bike[] arr = {bikeToMove};
                     Bike[] ret = handler.logBikes(arr);
                     if(ret == null || ret.length <= 0){
@@ -128,6 +132,7 @@ public class Router implements Runnable{
                 System.out.println();
             }
         }
+        System.out.println("Router ");
     }
 
     public void stop(){
@@ -179,7 +184,7 @@ public class Router implements Runnable{
                     //String address = map.getAddress(newLat, newLng);
                     //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
                     bikeToMove.setLocation(new Location(null, newLat, newLng));
-                    bikeToMove.setDistanceTraveled((int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000);
+                    bikeToMove.setDistanceTraveled(bikeToMove.getDistanceTraveled() + 1 );// + (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)));
 
                     System.out.println(newLat + ", " + newLng);
                     double checkLat = Math.abs(bikeToMove.getLocation().getLatitude() - nextLocation.getLatitude());
