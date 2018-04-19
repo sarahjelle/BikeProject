@@ -22,6 +22,10 @@ function initMap(){
     center_marker = null;
 }
 
+
+
+
+
 document.addDocks = function addDocks(docks){
     // First remove any markers that are currently drawn, that are not present in docks
     for(var i = 0; i < docking_stations.length; i++){
