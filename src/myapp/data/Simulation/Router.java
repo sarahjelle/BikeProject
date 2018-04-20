@@ -18,6 +18,7 @@ public class Router implements Runnable{
     private static int UPDATE_INTERVAL = 60000; // millis
     private static final double ERROR_TOLERANCE = 0.0000001;
     private static final double AVRG_BIKE_SPEED = 0.4305; // m/s
+    private static final double POWER_USAGE_PER_M = 0.5; // W / m
 
 
     private int WayPointsIterator = 1;
@@ -162,7 +163,10 @@ public class Router implements Runnable{
                     double newLng = lngAt + lngChange;
                     //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
                     bikeToMove.setLocation(new Location(null, newLat, newLng));
-                    bikeToMove.setDistanceTraveled((int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000);
+                    int dist = (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000;
+                    double batteryLeft = bikeToMove.getBatteryPercentage() - (1 / POWER_USAGE_PER_M);
+                    bikeToMove.setDistanceTraveled(dist);
+                    bikeToMove.setBatteryPercentage(batteryLeft);
 
                     System.out.println(newLat + ", " + newLng);
                     double checkLat = Math.abs(bikeToMove.getLocation().getLatitude() - nextLocation.getLatitude());
