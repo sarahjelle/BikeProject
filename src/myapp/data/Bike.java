@@ -1,8 +1,11 @@
 package myapp.data;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 
+/**
+ * Bike is a class containing all information about a real life bike needed in this project.
+ * This is used sy
+ */
 public class Bike {
     private int id;
     private LocalDate purchased;
@@ -223,7 +226,6 @@ public class Bike {
 
     }
 
-    // Added by Mediå for testing. Needs to be more complex!
     public String toString() {
         String repairsList = "\tNo repairs";
         if(repairs != null) {

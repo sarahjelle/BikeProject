@@ -25,8 +25,15 @@ public class BikeAtDock extends ListCell<DockBikeData>{
         super.updateItem(bike, empty);
         if(bike != null && !empty){
             slotnumber.setText("Slotnumber: " + Integer.toString(bike.getSlotNumber()));
-            bikeId.setText("Bikeid: " + Integer.toString(bike.getBike().getId()));
+
+            if(bike.getBike() != null) {
+                bikeId.setText("Bikeid: " + Integer.toString(bike.getBike().getId()));
+            }
+
             setGraphic(hBox);
+        }
+        else{
+            setGraphic(null);
         }
     }
 }
