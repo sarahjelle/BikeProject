@@ -1400,7 +1400,7 @@ public class DBH {
                 String password = hasher.hash(user.getPassword(), salt);
 
                 stmt = db.prepareStatement("INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-                stmt.setInt(1, user.getUserClass());
+                stmt.setInt(1, User.ADMINISTRATOR);
                 stmt.setString(2, user.getEmail());
                 stmt.setString(3, password);
                 stmt.setString(4, salt);
@@ -1452,7 +1452,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ? AND status = ?");
+            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ? AND userTypeID = ?");
             stmt.setString(1, email);
             stmt.setInt(2, User.ADMINISTRATOR);
 
