@@ -108,13 +108,24 @@ public class Docking {
         return capacity - getUsedSpaces();
     }
 
-    // To use when creating docking station from DB
+    /**
+     * Adds a bike object to the specified spot without checking if it is
+     * available or not. It is used when creating a docking station from DB.
+     * @param bike the bike to add
+     * @param spot the spot on the docking station
+     *
+     */
     public void forceAddBike(Bike bike, int spot) {
         spot--;
         bikes[spot] = bike;
     }
 
-    //Helper function for finding first open spot
+    /**
+     * Loops through the bike array, which stores the bikes docked at the station,
+     * and returns the index of the first open slot. If all the slots at the docking station
+     * are taken, the method returns -1.
+     * @return <code> int </code> the index of the first open slot
+     */
     public int findFirstOpen() {
         for(int i = 0; i < bikes.length; i++){
             if(bikes[i] == null){
@@ -124,6 +135,10 @@ public class Docking {
         return -1;
     }
 
+    /**
+     * Returns the number of occupied slots on a docking station.
+     * @return <code>int</code> number of occupied slots
+     */
     public int getUsedSpaces() {
         int count = 0;
         for (int i = 0; i < bikes.length; i++){
@@ -134,6 +149,12 @@ public class Docking {
         return count;
     }
 
+    /**
+     * Removes a bike from a docking station.
+     * @param bikeId the id of the bike to be undocked
+     * @return <code>true</code> if the bike was successfully undocked
+     *          <code>false</code> if the bike was not removed
+     */
     public boolean undockBike(int bikeId) {
         for(int i = 0; i < bikes.length; i++) {
             if(bikes[i].getId() == bikeId) {
@@ -144,6 +165,12 @@ public class Docking {
         return false;
     }
 
+    /**
+     * Docks a bike to the first open spot on a docking status. Used to redock bikes that have been rented for trips.
+     * @param bike the bike to dock
+     * @return <code>true</code> if docking of bike was successfull
+     *          <code>false</code> if the bike could not be redocked
+     */
     public boolean dockBike(Bike bike) {
         int spot = findFirstOpen() + 1;
         bike.setStatus(dbh.getBikeByID(bike).getStatus());
@@ -155,6 +182,11 @@ public class Docking {
         return false;
     }
 
+    /**
+     *
+     * @param user
+     * @return
+     */
     public Bike rentBike(User user) {
         bikes = dbh.updateBikesInDockingStation(id);
         Bike bike = null;
@@ -181,6 +213,13 @@ public class Docking {
         return null;
     }
 
+    /**
+     * Returns a list of Bike-objects that corresponds to the bikes docked at the station.
+     * The length of the list represents the capacity of the docking station.
+     * If the dock is available the list-object is null, else it holds the Bike-object.
+     * @return <code>Bike[]</code> a list that can hold Bike-objects.
+     *
+     */
     public Bike[] getBikes() {
         return bikes;
     }
