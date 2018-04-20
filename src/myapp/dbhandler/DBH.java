@@ -279,13 +279,14 @@ public class DBH {
                         bikeset.getDouble("price"),
                         bikeset.getString("type"),
                         bikeset.getDouble("batteryPercentage"),
-                        bikeset.getInt("totalKM"),
+                        bikeset.getInt("totalKm"),
                         new Location(
                                 bikeset.getDouble("latitude"),
                                 bikeset.getDouble("longitude")
                         ),
                         bikeset.getInt("status"),
-                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
+                        dateTimeToDateOnly(bikeset.getString("purchaseDate")),
+                        bikeset.getInt("totalTrips")
                 ));
             }
 
@@ -391,13 +392,14 @@ public class DBH {
                         set.getDouble("price"),
                         set.getString("type"),
                         set.getDouble("batteryPercentage"),
-                        set.getInt("totalKM"),
+                        set.getInt("totalKm"),
                         new Location(
                                 set.getDouble("latitude"),
                                 set.getDouble("longitude")
                         ),
                         set.getInt("status"),
-                        dateTimeToDateOnly(set.getString("purchaseDate"))
+                        dateTimeToDateOnly(set.getString("purchaseDate")),
+                        set.getInt("totalTrips")
                 ));
             }
 
@@ -474,7 +476,6 @@ public class DBH {
         return bikes.toArray(new Bike[bikes.size()]);
     }
 
-
     /**
      * getLoggedBikes is the main method for getting ArrayList of Bike objects containing their latest location logged
      *
@@ -503,13 +504,14 @@ public class DBH {
                         bikeset.getDouble("price"),
                         bikeset.getString("type"),
                         bikeset.getDouble("batteryPercentage"),
-                        bikeset.getInt("totalKM"),
+                        bikeset.getInt("totalKm"),
                         new Location(
                                 bikeset.getDouble("latitude"),
                                 bikeset.getDouble("longitude")
                         ),
                         bikeset.getInt("status"),
-                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
+                        dateTimeToDateOnly(bikeset.getString("purchaseDate")),
+                        bikeset.getInt("totalTrips")
                 ));
             }
             stmt.close();
@@ -618,6 +620,7 @@ public class DBH {
 
     /**
      * updateBikeFromLog is method for taking care of updating distanceTraveled and batteryPercentage in the database.
+     * Requires the method calling this already having updated a DB object.
      *
      * @param   bike    the Bike object with all the values wanted to be updated
      * @return          a boolean based on the result of the query. True = OK, False = something went wrong.
@@ -670,18 +673,18 @@ public class DBH {
                 stmt.setDouble(2, bikes[i].getLocation().getLongitude());
                 stmt.setDouble(3, bikes[i].getLocation().getLatitude());
                 if(bikes[i].getLocation().getAltitude() != null){
-                    stmt.setDouble(4, bikes[i].getLocation().getAltitude());
+                    stmt.setInt(4, Integer.parseInt(bikes[i].getLocation().getAltitude().toString()));
                 } else{
-                    stmt.setDouble(4, map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()));
+                    stmt.setInt(4, Integer.parseInt(map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString()));
                 }
 
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());
-                stmt.setDouble(6, bikes[i].getDistanceTraveled());
+                stmt.setInt(6, bikes[i].getDistanceTraveled());
 
                 if(!execSQLBool(stmt)) {
                     bikesNotUpdated.add(bikes[i]);
-                    updateBikeFromLog(bikes[i]);
                 }
+                updateBikeFromLog(bikes[i]);
             }
             stmt.close();
             db.close();
@@ -789,10 +792,10 @@ public class DBH {
         }
     }
 
+
     /*
      * METHODS BELONGING TO THE DOCKING OBJECT.
      */
-
 
     /**
      * registerDocking takes in a Docking object which then will be turned into an sql query. This method returnes the PrimaryKey of the insert statement.
@@ -817,12 +820,19 @@ public class DBH {
             stmt.setDouble(3, dock.getLocation().getLatitude());
             stmt.setDouble(4, dock.getLocation().getLongitude());
 
+            int pk = execSQLPK(stmt);
+
+            if(pk > 0) {
+                generateDockingSlots(dock.getCapacity(), pk);
+            }
+
+            return pk;
 
         } catch(SQLException e) {
             forceClose();
             e.printStackTrace();
         }
-        return execSQLPK(stmt);
+        return -1;
     }
 
     /**
@@ -936,7 +946,6 @@ public class DBH {
         return null;
     }
 
-
     /**
      * rentBike is the method to be called by a Docking object to take care of all the required actions needed
      * when renting a bike
@@ -998,7 +1007,6 @@ public class DBH {
         return false;
     }
 
-
     /**
      * endRent is the opposite of rentBike. This method is to be used from a Docking object when a bike wants to dock to it.
      *
@@ -1050,7 +1058,6 @@ public class DBH {
         }
         return false;
     }
-
 
     /**
      * undockBike is used by rentBike() to take care of the undocking section of the query.
@@ -1115,7 +1122,6 @@ public class DBH {
         }
         return false;
     }
-
 
     /**
      * getAllDockingStationsWithBikes returns a Docking object array containing all information about the stations
@@ -1338,6 +1344,87 @@ public class DBH {
         return false;
     }
 
+    /* THIS IS NOT FINISHED!!
+     * updateDockingSlots takes care of removing slots when the amount is changed. This method is summoned by editDocking
+     *
+     * @param   amountToRemove  the amount to be changed, both positive and negative directions
+     * @param   stationID       the station where the amount is to be chagned
+     * @author Fredrik Mediaa
+     */
+    /*
+    private void updateDockingSlots(int amountToRemove, int stationID) {
+        connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return;
+            }
+
+            stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL and stationID = ?");
+
+
+            if(amountToRemove > 0) {
+                PreparedStatement stmtMax = db.prepareStatement("SELECT MAX(slotID) AS maxi FROM slots WHERE stationID = ?");
+                stmtMax.setInt(1, stationID);
+                ResultSet rsmax = execSQLRS(stmtMax);
+                if(rsmax.next()) {
+                    for(int i = amountToRemove; i > 0; i--) {
+                        PreparedStatement stmtDelete = db.prepareStatement("DELETE FROM slots WHERE slotID = ? AND stationID = ?");
+                        stmtDelete.setInt(1, rsmax.getInt("maxi") - i);
+                        stmtDelete.setInt(2, stationID);
+                        execSQLBool(stmtDelete);
+                        stmtDelete.close();
+                    }
+                }
+            }
+
+            stmt.setInt(1, stationID);
+
+            amountToRemove++;
+            PreparedStatement stmtAdd = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
+            stmtAdd.setInt(1, );
+            stmtAdd.setInt(2, stationID);
+
+            }
+
+            stmt.close();
+            db.close();
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+    }*/
+
+
+    /**
+     * generateDockingSlots is a method for generating all hte slots assosiated with the Docking object
+     *
+     * @param   amount      the capacity of the station
+     * @param   stationID   the stations ID
+     * @author Fredrik Mediaa
+     */
+    private void generateDockingSlots(int amount, int stationID) {
+        connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return;
+            }
+            stmt = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
+
+            for(int i = 0; i < amount; i++) {
+                stmt.setInt(1, i);
+                stmt.setInt(2, stationID);
+
+                execSQLBool(stmt);
+            }
+
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+    }
+
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
@@ -1400,7 +1487,7 @@ public class DBH {
                 String password = hasher.hash(user.getPassword(), salt);
 
                 stmt = db.prepareStatement("INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-                stmt.setInt(1, user.getUserClass());
+                stmt.setInt(1, User.ADMINISTRATOR);
                 stmt.setString(2, user.getEmail());
                 stmt.setString(3, password);
                 stmt.setString(4, salt);
@@ -1452,7 +1539,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ? AND status = ?");
+            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ? AND userTypeID = ?");
             stmt.setString(1, email);
             stmt.setInt(2, User.ADMINISTRATOR);
 
@@ -1592,6 +1679,68 @@ public class DBH {
         return false;
     }
 
+    /**
+     * forgottenPassword is a method for reseting a users password. This password will be automatically generated and updated.
+     *
+     * @param mail  the mail of the user where tue password is to be reset
+     * @return      a boolean based on the result. True = Password changed, False = Something went wrong
+     * @author Fredrik Mediaa
+     */
+    public boolean forgottenPassword(String mail) {
+        Hasher hasher = new Hasher();
+        if(!checkIfUserExist(mail)) {
+            connect();
+            PreparedStatement stmt = null;
+            try {
+                if(db == null) {
+                    return false;
+                }
+
+                Random rand = new Random();
+                char[] pwd = new char[10];
+                for (int i = 0; i < pwd.length; i++) {
+                    pwd[i] = (char) (rand.nextInt(121-33) + 33); //[33, 121] except 96
+                    if(pwd[i] == 96){
+                        i--;
+                    }
+                }
+                String pw = "";
+                for (int i = 0; i < pwd.length; i++) {
+                    pw += "" + pwd[i];
+                }
+
+                String salt = hasher.hashSalt(System.currentTimeMillis() + "");
+
+                String password = hasher.hash(pw, salt);
+
+                stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE email = ?");
+                stmt.setString(1, password);
+                stmt.setString(2, salt);
+                stmt.setString(3, mail);
+
+                boolean updated = execSQLBool(stmt);
+
+                if(updated) {
+                    User user = loginUser(mail, pw);
+
+                    String subj = "Changed password";
+
+                    String msg = "Hello, " + user.getFirstname() + "\nHere is your recovery password:\n\n" + pw + "\n\nPlease change it after you have logged.\n\n\nBest Regards,\nRentaBike Team";
+                    try {
+                        System.out.println("Sending mail!");
+                        new MailHandler(subj, mail, msg);
+                    } catch (MessagingException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                return true;
+            } catch(SQLException e) {
+                forceClose();
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
 
     /**
      * getUserByType is a base method for the the getmethods belonging to status.
@@ -1952,7 +2101,9 @@ public class DBH {
                 for(int id : bikeIDs) {
                     for (int j = 0; j < slots.length; j++) {
                         if(slots[j] != null) {
-                            Bike bike = new Bike(id, " ", 0.0, " ", 0.0, 0, null, 1, null);
+                            //DummyBike
+                            Bike bike = new Bike(id, " ", 0.0, " ", 0.0, 0, null, 1, null, 0);
+
                             endRent(bike, slots[j].getStation_id(), slots[j].getSlot_id());
                             slots[j] = null;
                             System.out.println("I GOT HERE WITH : " + id);
@@ -2020,8 +2171,5 @@ class BikeSlotPair{
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-
-        dbh.registerUser(new User(1,"Fredrik", "Mediaa", 47366074, "fredrikkarst@gmail.com", "+47"), false);
-
     }
 }

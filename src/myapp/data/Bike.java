@@ -40,7 +40,7 @@ public class Bike {
     }
 
     // To be used returned from DB
-    public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased){
+    public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased, int totalTrips){
         this.id = id;
         this.make = make;
         this.type = type;
@@ -50,6 +50,7 @@ public class Bike {
         this.location = location;
         this.distanceTraveled = distanceTraveled;
         this.status = status;
+        this.totalTrips = totalTrips;
     }
 
     // UNKNOWN USAGE
