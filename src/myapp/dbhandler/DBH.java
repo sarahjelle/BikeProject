@@ -670,13 +670,13 @@ public class DBH {
                 stmt.setDouble(2, bikes[i].getLocation().getLongitude());
                 stmt.setDouble(3, bikes[i].getLocation().getLatitude());
                 if(bikes[i].getLocation().getAltitude() != null){
-                    stmt.setDouble(4, bikes[i].getLocation().getAltitude());
+                    stmt.setInt(4, Integer.parseInt(bikes[i].getLocation().getAltitude().toString()));
                 } else{
-                    stmt.setDouble(4, map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()));
+                    stmt.setInt(4, Integer.parseInt(map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString()));
                 }
 
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());
-                stmt.setDouble(6, bikes[i].getDistanceTraveled());
+                stmt.setInt(6, bikes[i].getDistanceTraveled());
 
                 if(!execSQLBool(stmt)) {
                     bikesNotUpdated.add(bikes[i]);
@@ -1592,6 +1592,67 @@ public class DBH {
         return false;
     }
 
+    /**
+     * forgottenPassword is a method for reseting a users password. This password will be automatically generated and updated.
+     *
+     * @param mail  the mail of the user where tue password is to be reset
+     * @return      a boolean based on the result. True = Password changed, False = Something went wrong
+     */
+    public boolean forgottenPassword(String mail) {
+        Hasher hasher = new Hasher();
+        if(!checkIfUserExist(mail)) {
+            connect();
+            PreparedStatement stmt = null;
+            try {
+                if(db == null) {
+                    return false;
+                }
+
+                Random rand = new Random();
+                char[] pwd = new char[10];
+                for (int i = 0; i < pwd.length; i++) {
+                    pwd[i] = (char) (rand.nextInt(121-33) + 33); //[33, 121] except 96
+                    if(pwd[i] == 96){
+                        i--;
+                    }
+                }
+                String pw = "";
+                for (int i = 0; i < pwd.length; i++) {
+                    pw += "" + pwd[i];
+                }
+
+                String salt = hasher.hashSalt(System.currentTimeMillis() + "");
+
+                String password = hasher.hash(pw, salt);
+
+                stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE email = ?");
+                stmt.setString(1, password);
+                stmt.setString(2, salt);
+                stmt.setString(3, mail);
+
+                boolean updated = execSQLBool(stmt);
+
+                if(updated) {
+                    User user = loginUser(mail, pw);
+
+                    String subj = "Changed password";
+
+                    String msg = "Hello, " + user.getFirstname() + "\nHere is your recovery password:\n\n" + pw + "\n\nPlease change it after you have logged.\n\n\nBest Regards,\nRentaBike Team";
+                    try {
+                        System.out.println("Sending mail!");
+                        new MailHandler(subj, mail, msg);
+                    } catch (MessagingException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                return true;
+            } catch(SQLException e) {
+                forceClose();
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
 
     /**
      * getUserByType is a base method for the the getmethods belonging to status.
