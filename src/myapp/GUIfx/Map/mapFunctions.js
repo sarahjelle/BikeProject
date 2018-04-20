@@ -6,6 +6,10 @@ let markers = [];
 var docks = [];
 var dockMarkers = [];
 
+var infoWindows = [];
+
+var markerInfWList = [];
+
 
 function initMap() {
     var options = {
@@ -15,8 +19,6 @@ function initMap() {
     };
 
     map = new google.maps.Map(document.getElementById('map'), options);
-
-
 
     for (var i = 0; i < bikes.length; i++) {
         document.addMarker(bikes[i])
@@ -114,7 +116,14 @@ document.removeBike = function removeBike(id){
     }
 }
 
+document.addDocks = function addDocks(docking_stations){
+    for(var i = 0; i < docking_stations.length; i++){
+        document.addDock(docking_stations[i]);
+    }
+}
+
 document.addDock = function addDock(dock){
+
     var marker = new google.maps.Marker({
         position: {lat: dock.lat, lng: dock.lng},
         //icon: "http://google.com/mapfiles/kml/paddle" + dock.id + ".png",
@@ -122,9 +131,12 @@ document.addDock = function addDock(dock){
         id: dock.id
     });
     var present = false;
+    var presentAtIndex;
     for(var i = 0; i < docks.length; i++){
         if(docks[i].id == dock.id){
             present = true;
+            presentAtIndex = i;
+            break;
         }
     }
 
@@ -132,8 +144,11 @@ document.addDock = function addDock(dock){
         docks.push(dock);
         dockMarkers.push(marker);
         let infoWindow = new google.maps.InfoWindow({
-            content: "Dock id: " + dock.id
+            content: "Dock id: " + dock.id + "<br/>"
+            + "Address: " + dock.address + "<br/>"
+            + "Bikes docked: " + dock.docked + " / " + dock.capasity
         });
+        infoWindows.push({id: dock.id, inf: infoWindow});
         var counter = 0;
         google.maps.event.addListener(marker,'click',function(){
             if(counter == 0){
@@ -144,7 +159,42 @@ document.addDock = function addDock(dock){
                 counter = 0;
             }
         });
+        var element = {id: dock.id, marker: marker, infoW: infoWindow};
+        markerInfWList.push(element);
         //document.addMarker(dock);
+    } else{
+        docks[presentAtIndex] = dock;
+        var dockMarkerPresentAtIndex;
+        for(var i = 0; i < dockMarkers.length; i++){
+            if(dockMarkers[i].id == dock.id){
+                // Update marker position
+                dockMarkerPresentAtIndex = i;
+                dockMarkers[i].setPosition(new google.maps.LatLng(dock.lat,dock.lng))
+                break;
+            }
+        }
+        for(var i = 0; i < infoWindows.length; i++){
+            if(infoWindows[i].id == dock.id){
+                infoWindows[i].inf.setContent(
+                    "Dock id: " + dock.id + "<br/>"
+                    + "Address: " + dock.address + "<br/>"
+                    + "Bikes docked: " + dock.docked + " / " + dock.capasity
+                );
+                var counter = 0;
+                google.maps.event.addListener(dockMarkers[dockMarkerPresentAtIndex],'click',function(){
+                    if(counter == 0){
+                        infoWindows[i].inf.open(map,dockMarkers[dockMarkerPresentAtIndex]);
+                        counter = 1;
+                    } else if(counter == 1){
+                        infoWindows[i].inf.close(map,dockMarkers[dockMarkerPresentAtIndex]);
+                        counter = 0;
+                    }
+                });
+                marker.setMap(null);
+                marker = null;
+                break;
+            }
+        }
     }
 }
 
