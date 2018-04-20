@@ -59,12 +59,36 @@ public class GenerateStats {
         return availStats;
     }
 
-    public int[][] bikeStats(){
-        int[][] bikeStatistics = new int[3][bikes.size()];
-        for (int i=0; i<bikes.size(); i++){
-            bikeStatistics[0][i]=bikes.get(i).getId();
-            bikeStatistics[1][i]=bikes.get(i).getDistanceTraveled();
-            bikeStatistics[2][i]=bikes.get(i).getTotalTrips();
+    public Object[][] bikeStats(){
+        Object[][] bikeStatistics = new Object[3][docks.size()];
+        int totkm=0;
+        int tottrips=0;
+        double aveKm=0;
+        double aveTrip=0;
+        Bike[] bikesAtDock;
+        for (int i=0; i<docks.size(); i++){
+            totkm = 0;
+            tottrips = 0;
+            aveKm=0;
+            aveTrip=0;
+            if (docks.get(i)!=null && docks.get(i).getBikes()!=null) {
+                bikesAtDock = docks.get(i).getBikes();
+                int count=0;
+                for (int j = 0; j < bikesAtDock.length; j++) {
+                    if (bikesAtDock[j] != null) {
+                        count++;
+                        totkm += (double)bikesAtDock[j].getDistanceTraveled();
+                        tottrips += (double)bikesAtDock[j].getTotalTrips();
+                    }
+                }
+                if(count > 0) {
+                    aveKm = totkm/count;
+                    aveTrip = tottrips/count;
+                }
+            }
+            bikeStatistics[0][i] = docks.get(i).getName().split(",")[0];
+            bikeStatistics[1][i] = aveKm;
+            bikeStatistics[2][i] = aveTrip;
         }
         return bikeStatistics;
     }

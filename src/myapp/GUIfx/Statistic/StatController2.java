@@ -29,7 +29,7 @@ public class StatController2 {
     private BarChart<String, Number> dockStat;
     @FXML
     private BorderPane stat3Pane;
-    private BarChart<String, Number> bikeStat;
+    private ScatterChart<String,Number> bikeStat;
     @FXML
     private GenerateStats stats = new GenerateStats();
 
@@ -127,9 +127,9 @@ public class StatController2 {
                 if(pieChart == null){
                     ObservableList<PieChart.Data> pieChartData =
                             FXCollections.observableArrayList(
-                                    new PieChart.Data("Available", bikeAv[0]),
                                     new PieChart.Data("On trip", bikeAv[1]),
-                                    new PieChart.Data("In repair", bikeAv[2]));
+                                    new PieChart.Data("In repair", bikeAv[2]),
+                                    new PieChart.Data("Available", bikeAv[0]));
                     pieChart = new PieChart(pieChartData);
                     pieChart.setTitle("");
 
@@ -171,38 +171,48 @@ public class StatController2 {
 
         public void run(){
             while(!stop){
-                int[] cap = stats.dockCapacity();
-                String[] name = stats.dockingName();
+                Object[][] dockStats = stats.dockingStatistics();
 
                 if(dockStat == null){
                     CategoryAxis xAxis = new CategoryAxis();
-                    xAxis.setLabel("Docking station name");
-                    NumberAxis yAxis = new NumberAxis();
-                    yAxis.setLabel("Bikes docked");
-                    XYChart.Series<String, Number> dock = new XYChart.Series();
-                    XYChart.Series<String, Number> capacity = new XYChart.Series();
-                    for (int i=0; i<cap.length; i++){
-                        dock.getData().add(new XYChart.Data(name[i], cap[i]));
-                        //capacity.getData().add(new XYChart.Data());
+                    xAxis.setLabel("Docking station");
+                    NumberAxis yAxis = new NumberAxis(0,100,5);
+                    yAxis.setLabel("Slots");
+                    XYChart.Series<String, Number> cap = new XYChart.Series();
+                    XYChart.Series<String, Number> taken = new XYChart.Series();
+                    for (int i=0; i<dockStats[0].length; i++){
+                        cap.getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
+                        taken.getData().add(new XYChart.Data(dockStats[0][i],dockStats[2][i]));
                     }
                     dockStat = new BarChart<>(xAxis,yAxis);
-                    dockStat.getData().addAll(dock);
+                    dockStat.getData().addAll(cap,taken);
+                    cap.setName("Total number of slots");
+                    taken.setName("Occupied slots");
                     Platform.runLater(() -> {
                         stat2Pane.setCenter(dockStat);
                     });
                 } else{
                     // Update already present columns
+                    // HJELP MARTIN, nå er det to series som må oppdateres
                     int valueCounter = 0;
+                    int seriesCounter = 0;
                     for(XYChart.Series<String, Number> data : dockStat.getData()){
                         for(XYChart.Data<String, Number> d : data.getData()){
-                            d.setYValue(cap[valueCounter]);
+                            if(seriesCounter == 0){
+                                d.setYValue((int)dockStats[1][valueCounter]);
+                            } else if(seriesCounter == 1){
+                                d.setYValue((int)dockStats[2][valueCounter]);
+                            }
                             valueCounter++;
                         }
+                        seriesCounter++;
                     }
                     // Add columns that are not present
-                    for(int i = dockStat.getData().size(); i < cap.length; i++){
+                    for(int i = dockStat.getData().size(); i < dockStats[0].length; i++){
+                        // TO SERIER, virker dette??
                         // There is only one data-series, so get(0) works
-                        dockStat.getData().get(0).getData().add(new XYChart.Data(name[i], cap[i]));
+                        dockStat.getData().get(0).getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
+                        dockStat.getData().get(1).getData().add(new XYChart.Data(dockStats[0][i], dockStats[2][i]));
                     }
                 }
 
@@ -235,42 +245,44 @@ public class StatController2 {
 
         public void run(){
             while(!stop){
-                int[][] bStats = stats.bikeStats();
+                Object[][] bStats = stats.bikeStats();
+                //int[][] bStats = {{1,2,3,4,5,6,7,8,9,10}, {1,12,16,11,9,3,1,6,3,9}, {1,3,6,2,4,3,1,2,8,2}};
                 if(bikeStat == null){
                     last_update_size = bStats[0].length;
-                    CategoryAxis xAxis = new CategoryAxis();
-                    xAxis.setLabel("BikeId");
-                    NumberAxis yAxis = new NumberAxis();
-                    yAxis.setLabel("Value");
-                    //XYChart.Series distTrav = new XYChart.Series();
-                    //distTrav.setName("Distance travelled");
-                    //XYChart.Series totTrips = new XYChart.Series();
-                    //totTrips.setName("Total number of trips");
-                    XYChart.Series battery = new XYChart.Series();
-                    battery.setName("Battery percentage");
+                    final CategoryAxis xAxis = new CategoryAxis();
+                    xAxis.setLabel("Docking station");
+                    NumberAxis yAxis = new NumberAxis(0,1,.1);
+                    yAxis.setLabel("Average value");
+                    XYChart.Series totkm = new XYChart.Series();
+                    totkm.setName("Average total km for docked bikes");
+                    XYChart.Series tottrip = new XYChart.Series();
+                    tottrip.setName("Average number of total trips for docked bikes");
                     for (int i=0; i<bStats[0].length; i++){
-                        //distTrav.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[1][i]));
-                        //totTrips.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[2][i]));
-                        battery.getData().add(new XYChart.Data(String.valueOf(bStats[0][i]), bStats[3][i]));
+                        totkm.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+                        tottrip.getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
                     }
-                    bikeStat = new BarChart<>(xAxis,yAxis);
-                    //bikeStat.getData().addAll(distTrav,totTrips,battery);
-                    bikeStat.getData().addAll(battery);
+                    bikeStat = new ScatterChart<>(xAxis,yAxis);
+                    bikeStat.getData().addAll(totkm,tottrip);
                     Platform.runLater(() -> {
                         stat3Pane.setCenter(bikeStat);
                     });
                 } else if(bStats[0].length != last_update_size){
                     //More bikes has been registered
                     for (int i = bikeStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
-                        bikeStat.getData().get(0).getData().addAll(new XYChart.Data<>(String.valueOf(bStats[0][i]), bStats[3][i]));
+                        bikeStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+                        bikeStat.getData().get(1).getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
                     }
                 } else{
                     int valueCounter = 0;
-                    int seriesCounter = 1;
+                    int seriesCounter = 0;
                     int bikeCounter = 0;
                     for(final XYChart.Series<String, Number> dataSeries : bikeStat.getData()){
-                        for(final XYChart.Data<String, Number> data : dataSeries.getData()){
-                            data.setYValue(bStats[3][valueCounter]);
+                        for(final XYChart.Data<String, Number> data : dataSeries.getData()) {
+                            if (seriesCounter == 0) {
+                                data.setYValue((double)bStats[1][valueCounter]);
+                            } else if (seriesCounter == 1) {
+                                data.setYValue((double)bStats[2][valueCounter]);
+                            }
                             valueCounter++;
                         }
                         seriesCounter++;
