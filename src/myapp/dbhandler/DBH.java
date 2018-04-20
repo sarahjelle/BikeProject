@@ -1019,7 +1019,6 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean endRent(Bike bike, int dockID, int spot){
-        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -1029,14 +1028,15 @@ public class DBH {
             stmt.setInt(1, dockID);
             stmt.setInt(2, bike.getId());
 
-            if(execSQLBool(stmt)) {
-                if(dockBike(bike, dockID, spot)) {
+            if(dockBike(bike, dockID, spot)) {
+                connect();
+                if(execSQLBool(stmt)) {
                     stmt.close();
                     db.close();
                     connect();
-                    bike.setStatus(Bike.AVAILABLE);
+                    bike = getBikeByID(bike);
                     stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
-                    if(bike.getStatus() != Bike.TRIP){
+                    if(bike.getStatus() == Bike.TRIP){
                         stmt.setInt(1, Bike.AVAILABLE);
                     } else{
                         stmt.setInt(1, bike.getStatus());
