@@ -148,8 +148,8 @@ public class StatController2 {
                 if(pieChart == null){
                     ObservableList<PieChart.Data> pieChartData =
                             FXCollections.observableArrayList(
-                                    new PieChart.Data("On trip", bikeAv[1]),
                                     new PieChart.Data("In repair", bikeAv[2]),
+                                    new PieChart.Data("On trip", bikeAv[1]),
                                     new PieChart.Data("Available", bikeAv[0]));
                     pieChart = new PieChart(pieChartData);
                     pieChart.setTitle("");
@@ -159,10 +159,10 @@ public class StatController2 {
                     });
                 } else{
                     //pieChart.getData().clear();
-                    int valueCounter = 0;
+                    int valueCounter = 2;
                     for(final PieChart.Data data : pieChart.getData()){
                         data.setPieValue(bikeAv[valueCounter]);
-                        valueCounter++;
+                        valueCounter--;
                     }
                 }
                 try{

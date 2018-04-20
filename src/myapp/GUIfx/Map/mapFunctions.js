@@ -1,6 +1,6 @@
 var map;
 var bikes = [];
-var centerPos = {lat: 63.429148, lng: 10.392461};
+var centerPos = {lat: 63.427800, lng: 10.421447};
 let markers = [];
 
 var docks = [];
@@ -13,7 +13,7 @@ var markerInfWList = [];
 
 function initMap() {
     var options = {
-        zoom: 13,
+        zoom: 12,
         center: centerPos,
         disableDefaultUI: true
     };
