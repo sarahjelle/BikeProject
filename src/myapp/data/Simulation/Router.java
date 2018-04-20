@@ -1,28 +1,26 @@
 package myapp.data.Simulation;
-import com.sun.org.apache.xpath.internal.SourceTree;
+
 import myapp.GUIfx.Map.*;
 import myapp.data.*;
 import myapp.dbhandler.*;
 
-import javax.print.Doc;
-
 public class Router implements Runnable{
     private Boolean stop = false;
+    private MapsAPI map = new MapsAPI();
     private final User customer;
     private final Bike bikeToMove;
     private Location start;
     private Docking startStation;
     private Docking end;
-    private Location[] WayPoints; //WayPoints[0] = start, WayPoints[WayPoints.length -1] = end
+    private Location[] WayPoints;
     private boolean hasArrived = false;
     private boolean isDocked = false;
-    private static int UPDATE_INTERVAL = 60000; //milliseconds
-
-    private MapsAPI map = new MapsAPI();
-    private final double AVRG_BIKE_SPEED = 0.4305; // m/s
+    private static int UPDATE_INTERVAL = 60000; // millis
     private static final double ERROR_TOLERANCE = 0.0000001;
-    private int WayPointsIterator = 1;
+    private static final double AVRG_BIKE_SPEED = 0.4305; // m/s
 
+
+    private int WayPointsIterator = 1;
     private long StartTime = -1; //Time when starting a step
     private long TotalStartTime = -1;
     private long TotalTime = -1;
@@ -48,30 +46,20 @@ public class Router implements Runnable{
         if(WayPoints == null || WayPoints.length <= 0){
             hasArrived = true;
             stop = true;
-        } else{
-            /*
-            for (int i = 0; i < WayPoints.length - 1; i++) {
-                bikeToMove.setDistanceTraveled((int)getDistance(WayPoints[i], WayPoints[i+1]));
-            }
-            */
         }
         this.startStation = start;
         System.out.println("ROUTER CREATED: ");
-        System.out.println("User: ");
-        System.out.println(customer.toString() + "\n");
-        System.out.println("Bike: ");
-        System.out.println(bikeToMove.toString() + "\n");
-        System.out.println("Start station: ");
-        System.out.println(startStation.toString() + "\n");
-        System.out.println("End station: ");
-        System.out.println(end.toString() + "\n");
+        System.out.println("User: " + customer.getUserID() + " " + customer.getFirstname() + " " + customer.getLastname());
+        System.out.println("Bike: " + bikeToMove.getId());
+        System.out.println("Start station: " + startStation.getId() + " " + startStation.getName());
+        System.out.println("End station: " + end.getId() + " " + end.getName());
+        System.out.println();
     }
 
     public void run(){
         long StartTime = System.currentTimeMillis();
         while(!stop){
             if(!hasArrived){
-                //System.out.println("ROUTING bike: " + bikeToMove.toString());
                 move();
                 try{
                     Thread.sleep(2000);
@@ -83,9 +71,6 @@ public class Router implements Runnable{
                     DBH handler = new DBH();
                     Bike[] arr = {bikeToMove};
                     Bike[] ret = handler.logBikes(arr);
-                    if(ret == null || ret.length <= 0){
-                        //System.out.println("Updated bike location to DB: " + bikeToMove.toString());
-                    }
                     StartTime = System.currentTimeMillis();
                 }
             } else{
@@ -175,8 +160,6 @@ public class Router implements Runnable{
 
                     double newLat = latAt + latChange;
                     double newLng = lngAt + lngChange;
-                    //double newAlt = map.getAltitude(newLat, newLng);
-                    //String address = map.getAddress(newLat, newLng);
                     //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
                     bikeToMove.setLocation(new Location(null, newLat, newLng));
                     bikeToMove.setDistanceTraveled((int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000);
@@ -258,20 +241,6 @@ public class Router implements Runnable{
         } else {
         }
         return WP;
-    }
-
-    /*
-    public void resetStartLocation(){
-        this.start = bikeToMove.getLocation();
-    }
-    */
-
-    public void resetHasArrived(){
-        this.hasArrived = false;
-    }
-
-    public void setRunnable(){
-        this.stop = false;
     }
 
     public Docking getStartStation(){
