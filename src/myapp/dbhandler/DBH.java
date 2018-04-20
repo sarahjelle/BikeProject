@@ -1,6 +1,6 @@
 /*
  * This file contains all the functions regarding all communication with the database.
- * @author Fredrik Mediå
+ * @author Fredrik Mediaa
  */
 
 package myapp.dbhandler;
@@ -23,6 +23,16 @@ import javax.mail.MessagingException;
 import javax.print.Doc;
 
 import static myapp.data.User.*;
+
+/**
+ * DBH is the systems DataBaseHandler. This means that every insert, delete, update or
+ * select query to the DB goes through this object. This is to ensure opening and closing all
+ * connections to the DB is done correctly. We also accomplish a tidy way of doing DB management.
+ *
+ * @author Fredrik Mediaa
+ * @author Martin Moan
+ */
+
 public class DBH {
 
     private Connection db = null;
@@ -32,27 +42,37 @@ public class DBH {
     private String password = "IOFa0YRq";
     private String database = "fredrmed";
 
-    public DBH() { }
-
     /*
      * CONNECTION METHOD.
      */
-    private Connection connect() {
+
+    /**
+     * Connect takes no parameters and is used to create a connection to the database details listed in private attributes for DBH.
+     * It also takes care of setAutoCommit to false.
+     *
+     * @author Fredrik Mediaa
+     */
+    private void connect() {
         try {
-            if(db != null) {
+            if (db != null) {
                 db.close();
             }
             Connection DBCon = DriverManager.getConnection("jdbc:mysql://" + host + "/" + database + "?" + "user=" + username + "&password=" + password + "&useSSL=false");
             DBCon.setAutoCommit(false);
-            return DBCon;
+            db = DBCon;
 
         } catch (SQLException e) {
             // Handling any errors
             e.printStackTrace();
         }
-        return null;
     }
 
+    /**
+     * forceClose takes no parameters and is used to make sure every methods in the DBH object closes the connection whenever it is done communicating.
+     * It also rollback any changes done to the DB which haven't been executed.
+     *
+     * @author Fredrik Mediaa
+     */
     private void forceClose() {
         try {
             if(db != null) {
@@ -67,26 +87,30 @@ public class DBH {
     /*
      * TRANSLATION FOR TIME AND DATE.
      */
-    private String dateTranslate(LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return date.format(formatter);
-    }
 
-    // May not be necessary since LocalDate dont use time
-    private String dateTimeTranslate(LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        return date.format(formatter);
-    }
-
+    /**
+     * dateTimeToDateOnly is a conversion method for converting a String formatted like yyyy-MM-dd hh:mm:ss to a LocalDate object.
+     *
+     * @param   datetime    the String containing both date and time.
+     * @return              the LocalDate object created with details from datetime.
+     * @author Fredrik Mediaa
+     */
     private LocalDate dateTimeToDateOnly(String datetime) {
         String date[] = datetime.split(" ")[0].split("-");
         return LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
     }
 
-    private LocalDate dateToLocalDate(String datetime) {
-        if(datetime != null) {
-        String date[] = datetime.split("-");
-        return LocalDate.of(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+    /**
+     * dateToLocalDate is a conversion method for converting a String formatted like yyyy-MM-dd to a LocalDate object.
+     *
+     * @param   date        the String containing only date.
+     * @return              the LocalDate object created from the details from date.
+     * @author Fredrik Mediaa
+     */
+    private LocalDate dateToLocalDate(String date) {
+        if(date != null) {
+            String dateArr[] = date.split("-");
+            return LocalDate.of(Integer.parseInt(dateArr[0]), Integer.parseInt(dateArr[1]), Integer.parseInt(dateArr[2]));
         }
         return null;
     }
@@ -96,7 +120,16 @@ public class DBH {
     /*
      * EXECUTE SQL QUERIES.
      */
-    private boolean execSQLBool(PreparedStatement sql, Connection db) {
+
+    /**
+     * execSQLBool is a query execution method returning a boolean based on the results from the sql query.
+     *
+     * @param   sql     the statement prepared on beforehand.
+     * @return          boolean based on the result from the query. True = OK, False = something went wrong.
+     * @see PreparedStatement
+     * @author Fredrik Mediaa
+     */
+    private boolean execSQLBool(PreparedStatement sql) {
         try {
             sql.executeUpdate();
             db.commit();
@@ -114,7 +147,15 @@ public class DBH {
         }
     }
 
-    private int execSQLPK(PreparedStatement sql, Connection db) {
+    /**
+     * execSQLPK is a query execution method returning the PrimaryKey of an insert query
+     *
+     * @param   sql     the statement prepared on beforehand.
+     * @return          an int based on the result from the insert query.
+     * @see PreparedStatement
+     * @author Fredrik Mediaa
+     */
+    private int execSQLPK(PreparedStatement sql) {
         try {
             int affectedRows = sql.executeUpdate();
             if (affectedRows == 0) {
@@ -141,6 +182,15 @@ public class DBH {
         }
     }
 
+    /**
+     * execSQLRS is a query execution method returning a ResultSet based on results from the sql query
+     *
+     * @param   sql     the statement prepared on beforehand.
+     * @return          returns a ResultSet with all results from DB.
+     * @see ResultSet
+     * @see PreparedStatement
+     * @author Fredrik Mediaa
+     */
     private ResultSet execSQLRS(PreparedStatement sql) {
         try {
             return sql.executeQuery();
@@ -155,8 +205,17 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE BIKE OBJECT.
      */
+
+    /**
+     * registerBike is a function taking care of inserting new entries into the database in relation to the Bike object.
+     *
+     * @param   bike    the bike that is ready to be registered in the database.
+     * @return          returns the PrimaryKey also known as the bikes ID
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
     public int registerBike(Bike bike) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -175,16 +234,36 @@ public class DBH {
             e.printStackTrace();
             forceClose();
         }
-        return execSQLPK(stmt, db);
+        return execSQLPK(stmt);
     }
 
+    /**
+     * getAllBikesOA is a helper method for the original getAllBikes. This method just converts the ArrayList of Bike into a normal array
+     *
+     * @return          returns a normal Bike[] array of all bikes
+     * @author Fredrik Mediaa
+     */
     public Bike[] getAllBikesOA() {
         ArrayList<Bike> bikes = getAllBikes();
         return bikes.toArray(new Bike[bikes.size()]);
     }
 
+    /**
+     * getAllBikes is the original method and is to be used when looking for all bikes registered in the database.
+     * It takes care of gathering all repairs belonging to every specific bike and pairing them together.
+     * It also takes care of the location for each bike. Docked bikes will get location from Docking station, while bikes
+     * out and about will have the latest logged location.
+     * <p>
+     * Because of GUI mainly use ArrayLists I decided to return this.
+     *
+     * @return          returns an ArrayList of the object Bike
+     * @see Bike
+     * @see ArrayList
+     * @see Repair
+     * @author Fredrik Mediaa
+     */
     public ArrayList<Bike> getAllBikes() {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -200,13 +279,14 @@ public class DBH {
                         bikeset.getDouble("price"),
                         bikeset.getString("type"),
                         bikeset.getDouble("batteryPercentage"),
-                        bikeset.getInt("totalKM"),
+                        bikeset.getInt("totalKm"),
                         new Location(
                                 bikeset.getDouble("latitude"),
                                 bikeset.getDouble("longitude")
                         ),
                         bikeset.getInt("status"),
-                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
+                        dateTimeToDateOnly(bikeset.getString("purchaseDate")),
+                        bikeset.getInt("totalTrips")
                 ));
             }
 
@@ -236,21 +316,46 @@ public class DBH {
         return null;
     }
 
-    public Bike getBikeByID(Bike bikeToFind) {
+    /**
+     * getBikeByID finds a bike and returns it based on the ID passed in.
+     *
+     * @param   bikeToFind  the bike that should be found in the database.
+     * @return              the bike in its full detail updated by the database.
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
+    public Bike getBikeByID(int bikeToFind) {
         ArrayList<Bike> bikes = getAllBikes();
         for(Bike bike : bikes) {
-            if (bike.getId() == bikeToFind.getId()) {
+            if (bike.getId() == bikeToFind) {
                 return bike;
             }
         }
         return null;
     }
 
-    public Bike getBikeByID(int bikeID) {
-        Bike bike = new Bike(bikeID, null, 0.0, null, 0.0, 0, null, 1, null);
-        return getBikeByID(bike);
+    /**
+     * getBikeByID is a method for passing in a Bike object.
+     * This object bikeID will be sent to the original method taking care returning the bike asked for.
+     *
+     * @param   bike    the Bike object wanted to be found in the database.
+     * @return          returns the bike with new details updated from database.
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
+    public Bike getBikeByID(Bike bike) {
+        return getBikeByID(bike.getId());
     }
 
+    /**
+     * getBikesByStatus is a method for passing in a spesific status id. This method returns an ArrayList of Bikes containing this status.
+     *
+     * @param   status  the status id of bikes wanted to be returned
+     * @return          ArrayList of Bike objects filtrated by status id
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     private ArrayList<Bike> getBikesByStatus(int status) {
         ArrayList<Bike> bikes = getAllBikes();
         ArrayList<Bike> result = new ArrayList<>();
@@ -262,8 +367,16 @@ public class DBH {
         return result;
     }
 
+    /**
+     * getAllBikesOnTrip returns an ArrayList of Bike objects which has status Bike.TRIP.
+     *
+     * @return          the ArrayList of Bike objects
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public Bike[] getAllBikesOnTrip(){
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> outList = new ArrayList<>();
         try{
@@ -279,13 +392,14 @@ public class DBH {
                         set.getDouble("price"),
                         set.getString("type"),
                         set.getDouble("batteryPercentage"),
-                        set.getInt("totalKM"),
+                        set.getInt("totalKm"),
                         new Location(
                                 set.getDouble("latitude"),
                                 set.getDouble("longitude")
                         ),
                         set.getInt("status"),
-                        dateTimeToDateOnly(set.getString("purchaseDate"))
+                        dateTimeToDateOnly(set.getString("purchaseDate")),
+                        set.getInt("totalTrips")
                 ));
             }
 
@@ -301,82 +415,77 @@ public class DBH {
         return null;
     }
 
+
+    /**
+     * Official method for getting an ArrayList of Bike objects with status Bike.AVAILABLE
+     *
+     * @return          ArrayList of Bike objects
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<Bike> getBikesWithStatusAvailable() {
-        return getBikesByStatus(1);
+        return getBikesByStatus(Bike.AVAILABLE);
     }
 
+    /**
+     * Official method for getting an ArrayList of Bike objects with status Bike.TRIP
+     *
+     * @return          ArrayList of Bike objects
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<Bike> getBikesWithStatusInTrip() {
-        return getBikesByStatus(2);
+        return getBikesByStatus(Bike.TRIP);
     }
 
+    /**
+     * Official method for getting an ArrayList of Bike objects with status Bike.REPAIR
+     *
+     * @return          ArrayList of Bike objects
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<Bike> getBikesWithStatusRepair() {
-        return getBikesByStatus(3);
+        return getBikesByStatus(Bike.REPAIR);
     }
 
+    /**
+     * Official method for getting an ArrayList of Bike objects with status Bike.DELETE
+     *
+     * @return          ArrayList of Bike objects
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<Bike> getBikesWithStatusSoftDelete() {
-        return getBikesByStatus(4);
+        return getBikesByStatus(Bike.DELETE);
     }
 
-    private ArrayList<Bike> localGetBikes() {
-        db = connect();
-        PreparedStatement stmt = null;
-        try {
-            if(db == null) {
-                return null;
-            }
-
-            stmt = db.prepareStatement("SELECT b.bikeID, b.make, b.type, b.price, b.status, b.purchaseDate, l.logTime, l.batteryPercentage, l.latitude, l.longitude, l.totalKM FROM bikes b INNER JOIN (SELECT bikeID, MAX(logTime) AS NewestEntry FROM bike_logs GROUP BY bikeID) am ON b.bikeID = am.bikeID INNER JOIN bike_logs l ON am.bikeID = l.bikeID AND am.NewestEntry = l.logTime UNION SELECT bikeID, make, type, price, status, purchaseDate, NULL AS logTime, '0' AS batteryPercentage, '0' AS latitude, '0' AS longitude, '0' AS totalKM FROM bikes c WHERE c.bikeID NOT IN (SELECT bikeID FROM bike_logs)");
-            ResultSet bikeset = execSQLRS(stmt);
-            ArrayList<Bike> bikes = new ArrayList<>();
-            while(bikeset.next()) {
-                bikes.add(new Bike(
-                        bikeset.getInt("bikeID"),
-                        bikeset.getString("make"),
-                        bikeset.getDouble("price"),
-                        bikeset.getString("type"),
-                        bikeset.getDouble("batteryPercentage"),
-                        bikeset.getInt("totalKM"),
-                        new Location(
-                                bikeset.getDouble("latitude"),
-                                bikeset.getDouble("longitude")
-                        ),
-                        bikeset.getInt("status"),
-                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
-                ));
-            }
-
-            Repair[] repairs = getAllRepairs();
-            for(Bike bike : bikes) {
-                ArrayList<Repair> localRep = new ArrayList<>();
-                for(Repair locRep : repairs) {
-                    if(locRep.getBikeID() == bike.getId()) {
-                        localRep.add(locRep);
-                    }
-                }
-                if(localRep.size() > 0) {
-                    Repair[] toUse = new Repair[localRep.size()];
-                    toUse = localRep.toArray(toUse);
-                    bike.setRepairs(toUse);
-                }
-            }
-
-            stmt.close();
-            db.close();
-            return bikes;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    /**
+     * getLoggedBikesOA is an alternative method for getLoggedBikes to get an normal Bike array instead of ArrayList
+     *
+     * @return          returns an normal Bike array
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
     public Bike[] getLoggedBikesOA() {
         ArrayList<Bike> bikes = getLoggedBikes();
         return bikes.toArray(new Bike[bikes.size()]);
     }
 
+    /**
+     * getLoggedBikes is the main method for getting ArrayList of Bike objects containing their latest location logged
+     *
+     * @return          returns an ArrayList of Bike objects with the latest updated Locations
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<Bike> getLoggedBikes() {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -395,13 +504,14 @@ public class DBH {
                         bikeset.getDouble("price"),
                         bikeset.getString("type"),
                         bikeset.getDouble("batteryPercentage"),
-                        bikeset.getInt("totalKM"),
+                        bikeset.getInt("totalKm"),
                         new Location(
                                 bikeset.getDouble("latitude"),
                                 bikeset.getDouble("longitude")
                         ),
                         bikeset.getInt("status"),
-                        dateTimeToDateOnly(bikeset.getString("purchaseDate"))
+                        dateTimeToDateOnly(bikeset.getString("purchaseDate")),
+                        bikeset.getInt("totalTrips")
                 ));
             }
             stmt.close();
@@ -414,18 +524,26 @@ public class DBH {
         return null;
     }
 
+    /**
+     * deleteBike use the softDelete status int Bike.DELETE to update the bike of the specific ID.
+     *
+     * @param   id      the ID of the bike which should be soft deleted.
+     * @return          boolean based on the result from the query. True = OK, False = something went wrong.
+     * @author Fredrik Mediaa
+     */
     public boolean deleteBike(int id) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return false;
             }
-            stmt = db.prepareStatement("UPDATE bikes SET status = 4 WHERE bikeID = ?");
+            stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
 
-            stmt.setInt(1, id);
+            stmt.setInt(1, Bike.DELETE);
+            stmt.setInt(2, id);
 
-            if(!execSQLBool(stmt, db)) {
+            if(!execSQLBool(stmt)) {
                 stmt.close();
                 db.close();
                 return false;
@@ -440,12 +558,28 @@ public class DBH {
         return false;
     }
 
+    /**
+     * deleteBike is an alternative method where passing in a Bike object returns the same as if it was only passed an int with id
+     *
+     * @param   bike    the Bike object which is supposed to be deleted
+     * @return          boolean based on the result from the query. True = OK, False = something went wrong.
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
     public boolean deleteBike(Bike bike) {
         return deleteBike(bike.getId());
     }
 
+    /**
+     * updateBike fully updates the database to match the Bike object passed in.
+     *
+     * @param   bike    the Bike object wanted to be mirrored in the database
+     * @return          boolean based on the result from the query. True = OK, False = something went wrong.
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
     public boolean updateBike(Bike bike) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -469,7 +603,7 @@ public class DBH {
                 stmt.setInt(6, bike.getId());
             }
 
-            if(!execSQLBool(stmt, db)) {
+            if(!execSQLBool(stmt)) {
                 stmt.close();
                 db.close();
                 return false;
@@ -484,18 +618,28 @@ public class DBH {
         return false;
     }
 
-    private void updateBikeTotalDistance(Bike bike) {
+    /**
+     * updateBikeFromLog is method for taking care of updating distanceTraveled and batteryPercentage in the database.
+     * Requires the method calling this already having updated a DB object.
+     *
+     * @param   bike    the Bike object with all the values wanted to be updated
+     * @return          a boolean based on the result of the query. True = OK, False = something went wrong.
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
+    private void updateBikeFromLog(Bike bike) {
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return;
             }
 
-            stmt = db.prepareStatement("UPDATE bikes SET totalKm = ? WHERE bikeID = ?");
+            stmt = db.prepareStatement("UPDATE bikes SET totalKm = ?, batteryPercentage = ? WHERE bikeID = ?");
             stmt.setInt(1, bike.getDistanceTraveled());
-            stmt.setInt(2, bike.getId());
+            stmt.setDouble(2, bike.getBatteryPercentage());
+            stmt.setInt(3, bike.getId());
 
-            execSQLBool(stmt, db);
+            execSQLBool(stmt);
 
             stmt.close();
         } catch(SQLException e) {
@@ -504,8 +648,17 @@ public class DBH {
         }
     }
 
+    /**
+     * logBikes takes in a Bike array and loops through creating sql insert queries for each one. Bike objects failed to insert
+     * will be returned in a Bike array.
+     *
+     * @param   bikes   a Bike object array with all bikes containing the information to be logged
+     * @return          a Bike object array of failed bikes.
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
     public Bike[] logBikes(Bike[] bikes) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> bikesNotUpdated = new ArrayList<>();
         Bike[] toReturn = null;
@@ -520,24 +673,18 @@ public class DBH {
                 stmt.setDouble(2, bikes[i].getLocation().getLongitude());
                 stmt.setDouble(3, bikes[i].getLocation().getLatitude());
                 if(bikes[i].getLocation().getAltitude() != null){
-                    //Integer intAlt = Integer.valueOf((int)(double));
-                    int iAlt = (int)(double) bikes[i].getLocation().getAltitude();
-                    double actAlt = iAlt;
-                    //stmt.setDouble(4, actAlt);
+                    stmt.setInt(4, Integer.parseInt(bikes[i].getLocation().getAltitude().toString()));
                 } else{
-                    //Integer intAlt = Integer.valueOf((int)(double));
-                    int iAlt = (int)(double) map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude());
-                    double actAlt = iAlt;
-                    //stmt.setDouble(4, actAlt);
+                    stmt.setInt(4, Integer.parseInt(map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString()));
                 }
                 stmt.setDouble(4, 0.0);
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());
-                stmt.setDouble(6, bikes[i].getDistanceTraveled());
+                stmt.setInt(6, bikes[i].getDistanceTraveled());
 
-                if(!execSQLBool(stmt, db)) {
+                if(!execSQLBool(stmt)) {
                     bikesNotUpdated.add(bikes[i]);
-                    updateBikeTotalDistance(bikes[i]);
                 }
+                updateBikeFromLog(bikes[i]);
             }
             stmt.close();
             db.close();
@@ -549,8 +696,15 @@ public class DBH {
         return bikes;
     }
 
+    /**
+     * getBikeMakes returns all the different makes as an ArrayList of String objects.
+     *
+     * @return      ArrayList of String objects with all the different makes.
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<String> getBikeMakes() {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -574,8 +728,15 @@ public class DBH {
         return null;
     }
 
+    /**
+     * getBikeTypes returnes all the different types as an ArrayList of String objects.
+     *
+     * @return      ArrayList of String objects with all the different types.
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<String> getBikeTypes() {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -599,8 +760,15 @@ public class DBH {
         return null;
     }
 
+    /**
+     * changeStatus takes care of changing status of a bike in the database for other methods.
+     *
+     * @param   bikeID  the bike ID of the bike to be changed
+     * @param   status  the value of the status to be changed to
+     * @author Fredrik Mediaa
+     */
     private void changeStatus(int bikeID, int status) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -611,7 +779,7 @@ public class DBH {
             stmt.setInt(1, status);
             stmt.setInt(2, bikeID);
 
-            if(!execSQLBool(stmt, db)) {
+            if(!execSQLBool(stmt)) {
                 stmt.close();
                 db.close();
                 return;
@@ -624,11 +792,21 @@ public class DBH {
         }
     }
 
+
     /*
      * METHODS BELONGING TO THE DOCKING OBJECT.
      */
+
+    /**
+     * registerDocking takes in a Docking object which then will be turned into an sql query. This method returnes the PrimaryKey of the insert statement.
+     *
+     * @param   dock    the Docking object whichs is to be inserted into the database
+     * @return          PrimaryKey of the insert. Positive number means success, -1 means something went wrong.
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
     public int registerDocking(Docking dock) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -636,22 +814,37 @@ public class DBH {
             }
 
             Location loc = new Location(dock.getName(), true);
-            stmt = db.prepareStatement("INSERT INTO docking_stations (name, maxSlots, latitude, longitude) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            stmt = db.prepareStatement("INSERT INTO docking_stations (stationName, maxSlots, latitude, longitude) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, dock.getName());
             stmt.setInt(2, dock.getCapacity());
             stmt.setDouble(3, dock.getLocation().getLatitude());
             stmt.setDouble(4, dock.getLocation().getLongitude());
 
+            int pk = execSQLPK(stmt);
+
+            if(pk > 0) {
+                generateDockingSlots(dock.getCapacity(), pk);
+            }
+
+            return pk;
 
         } catch(SQLException e) {
             forceClose();
             e.printStackTrace();
         }
-        return execSQLPK(stmt, db);
+        return -1;
     }
 
+    /**
+     * getAllDockingStations returns all docking stations from database as an ArrayList of Docking objects.
+     *
+     * @return      ArrayList of Docking objects found in database
+     * @see Docking
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public ArrayList<Docking> getAllDockingStations() {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -683,6 +876,15 @@ public class DBH {
         return null;
     }
 
+    /**
+     * updateBikesInDockingStation takes in the ID and finds all bikes belonging to the station and returns them as a Bike object array.
+     *
+     * @param   dockID  the ID of a docking station.
+     * @return             a Bike object array belonging to the docking station with the ID passed in.
+     * @see Bike
+     * @see ArrayList
+     * @author Fredrik Mediaa
+     */
     public Bike[] updateBikesInDockingStation(int dockID) {
         Docking[] docks = getAllDockingStationsWithBikes();
         for (int i = 0; i < docks.length; i++) {
@@ -693,8 +895,20 @@ public class DBH {
         return null;
     }
 
+    /**
+     * getDockingStationByName takes a String object with the name of the docking station to be found.
+     * If found the Docking object will be created and returned.
+     * <p>
+     * Bike object array is not added and has to be added manually
+     * with updateBikesInDockingStation()
+     *
+     * @param   name    String object of the name belonging to the station.
+     * @return          Docking object with all information belonging to the station. NOT BIKES
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
     public Docking getDockingStationByName(String name) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -732,9 +946,21 @@ public class DBH {
         return null;
     }
 
-    //Martin
+    /**
+     * rentBike is the method to be called by a Docking object to take care of all the required actions needed
+     * when renting a bike
+     *
+     * @param userRentingBike   the User object that is renting the bike
+     * @param bikeToRent        the bike that the User object want to rent
+     * @param dockID            the ID of the docking station where the bike is docked
+     * @return                  boolean based on the SQL query results. True = OK, False = something went wrong
+     * @see User
+     * @see Bike
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
     public boolean rentBike(User userRentingBike, Bike bikeToRent, int dockID){
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -746,29 +972,29 @@ public class DBH {
             stmt.setInt(1, bikeToRent.getId());
             stmt.setInt(2, dockID);
             stmt.setInt(3, userRentingBike.getUserID());
-            if(execSQLBool(stmt, db)) {
+            if(execSQLBool(stmt)) {
                 if(undockBike(bikeToRent, dockID)) {
                     stmt.close();
                     db.close();
-                    db = connect();
+                    connect();
                     bikeToRent.setStatus(Bike.TRIP);
                     stmt = db.prepareStatement("UPDATE bikes SET status = ? , totalTrips = ? WHERE bikeID = ?");
                     stmt.setInt(1, Bike.TRIP);
                     stmt.setInt(2, bikeToRent.getTotalTrips() + 1);
                     stmt.setInt(3, bikeToRent.getId());
-                    execSQLBool(stmt, db);
+                    execSQLBool(stmt);
                     stmt.close();
                     db.close();
                     return true;
                 } else {
                     stmt.close();
                     db.close();
-                    db = connect();
+                    connect();
                     stmt = db.prepareStatement("DELETE FROM trips WHERE bikeID = ? AND startStation = ? AND usedID = ? AND endTime IS NULL");
                     stmt.setInt(1, bikeToRent.getId());
                     stmt.setInt(2, dockID);
                     stmt.setInt(3, userRentingBike.getUserID());
-                    execSQLBool(stmt, db);
+                    execSQLBool(stmt);
                 }
             }
             stmt.close();
@@ -781,9 +1007,19 @@ public class DBH {
         return false;
     }
 
-    //Martin
+    /**
+     * endRent is the opposite of rentBike. This method is to be used from a Docking object when a bike wants to dock to it.
+     *
+     * @param   bike    the Bike object to be docked
+     * @param   dockID  the ID of the docking station where the bike is to be docked
+     * @param   spot    the spot where the bike is to be docked on the station.
+     * @return          a boolean based on the result from the SQL query. True = OK, False = something went wrong.
+     * @see Bike
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
     public boolean endRent(Bike bike, int dockID, int spot){
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -793,11 +1029,11 @@ public class DBH {
             stmt.setInt(1, dockID);
             stmt.setInt(2, bike.getId());
 
-            if(execSQLBool(stmt, db)) {
+            if(execSQLBool(stmt)) {
                 if(dockBike(bike, dockID, spot)) {
                     stmt.close();
                     db.close();
-                    db = connect();
+                    connect();
                     bike.setStatus(Bike.AVAILABLE);
                     stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
                     if(bike.getStatus() != Bike.TRIP){
@@ -807,7 +1043,7 @@ public class DBH {
                     }
 
                     stmt.setInt(2, bike.getId());
-                    execSQLBool(stmt, db);
+                    execSQLBool(stmt);
                     stmt.close();
                     db.close();
                     return true;
@@ -823,9 +1059,17 @@ public class DBH {
         return false;
     }
 
-    //Martin
+    /**
+     * undockBike is used by rentBike() to take care of the undocking section of the query.
+     *
+     * @param   bike    the Bike object wanting to be undocked
+     * @param   dockID  the ID of the docking station.
+     * @return          boolean based on the results from the SQL query. True = OK, False = something went wrong
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
     private boolean undockBike(Bike bike, int dockID){
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -835,7 +1079,7 @@ public class DBH {
             stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.stationID = ? AND slots.bikeID = ?");
             stmt.setInt(1, dockID);
             stmt.setInt(2, bike.getId());
-            boolean output = execSQLBool(stmt, db);
+            boolean output = execSQLBool(stmt);
             stmt.close();
             db.close();
             return output;
@@ -846,8 +1090,18 @@ public class DBH {
         return false;
     }
 
+    /**
+     * dockBike is the opposite of undockBike() and is to be used by endRent(). This method takes care of the docking section of the SQL queries.
+     *
+     * @param   bike    the Bike object to be docked
+     * @param   dockID  the ID of the docking station where the bike is to be docked.
+     * @param   spot    the spot where the Bike object is to be docked at the docking station.
+     * @return          a boolean based on the results of the SQL query. True = OK, False = something went wrong
+     * @see Bike
+     * @author Fredrik Mediaa
+     */
     private boolean dockBike(Bike bike, int dockID, int spot){
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -858,7 +1112,7 @@ public class DBH {
             stmt.setInt(1, bike.getId());
             stmt.setInt(2, dockID);
             stmt.setInt(3, spot);
-            boolean output = execSQLBool(stmt, db);
+            boolean output = execSQLBool(stmt);
             stmt.close();
             db.close();
             return output;
@@ -869,7 +1123,16 @@ public class DBH {
         return false;
     }
 
-    //Martin && Fredrik
+    /**
+     * getAllDockingStationsWithBikes returns a Docking object array containing all information about the stations
+     * and a Bike object array where Bike objects are put in their right spot.
+     *
+     * @return      a Docking object array with everything there is to find.
+     * @see Docking
+     * @see Bike
+     * @author Fredrik Mediaa
+     * @author Martin Moan
+     */
     public Docking[] getAllDockingStationsWithBikes(){
         ArrayList<Docking> dck = getAllDockingStations();
         Docking[] stations = new Docking[dck.size()];
@@ -877,7 +1140,7 @@ public class DBH {
 
         ArrayList<Bike> bikes = getAllBikes();
 
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             for (int i = 0; i < stations.length; i++) {
@@ -915,8 +1178,15 @@ public class DBH {
         return stations;
     }
 
+    /**
+     * logDocking is a method for write log inserts for the Docking object passed in.
+     *
+     * @param dock  the Docking object to be logged
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
     public void logDocking (Docking dock) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -927,7 +1197,7 @@ public class DBH {
             stmt.setDouble(2, dock.getPowerUsage());
             stmt.setInt(3, dock.getUsedSpaces());
 
-            execSQLBool(stmt, db);
+            execSQLBool(stmt);
             stmt.close();
             db.close();
         } catch(SQLException e) {
@@ -936,8 +1206,16 @@ public class DBH {
         }
     }
 
-    private Docking getDockingByID(int id) {
-        db = connect();
+    /**
+     * getDockingByID takes in the ID of the docking station to be found and returns it in the form of a Docking object
+     *
+     * @param   id  the ID of the docking station to be found
+     * @return      a Docking object with the belonging ID
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
+    public Docking getDockingByID(int id) {
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -975,8 +1253,18 @@ public class DBH {
         return null;
     }
 
+    /**
+     * editDocking mirrors the database information with the Docking object.
+     *
+     * @param   updatedDock the Docking object with new information to be pushed to the database
+     * @return              a boolean based on the results from the SQL query. True = OK, False = something went wrong
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
     public boolean editDocking(Docking updatedDock) {
-        db = connect();
+        Docking orgDock = getDockingByID(updatedDock.getId());
+        
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -991,19 +1279,18 @@ public class DBH {
             stmt.setInt(5, updatedDock.getStatus());
             stmt.setInt(6, updatedDock.getId());
 
-            Docking orgDock = getDockingByID(updatedDock.getId());
 
             if(orgDock != null) {
                 if(orgDock.getCapacity() < updatedDock.getCapacity()) {
-                    //Mindre en det som blir nytt, da må det legges til mer i databasen.
+                    //Mindre en det som blir nytt, da maa det legges til mer i databasen.
                     System.out.println("Her mangler det noe!");
                 } else if (orgDock.getCapacity() > updatedDock.getCapacity()) {
-                    //Mer en det som er blir nytt, da må det fjernes fra databasen.
+                    //Mer en det som er blir nytt, da maa det fjernes fra databasen.
                     System.out.println("Her mangler det noe!");
                 }
             }
 
-            if(!execSQLBool(stmt, db)) {
+            if(!execSQLBool(stmt)) {
                 stmt.close();
                 db.close();
                 return false;
@@ -1018,8 +1305,16 @@ public class DBH {
         return false;
     }
 
+    /**
+     * deleteDocking takes care of setting status of the mirror of the Docking object passed in to Docking.DELETED in the database.
+     *
+     * @param   dock    the Docking object to be soft deleted the database
+     * @return          a boolean based on the results from the SQL query. True = OK, False = something went wrong
+     * @see Docking
+     * @author Fredrik Mediaa
+     */
     public boolean deleteDocking(Docking dock) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -1032,17 +1327,9 @@ public class DBH {
 
             Docking orgDock = getDockingByID(dock.getId());
 
-            if(orgDock != null) {
-                if(orgDock.getCapacity() < dock.getCapacity()) {
-                    //Mindre en det som blir nytt, da må det legges til mer i databasen.
-                    System.out.println("Her mangler det noe!");
-                } else if (orgDock.getCapacity() > dock.getCapacity()) {
-                    //Mer en det som er blir nytt, da må det fjernes fra databasen.
-                    System.out.println("Her mangler det noe!");
-                }
-            }
+            System.out.println("IMPORTANT! REMEMBER TO REMOVE SLOTS!!!!!");
 
-            if(!execSQLBool(stmt, db)) {
+            if(!execSQLBool(stmt)) {
                 stmt.close();
                 db.close();
                 return false;
@@ -1057,12 +1344,100 @@ public class DBH {
         return false;
     }
 
+    /* THIS IS NOT FINISHED!!
+     * updateDockingSlots takes care of removing slots when the amount is changed. This method is summoned by editDocking
+     *
+     * @param   amountToRemove  the amount to be changed, both positive and negative directions
+     * @param   stationID       the station where the amount is to be chagned
+     * @author Fredrik Mediaa
+     */
+    /*
+    private void updateDockingSlots(int amountToRemove, int stationID) {
+        connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return;
+            }
+
+            stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL and stationID = ?");
+
+
+            if(amountToRemove > 0) {
+                PreparedStatement stmtMax = db.prepareStatement("SELECT MAX(slotID) AS maxi FROM slots WHERE stationID = ?");
+                stmtMax.setInt(1, stationID);
+                ResultSet rsmax = execSQLRS(stmtMax);
+                if(rsmax.next()) {
+                    for(int i = amountToRemove; i > 0; i--) {
+                        PreparedStatement stmtDelete = db.prepareStatement("DELETE FROM slots WHERE slotID = ? AND stationID = ?");
+                        stmtDelete.setInt(1, rsmax.getInt("maxi") - i);
+                        stmtDelete.setInt(2, stationID);
+                        execSQLBool(stmtDelete);
+                        stmtDelete.close();
+                    }
+                }
+            }
+
+            stmt.setInt(1, stationID);
+
+            amountToRemove++;
+            PreparedStatement stmtAdd = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
+            stmtAdd.setInt(1, );
+            stmtAdd.setInt(2, stationID);
+
+            }
+
+            stmt.close();
+            db.close();
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+    }*/
+
+
+    /**
+     * generateDockingSlots is a method for generating all hte slots assosiated with the Docking object
+     *
+     * @param   amount      the capacity of the station
+     * @param   stationID   the stations ID
+     * @author Fredrik Mediaa
+     */
+    private void generateDockingSlots(int amount, int stationID) {
+        connect();
+        PreparedStatement stmt = null;
+        try {
+            if(db == null) {
+                return;
+            }
+            stmt = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
+
+            for(int i = 0; i < amount; i++) {
+                stmt.setInt(1, i);
+                stmt.setInt(2, stationID);
+
+                execSQLBool(stmt);
+            }
+
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+    }
+
     /*
      * METHODS BELONGING TO THE USER OBJECT.
      */
 
+    /**
+     * checkIfUserExist is a method to check if there already is an entry in the database with the same emailaddress
+     *
+     * @param   mail   the email to be checked
+     * @return          a boolean based on the results. True = Exist, False = Does not exist.
+     * @author Fredrik Mediaa
+     */
     public boolean checkIfUserExist(String mail) {
-        db = connect();
+        connect();
         Hasher hasher = new Hasher();
         PreparedStatement stmt = null;
         boolean exsist = false;
@@ -1089,10 +1464,19 @@ public class DBH {
         return true;
     }
 
+    /**
+     * registerUser lets you register a User objects data to the database if the email address does not exist.
+     *
+     * @param   user        the User object to be registered
+     * @param   sendMail    a boolean that decides if an mail is sent to the user when created or not. True = Send, False = Do not send
+     * @return              PrimaryKey of the entry also known as the users ID. -1 if something went wrong.
+     * @see User
+     * @author Fredrik Mediaa
+     */
     public int registerUser(User user, boolean sendMail) {
         Hasher hasher = new Hasher();
         if(!checkIfUserExist(user.getEmail())) {
-            db = connect();
+            connect();
             PreparedStatement stmt = null;
             try {
                 if(db == null) {
@@ -1103,7 +1487,7 @@ public class DBH {
                 String password = hasher.hash(user.getPassword(), salt);
 
                 stmt = db.prepareStatement("INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-                stmt.setInt(1, user.getUserClass());
+                stmt.setInt(1, User.ADMINISTRATOR);
                 stmt.setString(2, user.getEmail());
                 stmt.setString(3, password);
                 stmt.setString(4, salt);
@@ -1112,7 +1496,7 @@ public class DBH {
                 stmt.setInt(7, user.getPhone());
                 stmt.setString(8, user.getLandcode());
 
-                int pk = execSQLPK(stmt, db);
+                int pk = execSQLPK(stmt);
 
                 if(pk > 0 && sendMail) {
                     String subj = "Welcome, " + user.getFirstname();
@@ -1138,15 +1522,24 @@ public class DBH {
         return -1;
     }
 
+    /**
+     * loginUser is a method to check if the parameters match the information in the database. If it matches all details will be turned into a User object and returned
+     *
+     * @param   email       the mail address identifying the user
+     * @param   password    the String of characters to be matched with database entry.
+     * @return              User object with the information about the user that has logged in successfully. null object if information did not match.
+     * @see User
+     * @author Fredrik Mediaa
+     */
     public User loginUser(String email, String password) {
-        db = connect();
+        connect();
         Hasher hasher = new Hasher();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ? AND status = ?");
+            stmt = db.prepareStatement("SELECT * FROM users WHERE email = ? AND userTypeID = ?");
             stmt.setString(1, email);
             stmt.setInt(2, User.ADMINISTRATOR);
 
@@ -1163,7 +1556,7 @@ public class DBH {
                             rs.getInt("phone"),
                             rs.getString("email"),
                             rs.getString("landcode")
-                            );
+                    );
                     stmt.close();
                     db.close();
                     return correctUser;
@@ -1179,9 +1572,20 @@ public class DBH {
         return null;
     }
 
+    /**
+     * changePassword checks if the password in the database is equal to the password passed in. If so the old password would be updated
+     * with the new password.
+     *
+     * @param   user            the User object which is changing password
+     * @param   newPassword     the new password that is supposed to be updated
+     * @param   oldPassword     the old password to check validity of the user.
+     * @return                  a boolean based on the results. True = Password changed, False = Password did not change.
+     * @see User
+     * @author Fredrik Mediaa
+     */
     public boolean changePassword(User user, String newPassword, String oldPassword) {
         Hasher hasher = new Hasher();
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -1198,7 +1602,7 @@ public class DBH {
                 stmt.setString(2, salt);
                 stmt.setInt(3, user.getUserID());
 
-                return execSQLBool(stmt, db);
+                return execSQLBool(stmt);
             }
         } catch(SQLException e) {
             forceClose();
@@ -1207,9 +1611,19 @@ public class DBH {
         return false;
     }
 
+    /**
+     * forceChangePassword is an optional method for changing the User objects password in the database. This method
+     * does not require the old password and will update the new password.
+     *
+     * @param   user        the User object to be updated
+     * @param   newPassword the password which is to be the new password
+     * @return              a boolean based on the results. True = Password changed, False = Password did not change.
+     * @see User
+     * @author Fredrik Mediaa
+     */
     public boolean forceChangePassword(User user, String newPassword) {
         Hasher hasher = new Hasher();
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -1225,7 +1639,7 @@ public class DBH {
             stmt.setString(2, salt);
             stmt.setInt(3, user.getUserID());
 
-            return execSQLBool(stmt, db);
+            return execSQLBool(stmt);
         } catch(SQLException e) {
             forceClose();
             e.printStackTrace();
@@ -1233,8 +1647,16 @@ public class DBH {
         return false;
     }
 
-    public boolean DeleteUser(User user) {
-        db = connect();
+    /**
+     * deleteUser soft deletes the user in the database. That means status is set to User.SOFTDELETE
+     *
+     * @param   user    the User object to be soft deleted in the database
+     * @return          a boolean based on the results. True = soft deleted, False = No change in status
+     * @see User
+     * @author Fredrik Mediaa
+     */
+    public boolean deleteUser(User user) {
+        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -1245,7 +1667,7 @@ public class DBH {
             stmt.setInt(1, User.SOFTDELETE);
             stmt.setInt(2, user.getUserID());
 
-            boolean output = execSQLBool(stmt, db);
+            boolean output = execSQLBool(stmt);
             stmt.close();
             db.close();
             return output;
@@ -1257,9 +1679,80 @@ public class DBH {
         return false;
     }
 
-    //Martin
+    /**
+     * forgottenPassword is a method for reseting a users password. This password will be automatically generated and updated.
+     *
+     * @param mail  the mail of the user where tue password is to be reset
+     * @return      a boolean based on the result. True = Password changed, False = Something went wrong
+     * @author Fredrik Mediaa
+     */
+    public boolean forgottenPassword(String mail) {
+        Hasher hasher = new Hasher();
+        if(!checkIfUserExist(mail)) {
+            connect();
+            PreparedStatement stmt = null;
+            try {
+                if(db == null) {
+                    return false;
+                }
+
+                Random rand = new Random();
+                char[] pwd = new char[10];
+                for (int i = 0; i < pwd.length; i++) {
+                    pwd[i] = (char) (rand.nextInt(121-33) + 33); //[33, 121] except 96
+                    if(pwd[i] == 96){
+                        i--;
+                    }
+                }
+                String pw = "";
+                for (int i = 0; i < pwd.length; i++) {
+                    pw += "" + pwd[i];
+                }
+
+                String salt = hasher.hashSalt(System.currentTimeMillis() + "");
+
+                String password = hasher.hash(pw, salt);
+
+                stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE email = ?");
+                stmt.setString(1, password);
+                stmt.setString(2, salt);
+                stmt.setString(3, mail);
+
+                boolean updated = execSQLBool(stmt);
+
+                if(updated) {
+                    User user = loginUser(mail, pw);
+
+                    String subj = "Changed password";
+
+                    String msg = "Hello, " + user.getFirstname() + "\nHere is your recovery password:\n\n" + pw + "\n\nPlease change it after you have logged.\n\n\nBest Regards,\nRentaBike Team";
+                    try {
+                        System.out.println("Sending mail!");
+                        new MailHandler(subj, mail, msg);
+                    } catch (MessagingException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                return true;
+            } catch(SQLException e) {
+                forceClose();
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * getUserByType is a base method for the the getmethods belonging to status.
+     *
+     * @param   type    the status value to be found
+     * @return          User object array containing only User objects with the given status
+     * @see User
+     * @author Fredrik Mediaa
+     * @author Martin Moan
+     */
     private User[] getUserByType(int type) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         ArrayList<User> usersList = new ArrayList<>();
         User[] users = null;
@@ -1309,8 +1802,20 @@ public class DBH {
     /*
      * METHODS BELONGING TO THE REPAIR OBJECT
      */
+
+    /**
+     * getRepairsByID is a method for getting Repair objects belonging to a specific Bike object.
+     * That means you get an Repair object array in return with all the repairs registered on the bike.
+     * <p>
+     * Passnig in 0 as bikeID gives you the Repair objects for all bikes.
+     *
+     * @param   bikeID  the ID of the specific bike.
+     * @return          Repair object array belonging to the bike ID
+     * @see Repair
+     * @author Fredrik Mediaa
+     */
     private Repair[] getRepairsByID(int bikeID) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         ArrayList<Repair> repairList = new ArrayList<>();
         Repair[] repairs = null;
@@ -1350,20 +1855,28 @@ public class DBH {
         return repairs;
     }
 
+    /**
+     * getBikeIDbyCaseID is a method where passing in the ID of a Repair object gives you the bikeID
+     *
+     * @param   caseID  the ID of the Repair object
+     * @return          returns the ID of the Bike object, NOT the Bike object itself
+     * @see Repair
+     * @author Fredrik Mediaa
+     */
     private int getBikeIDByCaseID(int caseID) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return -1;
             }
-                stmt = db.prepareStatement("SELECT bikeID FROM repair_cases WHERE repairCaseID = ?");
-                stmt.setInt(1, caseID);
+            stmt = db.prepareStatement("SELECT bikeID FROM repair_cases WHERE repairCaseID = ?");
+            stmt.setInt(1, caseID);
 
             int output = -1;
             ResultSet resultSet = execSQLRS(stmt);
             while(resultSet.next()){
-               output = resultSet.getInt("bikeID");
+                output = resultSet.getInt("bikeID");
             }
             stmt.close();
             db.close();
@@ -1376,29 +1889,55 @@ public class DBH {
         return -1;
     }
 
+    /**
+     * getAllRepairs uses the getRepairsByID passing in 0 giving you the Repair objects of every bike
+     *
+     * @return      Repair object array containing every repair registered in the database
+     * @see Repair
+     * @author Fredrik Mediaa
+     */
     public Repair[] getAllRepairs() {
         return getRepairsByID(0); // 0 means ALL
     }
 
+    /**
+     * getAllRepairsForBike uses the getRepairsByID to find Repair objects belonging to the bike ID given
+     *
+     * @param   bikeID  the bike ID to search for
+     * @return          Repair object array with Repair objects belonging to the specific bike
+     * @see Repair
+     * @author Fredrik Mediaa
+     */
     public Repair[] getAllRepairsForBike(int bikeID) {
         return getRepairsByID(bikeID);
     }
 
+    /**
+     * registerRepairRequest are to be use by the Repair objects for registration in database. It takes care of
+     * registering the repair in the database and updating the status of the bike to Bike.REPAIR
+     *
+     * @param   bikeID  the bike ID which the Repair object belongs to
+     * @param   desc    a String description of the problem which needs to be fixed
+     * @param   date    the date of the registration.
+     * @return          a boolean based on the results. True = Repair registered, False = Repair not registered
+     * @see Repair
+     * @see LocalDate
+     * @author Fredrik Mediaa
+     */
     public boolean registerRepairRequest(int bikeID, String desc, LocalDate date) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
                 return false;
             }
-            java.util.Date utilDate = new java.util.Date();
 
             stmt = db.prepareStatement("INSERT INTO repair_cases (bikeID, description, dateCreated) VALUES (?, ?, ?)");
             stmt.setInt(1, bikeID);
             stmt.setString(2, desc);
             stmt.setString(3, date.toString());
 
-            execSQLBool(stmt, db);
+            execSQLBool(stmt);
             stmt.close();
             db.close();
 
@@ -1413,8 +1952,19 @@ public class DBH {
         return false;
     }
 
+    /**
+     * finishRepairRequest is a method for finishing a repair request already submitted.
+     *
+     * @param   caseID  the case number of the Repair object
+     * @param   desc    the description of the finished job
+     * @param   date    the date of the finished job
+     * @param   price   the total price for the finished job
+     * @return          a boolean based on the result. True = finished a request, False = something went wrong.
+     * @see LocalDate
+     * @author Fredrik Mediaa
+     */
     public boolean finishRepairRequest(int caseID, String desc, LocalDate date, double price) {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -1426,7 +1976,7 @@ public class DBH {
             stmt.setDouble(3, price);
             stmt.setInt(4, caseID);
 
-            execSQLBool(stmt, db);
+            execSQLBool(stmt);
             stmt.close();
             db.close();
 
@@ -1445,8 +1995,15 @@ public class DBH {
     /*
      * MISC USE WITH CAUTION
      */
+
+    /**
+     * getUnfinishedRipsBikeID is a helper method returning an int array of all the bike ID's with not finished trip entries.
+     *
+     * @return      returns an int array of the bike ID's with not finished trip entries
+     * @author Fredrik Mediaa
+     */
     private int[] getUnfinishedTripsBikeID() {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         ArrayList<Integer> ids = new ArrayList<>();
 
@@ -1480,8 +2037,16 @@ public class DBH {
         return null;
     }
 
+
+    /**
+     * findOpenSpaces is a helper method for getting all open slots in the environment, with its belonging docking station id.
+     *
+     * @return      BikeSlotPair object array with open slots on
+     * @see BikeSlotPair
+     * @author Fredrik Mediaa
+     */
     private BikeSlotPair[] findOpenSpaces() {
-        db = connect();
+        connect();
         PreparedStatement stmt = null;
         ArrayList<BikeSlotPair> spots = new ArrayList<>();
 
@@ -1512,6 +2077,18 @@ public class DBH {
         return null;
     }
 
+    /**
+     * removeAllUnfinishedTrips is a powerful and dangerous method. This should not be used without caution.
+     * <p>
+     * This method removes every unfinished entries in the trips table in the database. It also docks bikes that
+     * haven't managed to be docked with the simulation. Since this removes all unfinished trips you have to be sure
+     * EVERY BIKE NOT FINISHED ACTUALLY HAS COME FROM A CRASHING SIMULATION!
+     *
+     * @see BikeSlotPair
+     * @see Bike
+     * @see javax.swing.JOptionPane
+     * @author Fredrik Mediaa
+     */
     public void removeAllUnfinishedTrips() {
         BikeSlotPair[] slots = findOpenSpaces();
         int[] bikeIDs = getUnfinishedTripsBikeID();
@@ -1524,7 +2101,9 @@ public class DBH {
                 for(int id : bikeIDs) {
                     for (int j = 0; j < slots.length; j++) {
                         if(slots[j] != null) {
-                            Bike bike = new Bike(id, " ", 0.0, " ", 0.0, 0, null, 1, null);
+                            //DummyBike
+                            Bike bike = new Bike(id, " ", 0.0, " ", 0.0, 0, null, 1, null, 0);
+
                             endRent(bike, slots[j].getStation_id(), slots[j].getSlot_id());
                             slots[j] = null;
                             System.out.println("I GOT HERE WITH : " + id);
@@ -1533,13 +2112,13 @@ public class DBH {
                     }
                 }
 
-                db = connect();
+                connect();
                 if(db == null){
                     return;
                 }
                 stmt = db.prepareStatement("DELETE FROM trips WHERE endStation IS NULL AND endTime IS NULL");
 
-                execSQLBool(stmt, db);
+                execSQLBool(stmt);
 
                 stmt.close();
                 db.close();
@@ -1556,11 +2135,21 @@ class BikeSlotPair{
     private final int slot_id;
     private final int station_id;
 
+    /**
+     * This object holds information paring bikes to docking stations. This is meant to help routing bikes to the right slot
+     * when adding Bike objects to the right Docking object.
+     *
+     * @param   bike_id     the ID of the bike
+     * @param   slot_id     the ID of the slot which the bike belongs to
+     * @param   station_id  the ID of the docking station the slot belongs to
+     * @author Fredrik Mediaa
+     */
     public BikeSlotPair(int bike_id, int slot_id, int station_id){
         this.bike_id = bike_id;
         this.slot_id = slot_id;
         this.station_id = station_id;
     }
+
     public int getBike_id(){
         return bike_id;
     }
@@ -1582,8 +2171,5 @@ class BikeSlotPair{
 class DBTest {
     public static void main(String[] args) {
         DBH dbh = new DBH();
-
-        dbh.registerUser(new User(1,"Fredrik", "Mediå", 47366074, "fredrikkarst@gmail.com", "+47"), false);
-
     }
 }

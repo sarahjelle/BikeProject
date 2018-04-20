@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import static myapp.data.Bike.*;
 
+import javafx.scene.text.Text;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import myapp.GUIfx.DialogWindows;
@@ -21,7 +22,7 @@ import myapp.data.Repair;
 import myapp.dbhandler.DBH;
 
 import javax.print.Doc;
-import javax.xml.soap.Text;
+
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
 
 
 
@@ -87,6 +89,14 @@ public class BikeController implements Initializable {
     private ListView<Repair> repairList;
     private Repair[] repairs;
 
+    //info about a repair
+    @FXML private VBox repairInfoPane;
+    @FXML private Text dateSentRepInfo;
+    @FXML private Text descBeforeInfo;
+    @FXML private Text dateReceivedInfo;
+    @FXML private Text priceRepairInfo;
+    @FXML private Text descAfterInfo;
+
     //repair
     @FXML
     private BorderPane repairPaneBefore;
@@ -143,12 +153,6 @@ public class BikeController implements Initializable {
         bikeList.setCellFactory(e -> new BikeCell());
         repairList.setCellFactory(e -> new RepairCell());
         refresh();
-
-        /*Bike bike = new Bike(1, "DBS", 900, "Electric", 0.5, 100);
-
-        for (int i = 0; i < 100; i++) {
-            bikeList.getItems().add(bike);
-        }*/
     }
 
     @FXML
@@ -349,6 +353,24 @@ public class BikeController implements Initializable {
         //refresh();
         Bike bike = findBike(id);
         showInfo(bike);
+    }
+
+
+    @FXML private void showRepair(){
+        Repair repair = repairList.getSelectionModel().getSelectedItem();
+        //dateSentRepInfo.setText();
+        descBeforeInfo.setText(repair.getDesc());
+        priceRepairInfo.setText(Double.toString(repair.getPrice()));
+        descAfterInfo.setText(repair.getReturnDesc());
+        repairList.setVisible(false);
+        repairInfoPane.setVisible(true);
+
+
+    }
+
+    @FXML private void showAllRepairs(){
+        repairList.setVisible(true);
+        repairInfoPane.setVisible(false);
     }
 
     //methods for repair
@@ -570,13 +592,11 @@ public class BikeController implements Initializable {
         makeReg.clear();
         priceReg.clear();
 
-
-        /*ArrayList<String> types = getTypes();
+        typeReg.getItems().add("New type");
+        ArrayList<String> types = getTypes();
         for (int i = 0; i < types.size(); i++) {
-            if(types.get(i) != null) {
-                typeReg.getItems().add(types.get(i));
-            }
-        }*/
+            typeReg.getItems().add(types.get(i));
+        }
 
         ArrayList<String> locations = getDockingStationNames();
         for(int i = 0; i < locations.size(); i++){
