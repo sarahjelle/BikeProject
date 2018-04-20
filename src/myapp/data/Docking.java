@@ -47,6 +47,14 @@ public class Docking {
         }
     }
 
+    public Docking(String name, int capacity){
+        this.name = name;
+        this.capacity = capacity;
+        this.location = new Location(name, true);
+        this.status = AVAILABLE;
+        this.bikes = new Bike[capacity];
+    }
+
     public int getStatus(){
         return status;
     }
@@ -90,6 +98,10 @@ public class Docking {
 
     public int getCapacity() {
         return capacity;
+    }
+
+    public void setCapacity(int capacity){
+        this.capacity = capacity;
     }
 
     public int getFreeSpaces() {
