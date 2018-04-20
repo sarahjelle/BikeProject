@@ -19,7 +19,7 @@
     <BorderPane fx:id="listPane" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
         <bottom>
             <HBox fx:id="topMenu">
-                <TextField promptText="bikeid" fx:id="searchInput" prefHeight="20"/>
+                <TextField promptText="bikeid" fx:id="searchInput" onAction="#search" prefHeight="20"/>
                 <Button onAction="#search" prefHeight="20">
                     <graphic>
                         <ImageView fitHeight="15" fitWidth="15">

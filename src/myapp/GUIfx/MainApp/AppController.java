@@ -79,6 +79,7 @@ public class AppController {
         private Boolean stop = false;
         private Bike[] bikes;
         private int UPDATE_INTERVAL = 5000;
+        private Docking[] lastUpdate;
 
         private Bike[] bikesTest;
 
@@ -92,9 +93,13 @@ public class AppController {
             }
 
             Docking[] dockings = handler.getAllDockingStationsWithBikes();
+            lastUpdate = handler.getAllDockingStationsWithBikes();
+            addDocksInit(dockings, mapPane.getEngine());
+            /*
             for (int i = 0; i < dockings.length; i++) {
                 addDock(dockings[i], mapPane.getEngine());
             }
+            */
             URL url = getClass().getResource("../Map/map.html");
             mapPane.getEngine().load(url.toExternalForm());
             mapPane.getEngine().setJavaScriptEnabled(true);
@@ -116,7 +121,27 @@ public class AppController {
                 if((System.currentTimeMillis() - StartTime) >= UPDATE_INTERVAL){
                     DBH handler = new DBH();
                     ArrayList<Bike> bikesList = handler.getLoggedBikes();//handler.getAllBikes();
-                    //Docking[] dockings = handler.getAllDockingStationsWithBikes();
+                    Docking[] dockings = handler.getAllDockingStationsWithBikes();
+                    boolean allEqualUsedSpace = true;
+                    boolean noNewDocks = true;
+                    if(dockings.length != lastUpdate.length){
+                        noNewDocks = false;
+                    }
+                    for (int i = 0; i < dockings.length; i++) {
+                        for (int j = 0; j < lastUpdate.length; j++) {
+                            if(dockings[i].getId() == lastUpdate[j].getId()){
+                                if(dockings[i].getUsedSpaces() != lastUpdate[j].getUsedSpaces()){
+                                    allEqualUsedSpace = false;
+                                }
+                            }
+                        }
+                    }
+
+                    System.out.println();
+                    for (int i = 0; i < dockings.length; i++) {
+                        System.out.println("ID: " + dockings[i].getId() + " " + dockings[i].getUsedSpaces());
+                    }
+                    System.out.println();
                     Bike[] b = new Bike[bikesList.size()];
                     if(bikesList != null){
                         this.bikes = bikesList.toArray(b);
@@ -126,7 +151,12 @@ public class AppController {
                     //initMap(engine);
                     //removeAll(engine);//removeBike(bikes[i], engine);
                     updateBikes(bikes, engine);
+                    if(!allEqualUsedSpace || !noNewDocks){
+                        System.out.println("Updating docks");
+                        addDocks(dockings, engine);
+                    }
                     StartTime = System.currentTimeMillis();
+                    lastUpdate = dockings;
                 }
             }
         }
@@ -140,9 +170,60 @@ public class AppController {
         public void addDock(Docking dock, WebEngine engine){
             try{
                 Platform.runLater(() -> {
+                    //id: , lat: , lng: , address: , docked:
                     engine.getLoadWorker().stateProperty().addListener((e) -> {
                         engine.executeScript("document.addDock({id: " + dock.getId() + ", lat: " + dock.getLocation().getLatitude()
-                                + ", lng: " + dock.getLocation().getLongitude() + "});");
+                                + ", lng: " + dock.getLocation().getLongitude() + ", address: \"" + dock.getName() + "\", docked: " + dock.getUsedSpaces() + ", capasity: " + dock.getCapacity() + "});");
+                    });
+                });
+            } catch (Exception e){
+
+            }
+        }
+
+        public void addDocks(Docking[] docks, WebEngine engine){
+            String arr = "";
+            for (int i = 0; i < docks.length; i++) {
+                if(i == docks.length - 1){
+                    arr += "{id: " + docks[i].getId() + ", lat: " + docks[i].getLocation().getLatitude()
+                            + ", lng: " + docks[i].getLocation().getLongitude() + ", address: \"" + docks[i].getName() + "\", docked: " + docks[i].getUsedSpaces() + ", capasity: " + docks[i].getCapacity() + "}";
+                } else{
+                    arr += "{id: " + docks[i].getId() + ", lat: " + docks[i].getLocation().getLatitude()
+                            + ", lng: " + docks[i].getLocation().getLongitude() + ", address: \"" + docks[i].getName() + "\", docked: " + docks[i].getUsedSpaces() + ", capasity: " + docks[i].getCapacity() + "}, ";
+                }
+
+            }
+            final String input = "[" + arr + "]";
+            System.out.println(input);
+            try{
+
+                Platform.runLater(() -> {
+                    engine.executeScript("document.addDocks(" + input + ");");
+                });
+                //engine.getLoadWorker().stateProperty().addListener((e) -> {});
+            } catch (Exception e){
+
+            }
+        }
+
+        public void addDocksInit(Docking[] docks, WebEngine engine){
+            String arr = "";
+            for (int i = 0; i < docks.length; i++) {
+                if(i == docks.length - 1){
+                    arr += "{id: " + docks[i].getId() + ", lat: " + docks[i].getLocation().getLatitude()
+                            + ", lng: " + docks[i].getLocation().getLongitude() + ", address: \"" + docks[i].getName() + "\", docked: " + docks[i].getUsedSpaces() + ", capasity: " + docks[i].getCapacity() + "}";
+                } else{
+                    arr += "{id: " + docks[i].getId() + ", lat: " + docks[i].getLocation().getLatitude()
+                            + ", lng: " + docks[i].getLocation().getLongitude() + ", address: \"" + docks[i].getName() + "\", docked: " + docks[i].getUsedSpaces() + ", capasity: " + docks[i].getCapacity() + "},";
+                }
+
+            }
+            final String input = "[" + arr + "]";
+            System.out.println(input);
+            try{
+                Platform.runLater(() -> {
+                    engine.getLoadWorker().stateProperty().addListener((e) -> {
+                        engine.executeScript("document.addDocks(" + input + ");");
                     });
                 });
             } catch (Exception e){

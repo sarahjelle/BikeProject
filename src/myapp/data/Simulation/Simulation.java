@@ -1,69 +1,45 @@
 package myapp.data.Simulation;
 
 import java.util.*;
+
+import com.sun.org.apache.xpath.internal.SourceTree;
 import myapp.dbhandler.*;
 import myapp.data.Bike;
-import static myapp.data.Bike.*;
 import myapp.data.Docking;
-import myapp.data.Location;
 import myapp.data.User;
-import myapp.GUIfx.Map.MapsAPI;
-import org.jcp.xml.dsig.internal.dom.DOMKeyInfo;
-
 
 public class Simulation implements Runnable{
+    private Boolean stop = false;
+    private Boolean initialized = false;
     private Bike[] bikes;
     private Docking[] docking_stations;
     private User[] users;
-    private static int UPDATE_INTERVAL = 60000; //milliseconds
-    private int sleepTime = 2000; //millieconds
-    private Boolean stop = false;
-    private static final double ERROR_TOLERANSE = 0.0000001;
-    private final double percentageOfUsersToMove = 1.0;
-    private final double STATION_POWER_USAGE_PR_BIKE = 230 * 2.5; //Volt * Amp
     private Router[] routers;
-
-    /*
-        Simulate that users pay and check out a bike at a docking station.
-        Simulate movement by sending new GPS coordinates and charging level per minute.
-        Simulate check in at the same or at another docking station
-        Simulate power usage for charging at each docking station
-        Each trip should be simulated in a java Thread
-        The total simulation should have multiple threads running simultaneously.
-     */
-
-    // Jeg trenger funksjoner i DBH:
-        // getDockingStationForBike(Bike) for å kunne registrere at sykkelen un-dockes i databasen
-        // Rimelig sikker på at det er en feil i DBHens metode dockBike()
-        // Denne metoden er også uforståelig... Hva er id?? docking stasjon id??
+    private static int UPDATE_INTERVAL = 5000; //milliseconds
+    private static final double ERROR_TOLERANSE = 0.0000001;
+    private int sleepTime = 2000; //millieconds
+    private double percentageOfUsersToMove = 0.1;
+    private static int NumberOfUsersToMove = -1;
+    private final double STATION_POWER_USAGE_PR_BIKE = 230 * 2.5; //Volt * Amp
 
     public Simulation(){
         DBH handler = new DBH();
         this.users = handler.getAllCustomers();
         this.docking_stations = handler.getAllDockingStationsWithBikes();
         ArrayList<Bike> arr = new ArrayList<>();
-        System.out.println("Number of docking stations: " + docking_stations.length);
-        System.out.println();
         for (int i = 0; i < docking_stations.length; i++) {
-
-            Bike[] sub = docking_stations[i].getBikes();
-            int counter = 0;
-            for (int j = 0; j < sub.length; j++) {
-                if(sub[j] != null){
-                    counter++;
-                }
-            }
-            System.out.println(counter);
             Bike[] bikesList = docking_stations[i].getBikes();
             for (int j = 0; j < bikesList.length; j++) {
                 arr.add(bikesList[j]);
             }
         }
         this.bikes = new Bike[arr.size()];
-        for (int i = 0; i < arr.size(); i++) {
+        this.bikes = arr.toArray(bikes);
+        /*for (int i = 0; i < arr.size(); i++) {
             bikes[i] = arr.get(i);
-        }
+        }*/
         this.routers = null;
+        this.initialized = true;
     }
 
     public void run(){
@@ -82,13 +58,13 @@ public class Simulation implements Runnable{
             DBH handler = new DBH();
             for (int i = 0; i < docking_stations.length; i++) {
                 double dockPowerUsage = docking_stations[i].getBikes().length * STATION_POWER_USAGE_PR_BIKE;
-                //docking_stations[i].setPower_usage(dockPowerUsage);
-                //handler.logDocking(docking_stations[i]);
+                docking_stations[i].setPowerUsage(dockPowerUsage);
+                handler.logDocking(docking_stations[i]);
             }
 
             for (int i = 0; i < routers.length; i++) {
                 if(routers[i].hasArrived() && routers[i].isDocked()){
-                    System.out.println("Router number: " + i + " has arrived and docked successfully");
+                    routers[i].stop();
                     /*
                     //No problem, create new router
                     System.out.println("Bike has arrived, getting new router");
@@ -109,12 +85,13 @@ public class Simulation implements Runnable{
                 } else if(routers[i].hasArrived() && !routers[i].isDocked()){
                     //Bike has arrived, but could not dock
                     try{
-                        Thread.sleep(1000);
+                        Thread.sleep(3000);
                     } catch(Exception e){
                         e.printStackTrace();
                     }
                     if(routers[i].hasArrived() && !routers[i].isDocked()){
-                        System.out.println("bike could not dock, getting new router");
+                        routers[i].stop();
+                        /*System.out.println("Simulation: Bike could not dock, getting new router");
                         routers[i].stop();
                         User user = routers[i].getUser();
                         Bike bike = routers[i].getBike();
@@ -127,11 +104,28 @@ public class Simulation implements Runnable{
                         routers[i] = new Router(user, bike, start, end);
                         threads[i] = new Thread(routers[i]);
                         threads[i].start();
+                        */
                     } else{
                         System.out.println("Bike has arrived and is docked");
+                        routers[i].stop();
                     }
 
                 }
+            }
+            //Check if all routers have arrived, if they have end simulation
+            boolean allArrived = true;
+            for (int i = 0; i < threads.length; i++) {
+                if(threads[i].isAlive()){
+                    allArrived = false;
+                }
+            }
+            if(allArrived){
+                stop();
+            }
+            try{
+                Thread.sleep(UPDATE_INTERVAL);
+            } catch(InterruptedException ex){
+                ex.printStackTrace();
             }
         }
         // Simulation ends, end all routers
@@ -140,16 +134,41 @@ public class Simulation implements Runnable{
         }
     }
 
-    public User[] getUserSubset(){
+    public void stop(){
+        if(this.routers != null){
+            for (int i = 0; i < routers.length; i++) {
+                if(routers[i] != null){
+                    routers[i].stop();
+                }
+            }
+        }
+        this.stop = true;
+    }
+
+    public boolean isInitialized(){
+        return initialized;
+    }
+
+    public void setUpdateInterval(int millis){
+        if(millis >= 0){
+            this.UPDATE_INTERVAL = millis;
+        }
+    }
+
+    private User[] getUserSubset(){
         int percentage;
         if(percentageOfUsersToMove <= 1){
-            percentage = (int)(users.length * percentageOfUsersToMove );
+            percentage = (int)(users.length * percentageOfUsersToMove);
         } else{
             percentage = users.length;
         }
 
         if(percentage <= 0){
             percentage = 1;
+        }
+
+        if(NumberOfUsersToMove >= 0){
+            percentage = NumberOfUsersToMove;
         }
 
         User[] subset = new User[percentage];
@@ -163,7 +182,6 @@ public class Simulation implements Runnable{
             for (int i = 0; i < subset.length; i++) {
                 boolean precentMoreThanOnceInSubset = false;
                 do{
-                    System.out.println("Finding user");
                     subset[i] = users[rand.nextInt(users.length)];
                     for (int j = 0; j < subset.length; j++) {
                         if(j != i){
@@ -194,20 +212,14 @@ public class Simulation implements Runnable{
                 start = docking_stations[rand.nextInt(docking_stations.length)];
                 end = docking_stations[rand.nextInt(docking_stations.length)];
                 bike = start.rentBike(customer);
-            } while(start == null || end == null || bike == null);
+            } while(start == null || end == null || bike == null || bike.getLocation().getLatitude() == null || bike.getLocation().getLongitude() == null);
             routers[i] = new Router(customer, bike, start, end);
             routers[i].setUpdateInterval(UPDATE_INTERVAL);
         }
         return routers;
     }
 
-    public void setUpdateInterval(int millis){
-        if(millis >= 0){
-            this.UPDATE_INTERVAL = millis;
-        }
-    }
-
-    public Bike getAvailableBike(Bike[] movingBikes){
+    private Bike getAvailableBike(Bike[] movingBikes){
         Bike output = null;
         Random rand = new Random();
         boolean bikeIsInMovingSubset = false;
@@ -222,7 +234,7 @@ public class Simulation implements Runnable{
         return output;
     }
 
-    public User getNewUser(User finished, User[] subset){
+    private User getNewUser(User finished, User[] subset){
         User output = null;
         Random rand = new Random();
         boolean presentInSubset = false;
@@ -240,16 +252,27 @@ public class Simulation implements Runnable{
         return output;
     }
 
-    public void stop(){
-        for (int i = 0; i < routers.length; i++) {
-            routers[i].stop();
+    public boolean setUserPercentage(double percentageOfUsersToMove){
+        if(percentageOfUsersToMove <= 1 && percentageOfUsersToMove > 0){
+            this.percentageOfUsersToMove = percentageOfUsersToMove;
+            return true;
+        } else{
+            return false;
         }
-        this.stop = true;
     }
 
+    public boolean setNumberOfUsers(int NumberOfUsers){
+        if(NumberOfUsers >= 0 && NumberOfUsers < bikes.length){
+            this.NumberOfUsersToMove = NumberOfUsers;
+            return true;
+        } else{
+            return false;
+        }
+    }
 }
+
 class SimTest{
-    public static void main(String[]args){
+    public static void main(String[] args){
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
         sim.setUpdateInterval(3000);
@@ -257,9 +280,22 @@ class SimTest{
         Thread simThread = new Thread(sim);
         simThread.start();
 
-
+        while(!sim.isInitialized()){
+            try{
+                Thread.sleep(500);
+            } catch(InterruptedException ex){
+                ex.printStackTrace();
+            }
+        }
+        System.out.println("Simulation is initialized");
         javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
         sim.stop();
+
+        if(javax.swing.JOptionPane.showConfirmDialog(null, "Remove any unfinished trips and dock?") == 0){
+            DBH handler = new DBH();
+            handler.removeAllUnfinishedTrips();
+        }
+
     }
 }
 

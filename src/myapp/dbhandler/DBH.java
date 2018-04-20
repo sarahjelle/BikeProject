@@ -677,7 +677,7 @@ public class DBH {
                 } else{
                     stmt.setInt(4, Integer.parseInt(map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString()));
                 }
-
+                stmt.setDouble(4, 0.0);
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());
                 stmt.setInt(6, bikes[i].getDistanceTraveled());
 
@@ -1192,7 +1192,7 @@ public class DBH {
             if(db == null) {
                 return;
             }
-            stmt = db.prepareStatement("INSERT INTO docking_logs (stationID, energyUsage, usedSlots) VALUES (?, ?, ?)");
+            stmt = db.prepareStatement("INSERT INTO docking_log (stationID, energyUsage, usedSlots) VALUES (?, ?, ?)");
             stmt.setInt(1, dock.getId());
             stmt.setDouble(2, dock.getPowerUsage());
             stmt.setInt(3, dock.getUsedSpaces());
