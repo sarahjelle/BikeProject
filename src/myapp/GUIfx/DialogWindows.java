@@ -21,10 +21,15 @@ public class DialogWindows {
         alert.setContentText(content);
         alert.setHeaderText(header);
 
+        ButtonType yesButton = new ButtonType("Yes");
+        ButtonType noButton = new ButtonType("Cancel");
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
         Optional<ButtonType> result = alert.showAndWait();
         boolean ok = false;
 
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (result.isPresent() && result.get() == yesButton) {
             ok = true;
         }
 

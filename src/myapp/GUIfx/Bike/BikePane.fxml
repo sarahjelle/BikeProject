@@ -124,9 +124,27 @@
                     <SplitPane orientation="VERTICAL">
                         <HBox>
                             <WebView fx:id="browser"/>
-                            <!--map-->
-                        </HBox> <!--map-->
-                        <ListView fx:id="repairList"/>
+                        </HBox>
+                        <AnchorPane fx:id="repairPane">
+                            <ListView fx:id="repairList" onMouseClicked="#showRepair" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0"/>
+                            <VBox fx:id="repairInfoPane" visible="false" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                                <GridPane alignment="CENTER">
+                                    <Label text = "Date sent: "/>
+                                    <Text fx:id="dateSentRepInfo" GridPane.columnIndex="1"/>
+                                    <Label text="Description before: " GridPane.rowIndex="1"/>
+                                    <Text fx:id="descBeforeInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    <Label text="Date received" GridPane.rowIndex="2"/>
+                                    <Text fx:id="dateReceivedInfo" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                    <Label text="Price" GridPane.rowIndex="3"/>
+                                    <Text fx:id="priceRepairInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                    <Label text="Description after: " GridPane.rowIndex="4"/>
+                                    <Text fx:id="descAfterInfo" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                                </GridPane>
+                                <HBox>
+                                    <Button text="Show all repairs" onAction="#showAllRepairs"/>
+                                </HBox>
+                            </VBox>
+                        </AnchorPane>
                     </SplitPane>
 
                 </SplitPane>
