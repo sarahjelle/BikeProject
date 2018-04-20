@@ -32,20 +32,15 @@ public class GenerateStats {
         duThread.start();
     }
 
-    public String[] dockingName() {
-        String[] dockName = new String[docks.size()];
-        for (int i=0; i<docks.size(); i++) {
-            dockName[i] = docks.get(i).getName().split(",")[0];
+    // Uses the ArrayList containing all docking stations and for each station returns name, capacity and taken slots.
+    public Object[][] dockingStatistics() {
+        Object[][] stat1list = new Object[3][docks.size()];
+        for (int i = 0; i < docks.size(); i++) {
+            stat1list[0][i] = docks.get(i).getName().split(",")[0];
+            stat1list[1][i] = docks.get(i).getCapacity();
+            stat1list[2][i] = docks.get(i).getUsedSpaces();
         }
-        return dockName;
-    }
-
-    public int[] dockCapacity(){
-        int[] dockCap = new int[docks.size()];
-        for (int i=0; i<docks.size(); i++) {
-            dockCap[i] = docks.get(i).getUsedSpaces();
-        }
-        return dockCap;
+        return stat1list;
     }
 
     public int[] bikeAvailability(){
@@ -65,12 +60,11 @@ public class GenerateStats {
     }
 
     public int[][] bikeStats(){
-        int[][] bikeStatistics = new int[4][bikes.size()];
+        int[][] bikeStatistics = new int[3][bikes.size()];
         for (int i=0; i<bikes.size(); i++){
             bikeStatistics[0][i]=bikes.get(i).getId();
             bikeStatistics[1][i]=bikes.get(i).getDistanceTraveled();
             bikeStatistics[2][i]=bikes.get(i).getTotalTrips();
-            bikeStatistics[3][i]=(int)bikes.get(i).getBatteryPercentage();
         }
         return bikeStatistics;
     }
