@@ -1,0 +1,10 @@
+#buttonBar Button{
+    -fx-text-fill: blue;
+    -fx-underline: true;
+    -fx-background-color: transparent;
+    -fx-font-size: 10;
+}
+
+.Header{
+    -fx-font-size: 20;
+}
