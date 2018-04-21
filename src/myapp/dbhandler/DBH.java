@@ -673,9 +673,17 @@ public class DBH {
                 stmt.setDouble(2, bikes[i].getLocation().getLongitude());
                 stmt.setDouble(3, bikes[i].getLocation().getLatitude());
                 if(bikes[i].getLocation().getAltitude() != null){
-                    stmt.setInt(4, Integer.parseInt(bikes[i].getLocation().getAltitude().toString()));
+                    Double DAlt = Double.parseDouble(bikes[i].getLocation().getAltitude().toString());
+                    double dAlt = (double) DAlt;
+                    int iAlt = (int) dAlt;
+                    stmt.setInt(4, iAlt);
                 } else{
-                    stmt.setInt(4, Integer.parseInt(map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString()));
+                    String sAlt = map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString();
+                    Double DAlt = Double.parseDouble(sAlt);
+                    double dAlt = (double) DAlt;
+                    int iAlt = (int) dAlt;
+
+                    stmt.setInt(4, iAlt);
                 }
                 stmt.setDouble(4, 0.0);
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());

@@ -162,7 +162,8 @@ public class Router implements Runnable{
                     double newLat = latAt + latChange;
                     double newLng = lngAt + lngChange;
                     //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
-                    bikeToMove.setLocation(new Location(null, newLat, newLng));
+                    Location newLoc = new Location(null, newLat, newLng);
+                    bikeToMove.setLocation(newLoc);
                     int dist = (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000;
                     double batteryLeft = bikeToMove.getBatteryPercentage() - (1 / POWER_USAGE_PER_M);
                     bikeToMove.setDistanceTraveled(dist);
