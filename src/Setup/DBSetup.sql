@@ -19,7 +19,7 @@ CREATE TABLE bikes (
   make VARCHAR(25) NOT NULL,
   type VARCHAR(25) NOT NULL,
   batteryPercentage DOUBLE DEFAULT 0.0,
-  totalKm int DEFAULT 0,
+  totalm BIGINT DEFAULT 0,
   PRIMARY KEY (bikeID)
 );
 
@@ -102,7 +102,7 @@ CREATE TABLE bike_logs(
   longitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
   batteryPercentage DOUBLE NOT NULL,
-  totalKm int DEFAULT 0,
+  totalm BIGINT DEFAULT 0,
   PRIMARY KEY(bikeID, logTime)
 );
 

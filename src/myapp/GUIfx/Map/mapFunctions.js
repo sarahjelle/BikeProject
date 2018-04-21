@@ -150,13 +150,30 @@ document.addDock = function addDock(dock){
         });
         infoWindows.push({id: dock.id, inf: infoWindow});
         var counter = 0;
+        var isOpen = false;
+        var beenClicked = false;
         google.maps.event.addListener(marker,'click',function(){
-            if(counter == 0){
+            if(!isOpen){
                 infoWindow.open(map,marker);
-                counter = 1;
-            } else if(counter == 1){
-                infoWindow.close(map,marker);
-                counter = 0;
+                isOpen = true;
+                beenClicked = true;
+            } else if(isOpen){
+                //infoWindow.close(map,marker);
+                isOpen = false;
+                beenClicked = false;
+            }
+        });
+
+        google.maps.event.addListener(marker, 'mouseover', function(){
+            if(!isOpen){
+                infoWindow.open(map, marker);
+                isOpen = true;
+            }
+        });
+        google.maps.event.addListener(marker, 'mouseout', function(){
+            if(isOpen && !beenClicked){
+                infoWindow.close(map, marker);
+                isOpen = false;
             }
         });
         var element = {id: dock.id, marker: marker, infoW: infoWindow};
