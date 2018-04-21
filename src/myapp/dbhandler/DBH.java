@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static java.lang.Math.abs;
 import static java.lang.Math.toIntExact;
 
 import com.sun.org.apache.regexp.internal.RE;
@@ -1019,7 +1021,6 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean endRent(Bike bike, int dockID, int spot){
-        connect();
         PreparedStatement stmt = null;
         try{
             if(db == null){
@@ -1029,14 +1030,15 @@ public class DBH {
             stmt.setInt(1, dockID);
             stmt.setInt(2, bike.getId());
 
-            if(execSQLBool(stmt)) {
-                if(dockBike(bike, dockID, spot)) {
+            if(dockBike(bike, dockID, spot)) {
+                connect();
+                if(execSQLBool(stmt)) {
                     stmt.close();
                     db.close();
                     connect();
-                    bike.setStatus(Bike.AVAILABLE);
+                    bike = getBikeByID(bike);
                     stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
-                    if(bike.getStatus() != Bike.TRIP){
+                    if(bike.getStatus() == Bike.TRIP){
                         stmt.setInt(1, Bike.AVAILABLE);
                     } else{
                         stmt.setInt(1, bike.getStatus());
@@ -1264,29 +1266,29 @@ public class DBH {
     public boolean editDocking(Docking updatedDock) {
         Docking orgDock = getDockingByID(updatedDock.getId());
         
-        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return false;
             }
 
-            stmt = db.prepareStatement("UPDATE docking_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
-            stmt.setString(1, updatedDock.getName());
-            stmt.setInt(2, updatedDock.getCapacity());
-            stmt.setDouble(3, updatedDock.getLocation().getLatitude());
-            stmt.setDouble(4, updatedDock.getLocation().getLongitude());
-            stmt.setInt(5, updatedDock.getStatus());
-            stmt.setInt(6, updatedDock.getId());
-
+            //stmt = db.prepareStatement("UPDATE docking_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
+            //stmt.setString(1, updatedDock.getName());
+            //stmt.setInt(2, updatedDock.getCapacity());
+            //stmt.setDouble(3, updatedDock.getLocation().getLatitude());
+            //stmt.setDouble(4, updatedDock.getLocation().getLongitude());
+            //stmt.setInt(5, updatedDock.getStatus());
+            //stmt.setInt(6, updatedDock.getId());
 
             if(orgDock != null) {
-                if(orgDock.getCapacity() < updatedDock.getCapacity()) {
-                    //Mindre en det som blir nytt, da maa det legges til mer i databasen.
-                    System.out.println("Her mangler det noe!");
-                } else if (orgDock.getCapacity() > updatedDock.getCapacity()) {
-                    //Mer en det som er blir nytt, da maa det fjernes fra databasen.
-                    System.out.println("Her mangler det noe!");
+                if (orgDock.getCapacity() != updatedDock.getCapacity()) {
+                    int change = updatedDock.getCapacity() - orgDock.getCapacity();
+                    updateDockingSlots(orgDock, change);
+
+                    connect();
+                    stmt = db.prepareStatement("UPDATE docking_stations SET maxSlots = ? WHERE stationID = ?");
+                    stmt.setInt(1, updatedDock.getCapacity());
+                    stmt.setInt(2, updatedDock.getId());
                 }
             }
 
@@ -1314,26 +1316,27 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean deleteDocking(Docking dock) {
-        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return false;
             }
 
-            stmt = db.prepareStatement("UPDATE docking_stations SET status = ? WHERE stationID = ?");
-            stmt.setInt(1, Docking.DELETED);
-            stmt.setInt(2, dock.getId());
-
             Docking orgDock = getDockingByID(dock.getId());
 
-            System.out.println("IMPORTANT! REMEMBER TO REMOVE SLOTS!!!!!");
+            connect();
+            stmt = db.prepareStatement("UPDATE docking_stations SET status = ?, maxSlots = ? WHERE stationID = ?");
+            stmt.setInt(1, Docking.DELETED);
+            stmt.setInt(2, 0);
+            stmt.setInt(3, dock.getId());
+
 
             if(!execSQLBool(stmt)) {
                 stmt.close();
                 db.close();
                 return false;
             }
+            updateDockingSlots(dock, -dock.getCapacity());
             stmt.close();
             db.close();
             return true;
@@ -1351,41 +1354,41 @@ public class DBH {
      * @param   stationID       the station where the amount is to be chagned
      * @author Fredrik Mediaa
      */
-    /*
-    private void updateDockingSlots(int amountToRemove, int stationID) {
+
+    /**
+     * updateDockingSlots takes care of all the logic in relation to deleting slots belonging to docking stations when the
+     * amount is changed
+     *
+     * @param   dock            the original docking station preferably an update version from the database
+     * @param   capacityChange  the amount in positive or negative direction. Positive = add, negative = delete
+     */
+    private void updateDockingSlots(Docking dock, int capacityChange) {
         connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
                 return;
             }
-
-            stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL and stationID = ?");
-
-
-            if(amountToRemove > 0) {
-                PreparedStatement stmtMax = db.prepareStatement("SELECT MAX(slotID) AS maxi FROM slots WHERE stationID = ?");
-                stmtMax.setInt(1, stationID);
-                ResultSet rsmax = execSQLRS(stmtMax);
-                if(rsmax.next()) {
-                    for(int i = amountToRemove; i > 0; i--) {
-                        PreparedStatement stmtDelete = db.prepareStatement("DELETE FROM slots WHERE slotID = ? AND stationID = ?");
-                        stmtDelete.setInt(1, rsmax.getInt("maxi") - i);
-                        stmtDelete.setInt(2, stationID);
-                        execSQLBool(stmtDelete);
-                        stmtDelete.close();
-                    }
+            if(capacityChange > 0) {
+                stmt = db.prepareStatement("INSERT INTO slots (stationID, slotID) VALUES (?, ?)");
+                for(int i = 0; i < capacityChange; i++) {
+                System.out.println("INSERTING SLOT " + (dock.getCapacity() + 1 + i));
+                    stmt.setInt(1, dock.getId());
+                    stmt.setInt(2, ((dock.getCapacity() + 1 + i)));
+                    execSQLBool(stmt);
+                }
+            } else if (capacityChange < 0) {
+                stmt = db.prepareStatement("DELETE FROM slots WHERE stationID = ? AND slotID = ?");
+                for(int i = 0; i < Math.abs(capacityChange); i++) {
+                    System.out.println("DELETING SLOT " + (dock.getCapacity() - i));
+                    stmt.setInt(1, dock.getId());
+                    stmt.setInt(2, dock.getCapacity() - i);
+                    execSQLBool(stmt);
                 }
             }
 
-            stmt.setInt(1, stationID);
+            stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL and stationID = ?");
 
-            amountToRemove++;
-            PreparedStatement stmtAdd = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
-            stmtAdd.setInt(1, );
-            stmtAdd.setInt(2, stationID);
-
-            }
 
             stmt.close();
             db.close();
@@ -1393,8 +1396,7 @@ public class DBH {
             forceClose();
             e.printStackTrace();
         }
-    }*/
-
+    }
 
     /**
      * generateDockingSlots is a method for generating all hte slots assosiated with the Docking object
@@ -1413,7 +1415,7 @@ public class DBH {
             stmt = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
 
             for(int i = 0; i < amount; i++) {
-                stmt.setInt(1, i);
+                stmt.setInt(1, i + 1);
                 stmt.setInt(2, stationID);
 
                 execSQLBool(stmt);

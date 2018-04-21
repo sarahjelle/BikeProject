@@ -13,31 +13,65 @@
 <?import javafx.scene.text.*?>
 
 
-<GridPane fx:controller="myapp.GUIfx.SignIn.SignInController" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" alignment="center" hgap="10" vgap="10">
-    <padding><Insets top="25" right="25" bottom="10" left="25"/></padding>
+<BorderPane stylesheets="@SignIn.css" fx:controller="myapp.GUIfx.SignIn.SignInController" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+    <top>
+        <HBox alignment="CENTER">
+            <Label text="Trondheim Bike Rental" styleClass="Header" HBox.hgrow="ALWAYS"/>
+            <padding>
+                <Insets top="20"/>
+            </padding>
+        </HBox>
+    </top>
+    <center>
+        <AnchorPane>
+            <VBox spacing="20" alignment="CENTER" fx:id="logInPane" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
+                <GridPane alignment="CENTER" vgap="10" hgap="10">
+                    <Label text = "Email:" GridPane.rowIndex="0"/>
+                    <TextField fx:id ="userId"
+                               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label text="Password: " GridPane.rowIndex="1"/>
+                    <PasswordField fx:id="passwordField"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                </GridPane>
+                <Button text="Log in" onAction="#logIn"/>
 
-    <Text text = "Welcome"
-          GridPane.columnIndex="0" GridPane.rowIndex="0"
-          GridPane.columnSpan="2"/>
-    <Label text = "User Name:"
-           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-    <TextField fx:id ="userId"
-               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-    <Label text="Password: "
-           GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-    <PasswordField fx:id="passwordField"
-                   GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Text fx:id="actiontarget"
+                      GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+            </VBox>
+            <VBox fx:id="signUpPane" alignment="CENTER" visible="false" spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
+                <GridPane alignment="CENTER" vgap="10" hgap="10">
+                    <Label text="First name: "/>
+                    <TextField fx:id="firstNameReg" GridPane.columnIndex="1"/>
 
-    <HBox spacing="10" alignment="bottom_right"
-          GridPane.columnIndex="0" GridPane.rowIndex="4">
-        <Button text ="Sign in"
-                onAction="#handleSubmitButtonActiton"/>
-    </HBox>
+                    <Label text="Last name: " GridPane.rowIndex="1"/>
+                    <TextField fx:id="lastNameReg" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-    <Text fx:id="actiontarget"
-          GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                    <Label text="Phonenumber: " GridPane.rowIndex="2"/>
+                    <TextField fx:id="phoneReg" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <Text fx:id="phoneInfo"/>
 
+                    <Label text="Email" GridPane.rowIndex="3"/>
+                    <TextField fx:id="emailReg" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                </GridPane>
 
 
-</GridPane>
+                <HBox spacing="10" alignment="CENTER">
+                    <Button text="Back" onAction="#back"/>
+                    <Button text="Sign up" onAction="#signUp"/>
+                </HBox>
+            </VBox>
+        </AnchorPane>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" fx:id="buttonBar">
+            <Button text="Sign up" onAction="#openSignUp"/>
+            <Separator orientation="VERTICAL"/>
+            <Button text="Forgot password"/>
+            <padding>
+                <Insets bottom="5"/>
+            </padding>
+        </HBox>
+    </bottom>
+</BorderPane>
 
