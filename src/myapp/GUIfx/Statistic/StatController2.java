@@ -148,11 +148,11 @@ public class StatController2 {
                 if(pieChart == null){
                     ObservableList<PieChart.Data> pieChartData =
                             FXCollections.observableArrayList(
-                                    new PieChart.Data("On trip", bikeAv[1]),
-                                    new PieChart.Data("In repair", bikeAv[2]),
-                                    new PieChart.Data("Available", bikeAv[0]));
+                                    new PieChart.Data("On trip: "+bikeAv[0], bikeAv[0]),
+                                    new PieChart.Data("In repair: "+bikeAv[1], bikeAv[1]),
+                                    new PieChart.Data("Available: "+bikeAv[2], bikeAv[2]));
                     pieChart = new PieChart(pieChartData);
-                    pieChart.setTitle("");
+                    pieChart.setTitle("Bike statuses for all bikes");
 
                     Platform.runLater(() -> {
                         stat1Pane.setCenter(pieChart);
@@ -183,6 +183,7 @@ public class StatController2 {
     private class DockingChartUpdater implements Runnable{
         private Boolean stop = false;
         private int UPDATE_INTERVAL = 5000; //ms
+        private int currentNumOfXYDataPoints=0;
 
         public DockingChartUpdater(){}
 
@@ -193,10 +194,9 @@ public class StatController2 {
         public void run(){
             while(!stop){
                 Object[][] dockStats = stats.dockingStatistics();
-
                 if(dockStat == null){
                     CategoryAxis xAxis = new CategoryAxis();
-                    xAxis.setLabel("Docking station");
+                    xAxis.setLabel("Docking station name");
                     NumberAxis yAxis = new NumberAxis(0,100,5);
                     yAxis.setLabel("Slots");
                     XYChart.Series<String, Number> cap = new XYChart.Series();
@@ -205,20 +205,31 @@ public class StatController2 {
                         cap.getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
                         taken.getData().add(new XYChart.Data(dockStats[0][i],dockStats[2][i]));
                     }
+                    currentNumOfXYDataPoints=cap.getData().size();
                     dockStat = new BarChart<>(xAxis,yAxis);
                     dockStat.getData().addAll(cap,taken);
-                    cap.setName("Total number of slots");
+                    cap.setName("Station capacity");
                     taken.setName("Occupied slots");
                     Platform.runLater(() -> {
                         stat2Pane.setCenter(dockStat);
                     });
-                } else{
+                }else{
+                    if (dockStats[0].length != currentNumOfXYDataPoints) {
+                        // Add columns that are not present
+                        for (int i = currentNumOfXYDataPoints; i < dockStats[0].length; i++) {
+                            // There is only one data-series, so get(0) works
+                            dockStat.getData().get(0).getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
+                            dockStat.getData().get(1).getData().add(new XYChart.Data(dockStats[0][i], dockStats[2][i]));
+                        }
+                    }
                     // Update already present columns
-                    // HJELP MARTIN, nå er det to series som må oppdateres
                     int valueCounter = 0;
                     int seriesCounter = 0;
                     for(XYChart.Series<String, Number> data : dockStat.getData()){
+                        System.out.println(data.toString());
                         for(XYChart.Data<String, Number> d : data.getData()){
+                            System.out.println(valueCounter);
+                            System.out.println(d.toString());
                             if(seriesCounter == 0){
                                 d.setYValue((int)dockStats[1][valueCounter]);
                             } else if(seriesCounter == 1){
@@ -226,15 +237,10 @@ public class StatController2 {
                             }
                             valueCounter++;
                         }
+                        valueCounter=0;
                         seriesCounter++;
                     }
-                    // Add columns that are not present
-                    for(int i = dockStat.getData().size(); i < dockStats[0].length; i++){
-                        // TO SERIER, virker dette??
-                        // There is only one data-series, so get(0) works
-                        dockStat.getData().get(0).getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
-                        dockStat.getData().get(1).getData().add(new XYChart.Data(dockStats[0][i], dockStats[2][i]));
-                    }
+                    currentNumOfXYDataPoints=dockStat.getData().get(0).getData().size();
                 }
                 try{
                     Thread.sleep(UPDATE_INTERVAL);
@@ -263,7 +269,6 @@ public class StatController2 {
         public void run(){
             while(!stop){
                 Object[][] bStats = stats.bikeStats();
-                //int[][] bStats = {{1,2,3,4,5,6,7,8,9,10}, {1,12,16,11,9,3,1,6,3,9}, {1,3,6,2,4,3,1,2,8,2}};
                 if(kmStat == null){
                     last_update_size = bStats[0].length;
                     final CategoryAxis xAxis = new CategoryAxis();
@@ -280,23 +285,22 @@ public class StatController2 {
                     Platform.runLater(() -> {
                         stat3Pane.setCenter(kmStat);
                     });
-                } else if(bStats[0].length != last_update_size){
-                    //More bikes has been registered
-                    for (int i = kmStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
-                        kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
-                    }
                 } else{
+                    if(bStats[0].length != last_update_size){
+                        //More bikes has been registered
+                        for (int i = kmStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
+                            kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+                        }
+                    }
+                    // Update existing points
                     int valueCounter = 0;
-                    int seriesCounter = 0;
-                    int bikeCounter = 0;
                     for(final XYChart.Series<String, Number> dataSeries : kmStat.getData()){
                         for(final XYChart.Data<String, Number> data : dataSeries.getData()) {
-                                data.setYValue((double)bStats[1][valueCounter]);
+                            data.setYValue((double)bStats[1][valueCounter]);
                             valueCounter++;
                         }
                     }
                 }
-
                 last_update_size = bStats[0].length;
 
                 try{
@@ -342,23 +346,21 @@ public class StatController2 {
                     Platform.runLater(() -> {
                         stat4Pane.setCenter(tripStat);
                     });
-                } else if(bStats[0].length != last_update_size){
-                    //More bikes has been registered
-                    for (int i = tripStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
-                        tripStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
-                    }
                 } else{
+                    if(bStats[0].length != last_update_size){
+                        //More bikes has been registered
+                        for (int i = tripStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
+                            tripStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
+                        }
+                    }
                     int valueCounter = 0;
-                    int seriesCounter = 0;
-                    int bikeCounter = 0;
                     for(final XYChart.Series<String, Number> dataSeries : tripStat.getData()){
                         for(final XYChart.Data<String, Number> data : dataSeries.getData()) {
                             data.setYValue((double)bStats[2][valueCounter]);
+                            valueCounter++;
                         }
-                        valueCounter++;
                     }
                 }
-
                 last_update_size = bStats[0].length;
 
                 try{
