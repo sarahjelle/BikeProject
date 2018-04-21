@@ -70,6 +70,9 @@ public class Router implements Runnable{
                 if((System.currentTimeMillis() - StartTime) >= UPDATE_INTERVAL){
                     //Update loc to DB
                     DBH handler = new DBH();
+                    Location actNewLoc = map.SnapToRoad(new Location(null, bikeToMove.getLocation().getLatitude(), bikeToMove.getLocation().getLongitude()));
+                    bikeToMove.setLocation(actNewLoc);
+                    System.out.println(bikeToMove.getLocation().getLatitude() + ", " + bikeToMove.getLocation().getLongitude() + " : " + bikeToMove.getBatteryPercentage());
                     Bike[] arr = {bikeToMove};
                     Bike[] ret = handler.logBikes(arr);
                     StartTime = System.currentTimeMillis();
@@ -169,7 +172,7 @@ public class Router implements Runnable{
                     bikeToMove.setDistanceTraveled(dist);
                     bikeToMove.setBatteryPercentage(batteryLeft);
 
-                    System.out.println(newLat + ", " + newLng);
+                    //System.out.println(newLat + ", " + newLng);
                     double checkLat = Math.abs(bikeToMove.getLocation().getLatitude() - nextLocation.getLatitude());
                     double checkLng = Math.abs(bikeToMove.getLocation().getLongitude() - nextLocation.getLongitude());
                     if(checkLat <= ERROR_TOLERANCE && checkLng <= ERROR_TOLERANCE){

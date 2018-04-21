@@ -286,7 +286,7 @@ public class Simulation implements Runnable{
                 start = docking_stations[rand.nextInt(docking_stations.length)];
                 end = docking_stations[rand.nextInt(docking_stations.length)];
                 bike = start.rentBike(customer);
-            } while(start == null || end == null || bike == null || bike.getLocation().getLatitude() == null || bike.getLocation().getLongitude() == null);
+            } while(start == null || end == null || bike == null || bike.getLocation().getLatitude() == null || bike.getLocation().getLongitude() == null || start == end);
             routers[i] = new Router(customer, bike, start, end);
             routers[i].setUpdateInterval(UPDATE_INTERVAL);
         }

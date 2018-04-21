@@ -1084,9 +1084,9 @@ public class DBH {
                 return false;
             }
 
-            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.stationID = ? AND slots.bikeID = ?");
-            stmt.setInt(1, dockID);
-            stmt.setInt(2, bike.getId());
+            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.bikeID = ?");
+            //stmt.setInt(1, dockID);
+            stmt.setInt(1, bike.getId());
             boolean output = execSQLBool(stmt);
             stmt.close();
             db.close();
