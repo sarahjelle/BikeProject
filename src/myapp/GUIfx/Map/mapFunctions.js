@@ -25,6 +25,7 @@ function initMap() {
     };
 
 }
+
 document.addBikes = function addBikes(bikesArr){
     for(var i = 0; i < bikesArr.length; i++){
            document.addBike(bikesArr[i]);
@@ -151,17 +152,23 @@ document.addDock = function addDock(dock){
         infoWindows.push({id: dock.id, inf: infoWindow});
         var counter = 0;
         var isOpen = false;
-        var beenClicked = false;
+        var lockOpen = false;
         google.maps.event.addListener(marker,'click',function(){
             if(!isOpen){
                 infoWindow.open(map,marker);
                 isOpen = true;
-                beenClicked = true;
+                lockOpen = true;
+            } else if(isOpen && lockOpen){
+                infoWindow.close(map,marker);
+                isOpen = false;
+                lockOpen = false;
             } else if(isOpen){
                 //infoWindow.close(map,marker);
-                isOpen = false;
-                beenClicked = false;
+                isOpen = true;
+                lockOpen = true;
             }
+
+
         });
 
         google.maps.event.addListener(marker, 'mouseover', function(){
@@ -171,7 +178,8 @@ document.addDock = function addDock(dock){
             }
         });
         google.maps.event.addListener(marker, 'mouseout', function(){
-            if(isOpen && !beenClicked){
+            if(isOpen && !lockOpen){
+                // Close
                 infoWindow.close(map, marker);
                 isOpen = false;
             }
