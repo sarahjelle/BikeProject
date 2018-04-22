@@ -168,7 +168,7 @@ public class Docking {
     /**
      * Docks a bike to the first open spot on a docking status. Used to redock bikes that have been rented for trips.
      * @param bike the bike to dock
-     * @return <code>true</code> if docking of bike was successfull
+     * @return <code>true</code> if docking of bike was successful,
      *          <code>false</code> if the bike could not be redocked
      */
     public boolean dockBike(Bike bike) {
