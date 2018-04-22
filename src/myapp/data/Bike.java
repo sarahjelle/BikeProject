@@ -197,6 +197,11 @@ public class Bike {
         return location;
     }
 
+    /**
+     * equals compares the ID of the given bike with its own ad returns true if they are equal.
+     * @param bike      the bike to compare IDs to
+     * @return          True = Equal, False = Not equal
+     */
     public boolean equals(Bike bike) {
         if (bike.getId() == id) {
             return true;
@@ -204,6 +209,10 @@ public class Bike {
         return false;
     }
 
+    /**
+     * getLatestRepairRequest returns the latest Repair object in the Repair object array hold by the Bike object.
+     * @return      the latest added Repair object
+     */
     private Repair getLatestRepairRequest() {
         Repair repair = null;
         for(Repair rep : repairs) {
@@ -217,6 +226,12 @@ public class Bike {
         return repair;
     }
 
+    /**
+     * addRepairRequest takes the parameters given and creates a new Repair object. It also takes the Repair object and register it to the database directly through the startRepairRequest method in the Repair Object.
+     * @param desc      the description of the problem
+     * @param date      the date of register
+     * @return          a boolean based on the results given by the DBH object. If it got registered to the DB it returns true, otherwise it returns false
+     */
     public boolean addRepairRequest(String desc, LocalDate date) {
         if(repairs.length == 0) {
             repairs = new Repair[1];
@@ -239,6 +254,13 @@ public class Bike {
         return false;
     }
 
+    /**
+     * finishLastRepairRequest takes the parameters given and finishes the last Repair object in the Repair object array. It also register it to the database through finishRepairRequest method in the Repair object.
+     * @param returnDesc
+     * @param returnDate
+     * @param price
+     * @return
+     */
     public boolean finishLastRepairRequest(String returnDesc, LocalDate returnDate, double price) {
         Repair rep = getLatestRepairRequest();
         if(rep.finishRepairRequest(returnDesc, returnDate, price)) {

@@ -131,10 +131,14 @@ public class GenerateContent {
 
             //Create user_types
             String user_types = "\n";
-            user_types += "INSERT INTO " + user_typesTableName + " (description) VALUES (\"Administrator\");\n";
-            user_types += "INSERT INTO " + user_typesTableName + " (description) VALUES (\"Reperatør\");\n";
-            user_types += "INSERT INTO " + user_typesTableName + " (description) VALUES (\"Kunde\");\n";
-
+            user_types += "INSERT INTO " + user_typesTableName + " (description) VALUES (\"ADMINISTRATOR\");\n";
+            user_types += "INSERT INTO " + user_typesTableName + " (description) VALUES (\"REPAIRMAN\");\n";
+            user_types += "INSERT INTO " + user_typesTableName + " (description) VALUES (\"CUSTOMER\");\n";
+            user_types += "\n";
+            user_types += "INSERT INTO bikeTypes (description) VALUES (\"City bike\");\n";
+            user_types += "INSERT INTO bikeTypes (description) VALUES (\"Hybrid\");\n";
+            user_types += "INSERT INTO bikeTypes (description) VALUES (\"Terrain\");\n";
+            user_types += "INSERT INTO bikeTypes (description) VALUES (\"Country\");\n";
 
 
             toWrite += bikes + docking_stations + slots + user_types + slotSet + users;
