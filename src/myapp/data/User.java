@@ -1,5 +1,9 @@
 package myapp.data;
 import java.util.Random;
+
+/**
+ * User is a representation of the people either maintaining the system, renting the bikes or repairing them.
+ */
 public class User {
     public final static int ADMINISTRATOR = 1,
                             REPAIRMAN = 2,
@@ -17,7 +21,17 @@ public class User {
     private final String password;
 
 
-    //Complete new user to be registered in DB
+    /**
+     * When creating a new user in the code, this is the constructor to be used. It creates a temporary password for the user,
+     * and holds all information needed to be registered in the database.
+     *
+     * @param UserClass     not in use at the moment, but can be used for adding users with different level of access
+     * @param firstname     the firstname of the user
+     * @param lastname      the lastname of the user
+     * @param phone         the phonenumber of the user
+     * @param email         the email and username of the person. Passwords and information is sent to this. Used to login user
+     * @param landcode      the landcode, to support phones from other countries.
+     */
     public User(int UserClass, String firstname, String lastname, int phone, String email, String landcode){
         this.UserID = -1;
         this.UserClass = UserClass;
@@ -42,7 +56,16 @@ public class User {
         this.password = pw;
     }
 
-    //To be used when an already registered user logs in
+    /**
+     * This constructor is used by the Database, returning a fulfilled user with all information needed.
+     * @param UserID        the users ID
+     * @param UserClass     the level of access the user is given
+     * @param firstname     the firstname of the user
+     * @param lastname      the lastname of the usr
+     * @param phone         the phonenumber of the user
+     * @param email         the email and username of the person. Passwords and information is sent to this. Used to login user
+     * @param landcode      the landcode, to support phones from other countries.
+     */
     public User(int UserID, int UserClass, String firstname, String lastname, int phone, String email, String landcode){
         this.UserID = UserID;
         this.UserClass = UserClass;
