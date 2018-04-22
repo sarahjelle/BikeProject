@@ -15,6 +15,12 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ * The AdminController is the controller of AdminPane.fxml.
+ * The class contains methods to fill the AdminPane with information.
+ *
+ * @author Sara Hjelle
+ */
 public class AdminController implements Initializable{
     @FXML private SplitPane adminPane;
     @FXML private GridPane adminInfo;
@@ -27,7 +33,6 @@ public class AdminController implements Initializable{
     @FXML private HBox infoButtons;
 
     private User user;
-    //private User user = new User(-1, "Sara", "Hjelle", 98899919, "sarahj.98@hotmail.com", "0047");
 
     private DBH dbh = new DBH();
     private User[] admins;
@@ -46,6 +51,11 @@ public class AdminController implements Initializable{
     @FXML private TextField emailEdit;
     @FXML private HBox editButtons;
 
+    /**
+     *
+     * @param url
+     * @param rb
+     */
     public void initialize(URL url, ResourceBundle rb){
         adminList.setCellFactory(e -> new AdminCell());
         refreshList();
@@ -55,6 +65,11 @@ public class AdminController implements Initializable{
         this.user = user;
     }
 
+    /**
+     * The refreshList() method fills the ListView with the correct information from the database.
+     * The method runs on a separate thread, which makes is possible to do something else while
+     * the information is loading into the list.
+     */
     @FXML private void refreshList(){
         adminList.getItems().clear();
         Thread thread = new Thread(() -> {
@@ -69,11 +84,17 @@ public class AdminController implements Initializable{
         thread.start();
     }
 
+    /**
+     * The openPane method is used to make the adminpage visible.
+     * The method takes in a user object, which is the current logged in user.
+     * This method is used in the appController.
+     * @param user the user who logged into the application.
+     */
     public void openPane(User user){
-        //user = signInController.getUser();
         this.user = user;
         adminPane.setVisible(true);
         adminInfo.requestLayout();
+        closeEdit();
         firstnameInfo.setText(user.getFirstname());
         surnameInfo.setText(user.getLastname());
         phoneInfo.setText(Integer.toString(user.getPhone()));
@@ -84,9 +105,10 @@ public class AdminController implements Initializable{
         adminPane.setVisible(false);
     }
 
-    @FXML private void showInfo(User user){
-    }
-
+    /**
+     * The changePassword method makes it possible for the logged in user to
+     * change a his/hers password.
+     */
     @FXML private void changePassword(){
         String old = oldPassword.getText();
         String newPass = newPassword.getText();
@@ -104,6 +126,12 @@ public class AdminController implements Initializable{
         }
     }
 
+    /**
+     * The selectedRow() method is used when the user clicks on a row in the list of admins.
+     * When a row is selected a dialogwindow is opened and the user can chose to delete another admin.
+     * We chose to make this a possibility because there is a limited amount of user on this application,
+     * but normally only some administrators would be able to delete another user.
+     */
     @FXML private void selectedRow(){
         User otherUser = adminList.getSelectionModel().getSelectedItem();
         String userName = "User: " + otherUser.getFirstname() + " " + otherUser.getLastname();
@@ -112,9 +140,9 @@ public class AdminController implements Initializable{
         alert.setContentText("Choose what you want to do: ");
 
         ButtonType delete = new ButtonType("Delete admin");
-        ButtonType password = new ButtonType("Reset password");
+        ButtonType cancel = new ButtonType("Cancel");
 
-        alert.getButtonTypes().setAll(delete, password);
+        alert.getButtonTypes().setAll(delete, cancel);
 
         Optional<ButtonType> result = alert.showAndWait();
 
@@ -157,5 +185,54 @@ public class AdminController implements Initializable{
         surnameEdit.setVisible(false);
         phoneEdit.setVisible(false);
         emailEdit.setVisible(false);
+    }
+
+    /**
+     * Method makes it possible for the logged in user to edit his/hers
+     * own information.
+     */
+    @FXML private void edit(){
+        String firstName = user.getFirstname();
+        String lastName = user.getLastname();
+        int phone = user.getPhone();
+        String email = user.getEmail();
+
+        if(!firstNameEdit.getText().trim().isEmpty()){
+            firstName = firstNameEdit.getText().trim();
+        }
+
+        if(!surnameEdit.getText().trim().isEmpty()){
+            lastName = surnameEdit.getText().trim();
+        }
+
+        if(!phoneEdit.getText().trim().isEmpty()){
+            try {
+                phone = Integer.parseInt(phoneEdit.getText().trim());
+            }catch(Exception e){}
+        }
+
+        if(!emailEdit.getText().trim().isEmpty()){
+            email = emailEdit.getText().trim();
+        }
+
+        boolean ok = dw.confirmWindow("Are you sure you want to change your information to: " +
+                "\nFirst name: " + firstName + "\nSurname: " + lastName + "\nPhone: " + phone + "\nEmail: " + email,
+                "Change your information");
+
+        if(ok){
+            user.setFirstname(firstName);
+            user.setLastname(lastName);
+            user.setPhone(phone);
+            user.setEmail(email);
+
+            boolean updated = dbh.updateUser(user);
+            if(updated){
+                dw.informationWindow("Your information is now updated", "Updated information");
+                openPane(user);
+            }
+            else{
+                dw.errorWindow("Your information could not be updated", "Information update failed");
+            }
+        }
     }
 }

@@ -23,6 +23,7 @@ import myapp.dbhandler.DBH;
 
 import javax.print.Doc;
 
+import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -83,6 +84,7 @@ public class BikeController implements Initializable {
     private Label statusInfo;
     @FXML
     private Label distanceInfo;
+    @FXML private Label tripInfo;
 
     //List of repairs
     @FXML
@@ -90,12 +92,15 @@ public class BikeController implements Initializable {
     private Repair[] repairs;
 
     //info about a repair
-    @FXML private VBox repairInfoPane;
+    @FXML private BorderPane repairListPane;
+    @FXML private BorderPane repairInfoPane;
     @FXML private Text dateSentRepInfo;
     @FXML private Text descBeforeInfo;
     @FXML private Text dateReceivedInfo;
     @FXML private Text priceRepairInfo;
     @FXML private Text descAfterInfo;
+    @FXML private Text statusRepairInfo;
+    @FXML private Button finishRepair;
 
     //repair
     @FXML
@@ -105,13 +110,13 @@ public class BikeController implements Initializable {
     @FXML
     private DatePicker dateSent;
     @FXML
-    private TextField descriptionBefore;
+    private TextArea descriptionBefore;
     @FXML
     private DatePicker dateReturn;
     @FXML
     private TextField priceRepair;
     @FXML
-    private TextField descriptionDone;
+    private TextArea descriptionDone;
 
     //Edit
     @FXML
@@ -124,19 +129,12 @@ public class BikeController implements Initializable {
     private TextField priceEdit;
     @FXML
     private DatePicker dateEdit;
-    @FXML
-    private TextField batteryEdit;
-    @FXML
-    private ComboBox statusEdit;
-    @FXML
-    private TextField distanceEdit;
 
     //Register new bike:
     @FXML
-    private VBox registerPane;
+    private BorderPane registerPane;
     @FXML
     private ComboBox<String> typeReg;
-
     @FXML private ComboBox<String> locationReg;
     @FXML private DatePicker dateReg;
     @FXML
@@ -144,6 +142,7 @@ public class BikeController implements Initializable {
     @FXML
     private TextField makeReg;
 
+    //show map
     @FXML private WebView browser;
     private BikeUpdater bu;
     private Thread buThread;
@@ -279,42 +278,35 @@ public class BikeController implements Initializable {
         typeTmp = bike.getType();
         priceTmp = bike.getPrice();
         dateTmp = bike.getPurchased();
-        batteryTmp = bike.getBatteryPercentage();
-        distanceTmp = bike.getDistanceTraveled();
 
         closeAll();
         infoEditRepair.setVisible(true);
         bikeInfo.setVisible(true);
 
-        idOutput.setText(Integer.toString(bike.getId()));
-        typeInfo.setText(bike.getType());
-        makeInfo.setText(bike.getMake());
-        priceInfo.setText(Double.toString(bike.getPrice()));
+        idOutput.setText(Integer.toString(id));
+        typeInfo.setText(typeTmp);
+        makeInfo.setText(makeTmp);
+        priceInfo.setText(Double.toString(priceTmp));
+        dateInfo.setText(dateTmp.toString());
+
+        double battery = bike.getBatteryPercentage()*100;
+        batteryInfo.setText(Double.toString(battery) + "%");
+        distanceInfo.setText(Integer.toString(bike.getDistanceTraveled()));
+        //tripInfo.setText(Integer.toString(bike.getTotalTrips()));
 
         refreshRepair(bike);
 
-        //convert localdate to string
-        LocalDate date = bike.getPurchased();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd LLLL yyyy");
-        String purchaseDate = date.format(formatter);
-        dateInfo.setText(purchaseDate);
-
-        batteryInfo.setText(Double.toString(bike.getBatteryPercentage()));
-        distanceInfo.setText(Integer.toString(bike.getDistanceTraveled()));
 
         if (!getStatus(bike).equals("")) {
             statusInfo.setText(getStatus(bike));
         }
+
         URL url = getClass().getResource("../Bike/BikeMap/BikeMap.html");
         browser.getEngine().load(url.toExternalForm());
         browser.getEngine().setJavaScriptEnabled(true);
         browser.setVisible(true);
 
-        //Bike[] subset = new Bike[bikes.size()];
-        //subset = bikes.toArray(subset);
-        //Bike[] subset = {bike};
-        //addBikes(subset, browser.getEngine());
-        //centerMap(bike, browser.getEngine());
+
         if(bu == null){
             bu = new BikeUpdater(bike);
         } else{
@@ -358,18 +350,31 @@ public class BikeController implements Initializable {
 
     @FXML private void showRepair(){
         Repair repair = repairList.getSelectionModel().getSelectedItem();
-        //dateSentRepInfo.setText();
+        dateSentRepInfo.setText(repair.getRequestDate().toString());
         descBeforeInfo.setText(repair.getDesc());
-        priceRepairInfo.setText(Double.toString(repair.getPrice()));
-        descAfterInfo.setText(repair.getReturnDesc());
-        repairList.setVisible(false);
+        if(repair.getStatus()){
+            priceRepairInfo.setText(Double.toString(repair.getPrice()));
+            descAfterInfo.setText(repair.getReturnDesc());
+            dateReceivedInfo.setText(repair.getRequestDate().toString());
+            statusRepairInfo.setText("Finished");
+        }
+
+        else{
+            priceRepairInfo.setText("");
+            descAfterInfo.setText("");
+            dateReceivedInfo.setText("");
+            statusRepairInfo.setText("Not finished");
+            finishRepair.setVisible(true);
+        }
+
+        repairListPane.setVisible(false);
         repairInfoPane.setVisible(true);
 
 
     }
 
     @FXML private void showAllRepairs(){
-        repairList.setVisible(true);
+        repairListPane.setVisible(true);
         repairInfoPane.setVisible(false);
     }
 
@@ -382,21 +387,15 @@ public class BikeController implements Initializable {
         Bike bike = findBike(id);
 
         if (bike.getStatus() == Bike.REPAIR) {
-            /*descriptionDone.clear();
-            descriptionDone.setPromptText("What was fixed?\n" +
-                    "E.g. new front tire");
+            descriptionDone.clear();
             priceReg.clear();
-            priceReg.setPromptText("E.g. 500,00");
             dateReturn.setValue(null);
-            dateReturn.setPromptText("Choose a date");*/
+
             repairPaneAfter.setVisible(true);
         }
         else if(bike.getStatus() == Bike.AVAILABLE){
             descriptionBefore.clear();
-            descriptionBefore.setPromptText("What need to be fixed? \n" +
-                    "E.g. need new front tire, ...");
             dateSent.setValue(null);
-            dateSent.setPromptText("Choose a date");
             repairPaneBefore.setVisible(true);
         }
         else{
@@ -468,12 +467,6 @@ public class BikeController implements Initializable {
         makeEdit.setText(makeTmp);
         priceEdit.setText(Double.toString(priceTmp));
         dateEdit.setValue(dateTmp);
-        batteryEdit.setText(Double.toString(batteryTmp));
-        distanceEdit.setText(Integer.toString(distanceTmp));
-
-        if (!getStatus(bike).equals("")) {
-            statusEdit.setValue(getStatus(bike));
-        }
 
         closeAll();
         infoEditRepair.setVisible(true);
@@ -497,32 +490,20 @@ public class BikeController implements Initializable {
             }
         }
 
-        if(!batteryEdit.getText().trim().isEmpty()){
-            try{
-                batteryTmp = Double.parseDouble(batteryEdit.getText().trim());
-            }catch (Exception e){
-                batteryEdit.setPromptText("Value contains non numeric character");
-            }
-        }
-
-        if(distanceEdit.getText().trim().isEmpty()){
-            try{
-                distanceTmp = Integer.parseInt(distanceEdit.getText().trim());
-            }catch (Exception e){
-                distanceEdit.setPromptText("Value contains non numeric character");
-            }
+        if(dateEdit.getValue() != null){
+            dateTmp = dateEdit.getValue();
         }
 
         boolean ok = dw.confirmWindow("Confirm that this is the values you want the bike to have \nBikeid: " + id +
-                "\nMake: " + makeTmp + "\nType: " + typeTmp + "\nPrice: " + priceTmp + "\nBattery: " + batteryTmp
-                + "\nDistance traveled: " + distanceTmp, "Confirm new information");
+                "\nMake: " + makeTmp + "\nType: " + typeTmp + "\nPrice: " + priceTmp
+                + "\nDate: " + dateTmp.toString(),
+                "Confirm new information");
         if(ok){
             Bike bike = findBike(id);
             bike.setType(typeTmp);
             bike.setMake(makeTmp);
-            bike.setDistanceTraveled(distanceTmp);
             bike.setPrice(priceTmp);
-            bike.setBatteryPercentage(batteryTmp);
+            bike.setPurchased(dateTmp);
 
             boolean updated = dbh.updateBike(bike);
 
@@ -540,33 +521,40 @@ public class BikeController implements Initializable {
     }
 
 
-
-    //methoed to get types and update comboboxes
-    private void selectedType(ComboBox<String> type) {
-        String selected = type.getSelectionModel().getSelectedItem();
-
-        if (selected != null && selected.equals("New type")) {
-            String newType = dw.inputDialog("Enter new type: ", "New type");
-            if(newType != null){
-                type.getItems().add(newType);
-            }
-        }
-    }
-
     private ArrayList<String> getTypes() {
         //return dbh.getTypes();
         ArrayList<String> types = dbh.getBikeTypes();
         return types;
     }
 
-    @FXML
-    private void typeRegister() {
-        selectedType(typeReg);
+    @FXML private void newType(){
+        String newType = dw.inputDialog("Type name: ", "New type");
+
+        if(newType != null){
+            if(dbh.addBikeType(newType)){
+                typeEdit.getItems().add(newType);
+                typeReg.getItems().add(newType);
+                dw.informationWindow("New type added to the list", "New type");
+            }
+            else{
+                dw.errorWindow("Could not add new type", "New type");
+            }
+
+        }
+
     }
 
-    @FXML
-    private void typeEdit() {
-        selectedType(typeEdit);
+    @FXML private void deleteType(){
+        ArrayList<String> types = getTypes();
+        String typeToDelete = dw.choiceDialog("Which type do you want to delete? ", "Delete type", types);
+
+        if(typeToDelete != null){
+            if(dw.confirmWindow("Are you sure you want to delete " + typeToDelete + " from the list? ", "Delete type? ")){
+                dbh.deleteBikeType(typeToDelete);
+                typeReg.getItems().remove(typeToDelete);
+                typeEdit.getItems().remove(typeToDelete);
+            }
+        }
     }
 
 
@@ -590,7 +578,6 @@ public class BikeController implements Initializable {
         makeReg.clear();
         priceReg.clear();
 
-        typeReg.getItems().add("New type");
         ArrayList<String> types = getTypes();
         for (int i = 0; i < types.size(); i++) {
             typeReg.getItems().add(types.get(i));
@@ -610,12 +597,12 @@ public class BikeController implements Initializable {
         boolean ok = true;
 
         if (makeReg.getText().trim().isEmpty()) {
-            makeReg.setText("Empty");
+            makeReg.setPromptText("Can't be empty");
             ok = false;
         }
 
         if (typeReg.getSelectionModel().getSelectedItem() == null) {
-            typeReg.setValue("Type1");
+            typeReg.setValue("Choose a type");
 
             ok = false;
         }
@@ -626,15 +613,20 @@ public class BikeController implements Initializable {
         }
 
         if (priceReg.getText().trim().isEmpty()) {
-            priceReg.setText("Field is blank");
+            priceReg.setPromptText("Can't be empty");
             ok = false;
         } else {
             try {
                 double price = Double.parseDouble(priceReg.getText());
             } catch (Exception e) {
                 ok = false;
-                priceReg.setText("Write a number");
+                priceReg.setPromptText("Only numeric characters");
             }
+        }
+
+        if(locationReg.getSelectionModel().getSelectedItem() == null){
+            locationReg.setValue("Choose a location");
+            ok = false;
         }
         return ok;
     }
@@ -664,7 +656,6 @@ public class BikeController implements Initializable {
         }
     }
 
-    //methods for deleting bikes
     //methods for deleting bikes
     @FXML
     private void deleteBike() {

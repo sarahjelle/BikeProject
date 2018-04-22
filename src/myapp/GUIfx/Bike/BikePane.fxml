@@ -50,34 +50,44 @@
             </BorderPane>
         </center>
     </BorderPane>
-    <VBox fx:id="registerPane" visible="false" alignment="CENTER" spacing="20" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-        <GridPane alignment="CENTER" hgap="10.0" vgap="10.0">
-            <Label text="Purchase date: " GridPane.rowIndex="0" />
-            <DatePicker fx:id="dateReg" GridPane.columnIndex="1" />
+    <BorderPane fx:id="registerPane" visible="false"  AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+        <center>
+            <VBox alignment="CENTER" spacing="30">
+                <GridPane alignment="CENTER" hgap="10.0" vgap="10.0">
+                    <Label text="Purchase date: " GridPane.rowIndex="0" />
+                    <DatePicker fx:id="dateReg" GridPane.columnIndex="1" prefWidth="150"/>
 
-            <Label text="Price: " GridPane.rowIndex="1" />
-            <TextField fx:id="priceReg" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label text="Price: " GridPane.rowIndex="1" />
+                    <TextField fx:id="priceReg" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="150"/>
 
-            <Label text="Make: " GridPane.rowIndex="2" />
-            <TextField fx:id="makeReg" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label text="Make: " GridPane.rowIndex="2" />
+                    <TextField fx:id="makeReg" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="150"/>
 
-            <Label text="Type:" GridPane.rowIndex="3" />
-            <HBox GridPane.columnIndex="1" GridPane.rowIndex="3">
-                <ComboBox fx:id="typeReg" onAction="#typeRegister"/>
-                <Text text="Edit"/>
-                <Text text="Delete"/>
+                    <Label text="Type:" GridPane.rowIndex="3" />
+                    <ComboBox fx:id="typeReg" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="150"/>
+
+                    <Label text="Docking station: " GridPane.rowIndex="4"/>
+                    <ComboBox fx:id="locationReg"  GridPane.columnIndex="1" GridPane.rowIndex="4" prefWidth="150"/>
+                </GridPane>
+                <HBox alignment="CENTER" spacing="10">
+                    <Button text="Register" onAction="#regBike"/>
+                    <Separator orientation="VERTICAL"/>
+                    <Button text="Cancel" onAction="#cancel"/>
+                </HBox>
+            </VBox>
+        </center>
+        <bottom>
+            <HBox alignment="CENTER" fx:id="regBottomBar">
+                <Label text="Type: "/>
+                <Button text="New type" onAction="#newType"/>
+                <Separator orientation="VERTICAL"/>
+                <Button text="Delete type" onAction="#deleteType"/>
+                <padding>
+                    <Insets bottom="5"/>
+                </padding>
             </HBox>
-
-
-            <Label text="Docking station: " GridPane.rowIndex="4"/>
-            <ComboBox fx:id="locationReg"  GridPane.columnIndex="1" GridPane.rowIndex="4" prefWidth="50"/>
-        </GridPane>
-        <HBox alignment="CENTER" spacing="10">
-            <Button text="Register" onAction="#regBike"/>
-            <Separator orientation="VERTICAL"/>
-            <Button text="Cancel" onAction="#cancel"/>
-        </HBox>
-    </VBox>
+        </bottom>
+    </BorderPane>
     <BorderPane fx:id="infoEditRepair" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
         <top>
             <HBox fx:id="topIdOutput">
@@ -87,7 +97,7 @@
         </top>
         <center>
             <AnchorPane>
-                <SplitPane fx:id="bikeInfo" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0" >
+                <SplitPane fx:id="bikeInfo" dividerPositions="0.4" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0" >
                     <BorderPane>
                         <center>
                             <GridPane alignment="CENTER" hgap="20" vgap="20">
@@ -111,6 +121,9 @@
 
                                 <Label text="Distance traveled: " GridPane.rowIndex="6"/>
                                 <Label fx:id="distanceInfo" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                                <Label text="Total trips: " GridPane.rowIndex="7"/>
+                                <Label fx:id="tripsInfo" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
                             </GridPane>
                         </center>
                         <bottom>
@@ -126,24 +139,46 @@
                             <WebView fx:id="browser"/>
                         </HBox>
                         <AnchorPane fx:id="repairPane">
-                            <ListView fx:id="repairList" onMouseClicked="#showRepair" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0"/>
-                            <VBox fx:id="repairInfoPane" visible="false" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                                <GridPane alignment="CENTER">
-                                    <Label text = "Date sent: "/>
-                                    <Text fx:id="dateSentRepInfo" GridPane.columnIndex="1"/>
-                                    <Label text="Description before: " GridPane.rowIndex="1"/>
-                                    <Text fx:id="descBeforeInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                                    <Label text="Date received" GridPane.rowIndex="2"/>
-                                    <Text fx:id="dateReceivedInfo" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                                    <Label text="Price" GridPane.rowIndex="3"/>
-                                    <Text fx:id="priceRepairInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                                    <Label text="Description after: " GridPane.rowIndex="4"/>
-                                    <Text fx:id="descAfterInfo" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-                                </GridPane>
-                                <HBox>
-                                    <Button text="Show all repairs" onAction="#showAllRepairs"/>
-                                </HBox>
-                            </VBox>
+                            <BorderPane fx:id="repairListPane" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
+                                <top>
+                                    <HBox>
+                                        <Label text="Date sent" prefWidth="100"/>
+                                        <Label text="Price" prefWidth="100"/>
+                                        <Label text="Status" prefWidth="100"/>
+                                        <padding>
+                                            <Insets left="10"/>
+                                        </padding>
+                                    </HBox>
+                                </top>
+                                <center>
+                                    <ListView fx:id="repairList" onMouseClicked="#showRepair"/>
+                                </center>
+                            </BorderPane>
+                            <BorderPane fx:id="repairInfoPane" visible="false" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                                <center>
+                                    <GridPane alignment="CENTER" vgap="10" hgap="10">
+                                        <Label text = "Date sent: "/>
+                                        <Text fx:id="dateSentRepInfo" GridPane.columnIndex="1"/>
+                                        <Label text="Description before: " GridPane.rowIndex="1"/>
+                                        <Text fx:id="descBeforeInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                        <Label text="Date received: " GridPane.rowIndex="2"/>
+                                        <Text fx:id="dateReceivedInfo" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                        <Label text="Price: " GridPane.rowIndex="3"/>
+                                        <Text fx:id="priceRepairInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                        <Label text="Description after: " GridPane.rowIndex="4"/>
+                                        <Text fx:id="descAfterInfo" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                                        <Label text="Status: " GridPane.rowIndex="5"/>
+                                        <Text fx:id="statusRepairInfo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                                    </GridPane>
+                                </center>
+                                <bottom>
+                                    <HBox alignment="CENTER">
+                                        <Button text="Show all repairs" onAction="#showAllRepairs" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                                        <Separator orientation="VERTICAL"/>
+                                        <Button text="Finish repair" fx:id="finishRepair" visible="false" onAction="#openRepairPane" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </bottom>
+                            </BorderPane>
                         </AnchorPane>
                     </SplitPane>
 
@@ -157,7 +192,7 @@
                             <Label text="Date sent: " GridPane.rowIndex="0"/>
                             <DatePicker fx:id="dateSent" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                             <Label text="Description: " GridPane.rowIndex="1" />
-                            <TextField fx:id="descriptionBefore" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            <TextArea fx:id="descriptionBefore" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         </GridPane>
                     </center>
                     <bottom>
@@ -178,7 +213,7 @@
                             <Label text="Price: " GridPane.rowIndex="1"/>
                             <TextField fx:id="priceRepair" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                             <Label text="Description: " GridPane.rowIndex="2" />
-                            <TextField fx:id="descriptionDone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            <TextArea fx:id="descriptionDone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         </GridPane>
                     </center>
                     <bottom>
@@ -190,43 +225,35 @@
                 </BorderPane>
                 <BorderPane fx:id="editPane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
                     <center>
-                        <GridPane alignment="CENTER" hgap="15" vgap="15">
-                            <Label text="Type: " GridPane.rowIndex="0"/>
-                            <ComboBox fx:id="typeEdit" onAction="#typeEdit" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <VBox alignment="CENTER" spacing="30">
+                            <GridPane alignment="CENTER" hgap="15" vgap="15">
+                                <Label text="Type: " GridPane.rowIndex="0"/>
+                                <ComboBox fx:id="typeEdit" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                            <Label text="Make: " GridPane.rowIndex="1"/>
-                            <TextField fx:id="makeEdit" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                <Label text="Make: " GridPane.rowIndex="1"/>
+                                <TextField fx:id="makeEdit" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                            <Label text="Price: " GridPane.rowIndex="2"/>
-                            <TextField fx:id="priceEdit" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                <Label text="Price: " GridPane.rowIndex="2"/>
+                                <TextField fx:id="priceEdit" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                            <Label text = "Purchase date: " GridPane.rowIndex="3"/>
-                            <DatePicker fx:id="dateEdit" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
-                            <Label text="Battery: " GridPane.rowIndex="4"/>
-                            <TextField fx:id="batteryEdit" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-
-                            <Label text="Status: " GridPane.rowIndex="5"/>
-                            <ComboBox fx:id="statusEdit" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                <items>
-                                    <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="Available"/>
-                                        <String fx:value="Rented" />
-                                        <String fx:value="On repair" />
-                                        <String fx:value="Deleted" />
-                                    </FXCollections>
-                                </items>
-                            </ComboBox>
-
-                            <Label text="Distance traveled: " GridPane.rowIndex="6"/>
-                            <TextField fx:id="distanceEdit" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-
-                        </GridPane>
+                                <Label text = "Purchase date: " GridPane.rowIndex="3"/>
+                                <DatePicker fx:id="dateEdit" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            </GridPane>
+                            <HBox alignment="CENTER" spacing="10">
+                                <Button text="Submit changes" onAction="#edit"/>
+                                <Button text="Cancel" onAction="#showInfoBack"/>
+                            </HBox>
+                        </VBox>
                     </center>
                     <bottom>
-                        <HBox alignment="CENTER">
-                            <Button text="Submit changes" onAction="#edit" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                            <Button text="Cancel" onAction="#showInfoBack" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                        <HBox alignment="CENTER" fx:id="editBottomBar">
+                            <Label text="Type: "/>
+                            <Button text="New type"/>
+                            <Separator orientation="VERTICAL"/>
+                            <Button text="Delete type"/>
+                            <padding>
+                                <Insets bottom="5"/>
+                            </padding>
                         </HBox>
                     </bottom>
                 </BorderPane>
