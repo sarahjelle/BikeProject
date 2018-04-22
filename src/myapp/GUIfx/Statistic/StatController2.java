@@ -275,16 +275,17 @@ public class StatController2 {
 
         public void run(){
             while(!stop){
+                System.out.println("Working");
                 Object[][] bStats = stats.bikeStats();
                 if(kmStat == null){
                     final CategoryAxis xAxis = new CategoryAxis();
                     xAxis.setLabel("Docking station");
                     NumberAxis yAxis = new NumberAxis();
                     yAxis.setLabel("Average value");
-                    XYChart.Series totkm = new XYChart.Series();
+                    ScatterChart.Series<String, Number> totkm = new ScatterChart.Series<>();
                     totkm.setName("Average total km for docked bikes");
                     for (int i=0; i<bStats[0].length; i++){
-                        totkm.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+                        totkm.getData().add(new ScatterChart.Data<String, Number>((String)bStats[0][i], (Number)bStats[1][i]));
                     }
                     last_update_size = totkm.getData().size();
                     kmStat = new ScatterChart<>(xAxis,yAxis);
@@ -295,27 +296,80 @@ public class StatController2 {
                 } else{
                     if (bStats[0].length < last_update_size) {
                         // Stationss have been removed
-                        kmStat.getData().get(0).getData().removeAll();
-                        kmStat.getData().get(1).getData().removeAll();
+                        System.out.println("All series been removed");
+                        ScatterChart.Series<String, Number> totkm = new ScatterChart.Series<>();
+                        Platform.runLater(() -> {
+
+                        });
+                        totkm.setName("Average total km for docked bikes");
+                        for (int i=0; i<bStats[0].length; i++){
+                            totkm.getData().add(new ScatterChart.Data<String, Number>((String)bStats[0][i], (Number)bStats[1][i]));
+                        }
+                        Platform.runLater(() -> {
+                            for(ScatterChart.Series<String, Number> data : kmStat.getData()){
+                                data.getData().remove(0, data.getData().size());
+                            }
+                            //kmStat.getData().removeAll();
+                            kmStat.getData().addAll(totkm);
+                        });
+                        /*
+                        for (int i = 0; i < kmStat.getData().size(); i++) {
+                            for (int j = 0; j < kmStat.getData().get(i).getData().size(); j++) {
+                                boolean present = false;
+                                for (int k = 0; k < bStats[0].length; k++) {
+                                    if(((String)bStats[0][k]).equals(kmStat.getData().get(i).getData().get(j).getYValue().toString())){
+                                        present = true;
+                                    }
+                                }
+                                if(!present){
+                                    // Remove
+                                    final int number = i;
+                                    final int index = j;
+                                    System.out.println("Removing");
+                                    Platform.runLater(() -> {
+                                        kmStat.getData().get(number).getData().remove(index);
+                                    });
+                                }
+                            }
+                        }
+                        */
+
+                        //kmStat.getData().addAll(totkm);
+                        /*
                         // Adds datapoints to the series
                         for (int i = 0; i < bStats[0].length; i++) {
                             kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
-                        }
+                        }*/
                     }
                     else if(bStats[0].length > last_update_size){
                         // Docking stations have been added
                         for (int i = kmStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
-                            kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+                            if(bStats[0][i] == null){
+                                bStats[0][i] = "";
+                            }
+                            if(bStats[1][i] == null){
+                                bStats[1][i] = 0.0;
+                            }
+                            ScatterChart.Data<String, Number> newPoint = new ScatterChart.Data<String, Number>((String)bStats[0][i], (Number)bStats[1][i]);
+                            System.out.println(newPoint.getXValue() + ", " + newPoint.getYValue());
+                            Platform.runLater(() -> {
+                                kmStat.getData().get(0).getData().add(newPoint);
+                            });
                         }
                     }
                     // Update existing points
                     int valueCounter = 0;
-                    for(final XYChart.Series<String, Number> dataSeries : kmStat.getData()){
-                        for(final XYChart.Data<String, Number> data : dataSeries.getData()) {
-                            data.setYValue((double)bStats[1][valueCounter]);
-                            System.out.println("Y-values updated: "+bStats[1][valueCounter].toString());
+                    for(final ScatterChart.Series<String, Number> dataSeries : kmStat.getData()){
+                        for(final ScatterChart.Data<String, Number> data : dataSeries.getData()) {
+                            final int value = valueCounter;
+                            Platform.runLater(() -> {
+                                data.setYValue((double)bStats[1][value]);
+                            });
+
+                            //System.out.println("Y-values updated: "+bStats[1][valueCounter].toString());
                             valueCounter++;
                         }
+                        valueCounter = 0;
                     }
                 }
                 last_update_size = kmStat.getData().get(0).getData().size();
