@@ -745,12 +745,12 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT DISTINCT type FROM bikes ORDER BY type");
+            stmt = db.prepareStatement("SELECT description FROM bikeTypes WHERE active = 1 ORDER BY description");
             ResultSet type = execSQLRS(stmt);
             ArrayList<String> typeArray = new ArrayList<>();
 
             while(type.next()) {
-                typeArray.add(type.getString("type"));
+                typeArray.add(type.getString("description"));
             }
 
             stmt.close();
@@ -761,6 +761,66 @@ public class DBH {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * deleteBikeType sets the description given to an inactive state.
+     * @param   desc    String object of the description wanted to be deleted
+     * @return          a boolean based on the result, True = deleted, False = not deleted
+     */
+    public boolean deleteBikeType(String desc) {
+        PreparedStatement stmt = null;
+        try {
+            connect();
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE bikeTypes SET active = 0 WHERE description = ?");
+            stmt.setString(1, desc);
+
+            if(!execSQLBool(stmt)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * addBikeType inserts a new type of bike to the bikeTypes table enabling users to use the new type
+     * @param   desc    String object with the name of the wanted type
+     * @return          a boolean based on the result, True = added, False = not added
+     */
+    public boolean addBikeType(String desc) {
+        PreparedStatement stmt = null;
+        try {
+            connect();
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("INSERT INTO bikeTypes (description) VALUES (?)");
+            stmt.setString(1, desc);
+
+            if(!execSQLBool(stmt)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -853,7 +913,9 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM docking_stations");
+            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE status = ?");
+            stmt.setInt(1, Docking.AVAILABLE);
+
             ResultSet dockingSet = execSQLRS(stmt);
             ArrayList<Docking> docks = new ArrayList<>();
             while(dockingSet.next()) {
@@ -1345,14 +1407,6 @@ public class DBH {
         return false;
     }
 
-    /* THIS IS NOT FINISHED!!
-     * updateDockingSlots takes care of removing slots when the amount is changed. This method is summoned by editDocking
-     *
-     * @param   amountToRemove  the amount to be changed, both positive and negative directions
-     * @param   stationID       the station where the amount is to be chagned
-     * @author Fredrik Mediaa
-     */
-
     /**
      * updateDockingSlots takes care of all the logic in relation to deleting slots belonging to docking stations when the
      * amount is changed
@@ -1821,14 +1875,26 @@ public class DBH {
         return users;
     }
 
+    /**
+     * getAllCustomers gives you all users in the database with status equal to User.CUSTOMER
+     * @return      an User object array
+     */
     public User[] getAllCustomers(){
         return getUserByType(3);
     }
 
+    /**
+     * getAllAdminUsers gives you all users in the database with status equal to User.ADMINISTRATOR
+     * @return      an User object array
+     */
     public User[] getAllAdminUsers() {
         return getUserByType(1);
     }
 
+    /**
+     * getAllRepairUsers gives you all users in the database with status equal to User.REPAIRMAN
+     * @return      an User object array
+     */
     public User[] getAllRepairUsers() {
         return getUserByType(2);
     }
