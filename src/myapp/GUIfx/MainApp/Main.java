@@ -46,7 +46,6 @@ public class Main extends Application{
             }
         });
         login(primaryStage);
-        //loadApp(primaryStage);
     }
 
     public static void main(String[]args){

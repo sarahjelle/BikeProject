@@ -174,5 +174,4 @@ public class SignInController {
             dw.informationWindow("User not found, try again", "Email: " + email);
         }
     }
-
 }

@@ -1,0 +1,15 @@
+#infoButtons Button{
+    -fx-background-color: transparent;
+}
+
+#infoButtons Button:hover{
+    -fx-text-fill: grey;
+}
+
+#editButtons Button{
+    -fx-background-color: transparent;
+}
+
+#editButtons Button:hover{
+    -fx-text-fill: grey;
+}
