@@ -20,8 +20,8 @@ public class Docking {
     private double power_usage;
 
     private static int MINIMUM_BAT_LEVEL = 0;
-    public static int  AVAILABLE = 1,
-            DELETED = 2;
+    public static int   AVAILABLE = 1,
+                        DELETED = 2;
 
     DBH dbh = new DBH();
 
@@ -34,6 +34,14 @@ public class Docking {
         this.status = AVAILABLE;
     }
 
+    /**
+     * This constructor is used by the database for returning a complete dockingstation.
+     * @param id        the ID of the station
+     * @param name      the address of the station
+     * @param location  the Location object holding latitude, longitude and altitude
+     * @param capacity  the number of docking slots the station has
+     * @param status    station status, such as Docking.AVAILABLE or Docking.DELETED
+     */
     public Docking(int id, String name, Location location, int capacity, int status) {
         this.id = id;
         this.name = name;
@@ -47,6 +55,11 @@ public class Docking {
         }
     }
 
+    /**
+     * This constructor is to be used when sending a fresh newly created Docking station to the database for registration.
+     * @param name      The address of the dockingstation. Example: Kalvskinnet, Trondheim Norway
+     * @param capacity  The capacity of the stations. Number of dockingslots.
+     */
     public Docking(String name, int capacity){
         this.name = name;
         this.capacity = capacity;
@@ -183,9 +196,10 @@ public class Docking {
     }
 
     /**
-     *
-     * @param user
-     * @return
+     * rentBike takes the first bike in the bike array which meets the requirements and send it further to the DBH
+     * taking care of registering the right actions in the database. If all this goes as planned the rented bike is returned.
+     * @param user the user renting the bike. For registration in the database.
+     * @return returns the bike which has been picked by the machine to be rented.
      */
     public Bike rentBike(User user) {
         bikes = dbh.updateBikesInDockingStation(id);
@@ -194,10 +208,10 @@ public class Docking {
             if(bikes[i] != null) {
                 if(bikes[i].getStatus() == Bike.AVAILABLE) {
                     if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
-                        bike = bikes[i];
-                        bikes[i] = null;
-
                         if(dbh.rentBike(user, bike, id)) {
+                            bike = bikes[i];
+                            bikes[i] = null;
+
                             Bike[] bArr = new Bike[1];
                             bike.setLocation(new Location(location.getLatitude(), location.getLongitude()));
                             bArr[0] = bike;
