@@ -14,24 +14,33 @@ import myapp.dbhandler.DBH;
 
 public class SignInController {
     Main main = new Main();
+
+    //Log in
     @FXML private Text actiontarget;
-
     @FXML private TextField userId;
-
     @FXML private PasswordField passwordField;
-
-    @FXML private VBox signUpPane;
     @FXML private VBox logInPane;
     @FXML private HBox buttonBar;
+
+    //sign up
+    @FXML private VBox signUpPane;
+    @FXML private TextField firstNameReg;
+    @FXML private TextField lastNameReg;
+    @FXML private TextField phoneReg;
+    @FXML private TextField emailReg;
+
+    //new password
+    @FXML private VBox newPasswordPane;
+    @FXML private TextField emailPassword;
 
     private DBH dbh = new DBH();
     private User user;
     private DialogWindows dw = new DialogWindows();
 
-    @FXML private TextField firstNameReg;
-    @FXML private TextField lastNameReg;
-    @FXML private TextField phoneReg;
-    @FXML private TextField emailReg;
+
+    public User getUser(){
+        return user;
+    }
 
     @FXML
     protected void logIn(){
@@ -47,7 +56,7 @@ public class SignInController {
 
                 System.out.println(userId.getText());
                 try{
-                    main.loadApp(currentStage);
+                    main.loadApp(currentStage, user);
                 }
                 catch(Exception e){e.printStackTrace();}
             }
@@ -67,7 +76,6 @@ public class SignInController {
         if(passwordField.getText().trim().isEmpty()){
             ok = false;
         }
-
         return ok;
     }
 
@@ -78,9 +86,16 @@ public class SignInController {
     }
 
     @FXML private void back(){
-        signUpPane.setVisible(false);
+        closeAll();
         logInPane.setVisible(true);
         buttonBar.setVisible(true);
+    }
+
+    private void closeAll(){
+        signUpPane.setVisible(false);
+        logInPane.setVisible(false);
+        buttonBar.setVisible(false);
+        newPasswordPane.setVisible(false);
     }
 
     @FXML private void signUp(){
@@ -141,8 +156,23 @@ public class SignInController {
         return ok;
     }
 
-    public void forgotPassword(){
+    @FXML private void openNewPassword(){
+        closeAll();
+        emailPassword.clear();
+        newPasswordPane.setVisible(true);
+    }
 
+    public void forgotPassword(){
+        String email = emailPassword.getText().trim();
+        boolean ok = dbh.forgottenPassword(email);
+
+        if(ok){
+            dw.informationWindow("New password is sent to your email", "Email" + email);
+            back();
+        }
+        else{
+            dw.informationWindow("User not found, try again", "Email: " + email);
+        }
     }
 
 }

@@ -20,8 +20,7 @@ public class BikeCell extends ListCell<Bike>{
     private ProgressIndicator pi;
 
 
-    //klasse for å lage listview
-    //klasse for å lage hbox?'
+
     public BikeCell(){
         hbox = new HBox(50);
         bikeid = new Label();

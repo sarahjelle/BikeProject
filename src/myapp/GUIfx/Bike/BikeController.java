@@ -546,11 +546,9 @@ public class BikeController implements Initializable {
         String selected = type.getSelectionModel().getSelectedItem();
 
         if (selected != null && selected.equals("New type")) {
-            TextInputDialog newType = new TextInputDialog("New type");
-            newType.setContentText("Enter new type: ");
-            Optional<String> result = newType.showAndWait();
-            if (result.isPresent()) {
-                type.getItems().add(result.get());
+            String newType = dw.inputDialog("Enter new type: ", "New type");
+            if(newType != null){
+                type.getItems().add(newType);
             }
         }
     }
