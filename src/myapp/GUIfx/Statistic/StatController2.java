@@ -214,15 +214,25 @@ public class StatController2 {
                         stat2Pane.setCenter(dockStat);
                     });
                 }else{
-                    if (dockStats[0].length != currentNumOfXYDataPoints) {
-                        // Add columns that are not present
-                        for (int i = currentNumOfXYDataPoints; i < dockStats[0].length; i++) {
-                            // There is only one data-series, so get(0) works
+                    // Check for change in columns
+                    if (dockStats[0].length < currentNumOfXYDataPoints) {
+                        // Columns have been removed
+                        dockStat.getData().get(0).getData().removeAll();
+                        dockStat.getData().get(1).getData().removeAll();
+                        for (int i = 0; i < dockStats[0].length; i++) {
+                            // Adds datapoints to the series
                             dockStat.getData().get(0).getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
                             dockStat.getData().get(1).getData().add(new XYChart.Data(dockStats[0][i], dockStats[2][i]));
                         }
                     }
-                    // Update already present columns
+                    else if (dockStats[0].length > currentNumOfXYDataPoints){
+                        // Columns have been added
+                        for (int i = currentNumOfXYDataPoints; i<dockStats[0].length; i++){
+                            dockStat.getData().get(0).getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
+                            dockStat.getData().get(1).getData().add(new XYChart.Data(dockStats[0][i], dockStats[2][i]));
+                        }
+                    }
+                    // Update existing columns
                     int valueCounter = 0;
                     int seriesCounter = 0;
                     for(XYChart.Series<String, Number> data : dockStat.getData()){
@@ -283,14 +293,21 @@ public class StatController2 {
                         stat3Pane.setCenter(kmStat);
                     });
                 } else{
-                    /*
-                    if(bStats[0].length != last_update_size){
-                        //More bikes has been registered
+                    if (bStats[0].length < last_update_size) {
+                        // Stationss have been removed
+                        kmStat.getData().get(0).getData().removeAll();
+                        kmStat.getData().get(1).getData().removeAll();
+                        // Adds datapoints to the series
+                        for (int i = 0; i < bStats[0].length; i++) {
+                            kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+                        }
+                    }
+                    else if(bStats[0].length > last_update_size){
+                        // Docking stations have been added
                         for (int i = kmStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
                             kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
                         }
                     }
-                    */
                     // Update existing points
                     int valueCounter = 0;
                     for(final XYChart.Series<String, Number> dataSeries : kmStat.getData()){
@@ -301,7 +318,7 @@ public class StatController2 {
                         }
                     }
                 }
-                last_update_size = bStats[0].length;
+                last_update_size = kmStat.getData().get(0).getData().size();
 
                 try{
                     Thread.sleep(UPDATE_INTERVAL);
@@ -347,8 +364,17 @@ public class StatController2 {
                         stat4Pane.setCenter(tripStat);
                     });
                 } else{
-                    if(bStats[0].length != last_update_size){
-                        //More bikes has been registered
+                    if (bStats[0].length < last_update_size) {
+                        // Stations have been removed
+                        tripStat.getData().get(0).getData().removeAll();
+                        tripStat.getData().get(1).getData().removeAll();
+                        // Adds datapoints to the series
+                        for (int i = 0; i < bStats[0].length; i++) {
+                            tripStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
+                        }
+                    }
+                    else if (bStats[0].length > last_update_size){
+                        // Stations have been added
                         for (int i = tripStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
                             tripStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
                         }
@@ -361,7 +387,7 @@ public class StatController2 {
                         }
                     }
                 }
-                last_update_size = bStats[0].length;
+                last_update_size = tripStat.getData().get(0).getData().size();
 
                 try{
                     Thread.sleep(UPDATE_INTERVAL);
