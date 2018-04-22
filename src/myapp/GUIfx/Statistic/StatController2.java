@@ -226,10 +226,7 @@ public class StatController2 {
                     int valueCounter = 0;
                     int seriesCounter = 0;
                     for(XYChart.Series<String, Number> data : dockStat.getData()){
-                        System.out.println(data.toString());
                         for(XYChart.Data<String, Number> d : data.getData()){
-                            System.out.println(valueCounter);
-                            System.out.println(d.toString());
                             if(seriesCounter == 0){
                                 d.setYValue((int)dockStats[1][valueCounter]);
                             } else if(seriesCounter == 1){
@@ -286,17 +283,20 @@ public class StatController2 {
                         stat3Pane.setCenter(kmStat);
                     });
                 } else{
+                    /*
                     if(bStats[0].length != last_update_size){
                         //More bikes has been registered
                         for (int i = kmStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
                             kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
                         }
                     }
+                    */
                     // Update existing points
                     int valueCounter = 0;
                     for(final XYChart.Series<String, Number> dataSeries : kmStat.getData()){
                         for(final XYChart.Data<String, Number> data : dataSeries.getData()) {
                             data.setYValue((double)bStats[1][valueCounter]);
+                            System.out.println("Y-values updated: "+bStats[1][valueCounter].toString());
                             valueCounter++;
                         }
                     }
