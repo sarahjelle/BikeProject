@@ -9,18 +9,26 @@ DROP TABLE IF EXISTS bike_logs;
 DROP TABLE IF EXISTS docking_log;
 DROP TABLE IF EXISTS docking_stations;
 DROP TABLE IF EXISTS bikes;
+DROP TABLE IF EXISTS bikeTypes;
 
 CREATE TABLE bikes (
-  bikeID int NOT NULL AUTO_INCREMENT,
-  price int NOT NULL,
+  bikeID INT NOT NULL AUTO_INCREMENT,
+  price INT NOT NULL,
   purchaseDate DATE NOT NULL,
-  totalTrips int DEFAULT 0,
-  status int DEFAULT 1,
+  totalTrips INT DEFAULT 0,
+  status INT DEFAULT 1,
   make VARCHAR(25) NOT NULL,
-  type VARCHAR(25) NOT NULL,
+  type VARCHAR(30) NOT NULL,
   batteryPercentage DOUBLE DEFAULT 0.0,
-  totalKm int DEFAULT 0,
+  totalKm INT DEFAULT 0,
   PRIMARY KEY (bikeID)
+);
+
+CREATE TABLE bikeTypes (
+  typeID INT NOT NULL AUTO_INCREMENT,
+  description VARCHAR(30) NOT NULL,
+  active SMALLINT DEFAULT 1,
+  PRIMARY KEY (typeID)
 );
 
 /**
@@ -29,8 +37,8 @@ CREATE TABLE bikes (
 
 #Repair registered on a given bike at given time
 CREATE TABLE repair_cases (
-  repairCaseID int NOT NULL AUTO_INCREMENT,
-  bikeID int NOT NULL,
+  repairCaseID INT NOT NULL AUTO_INCREMENT,
+  bikeID INT NOT NULL,
   dateCreated DATE NOT NULL,
   dateReceived DATE DEFAULT NULL,
   description TEXT NOT NULL,
@@ -45,20 +53,20 @@ CREATE TABLE repair_cases (
  */
 
 CREATE TABLE users(
-  userID int NOT NULL AUTO_INCREMENT,
-  userTypeID int NOT NULL,
+  userID INT NOT NULL AUTO_INCREMENT,
+  userTypeID INT NOT NULL,
   email varchar(30) NOT NULL UNIQUE,
   password varchar(255) NOT NULL,
   salt varchar(255) NOT NULL,
   firstname varchar(50) NOT NULL,
   lastname varchar(50) NOT NULL,
-  phone int(8),
+  phone INT(8),
   landcode VARCHAR(7) NOT NULL,
   PRIMARY KEY (userID)
 );
 
 CREATE TABLE user_types(
-  userTypeID int NOT NULL AUTO_INCREMENT,
+  userTypeID INT NOT NULL AUTO_INCREMENT,
   description varchar(30) NOT NULL,
   PRIMARY KEY (userTypeID)
 );
@@ -68,26 +76,26 @@ CREATE TABLE user_types(
  */
 
 CREATE TABLE docking_stations(
-  stationID int NOT NULL AUTO_INCREMENT,
+  stationID INT NOT NULL AUTO_INCREMENT,
   stationName varchar(255) NOT NULL,
-  maxSlots int NOT NULL DEFAULT 0,
+  maxSlots INT NOT NULL DEFAULT 0,
   latitude FLOAT( 10, 6 ) NOT NULL,
   longitude FLOAT( 10, 6 ) NOT NULL,
   PRIMARY KEY(stationID)
 );
 
 CREATE TABLE docking_log(
-  stationID int NOT NULL,
+  stationID INT NOT NULL,
   logTime DATETIME NOT NULL DEFAULT NOW(),
-  energyUsage int NOT NULL,
-  usedSlots int NOT NULL,
+  energyUsage INT NOT NULL,
+  usedSlots INT NOT NULL,
   PRIMARY KEY(stationID, logTime)
 );
 
 CREATE TABLE slots(
-  slotID int NOT NULL,
-  bikeID int UNIQUE DEFAULT NULL,
-  stationID int NOT NULL,
+  slotID INT NOT NULL,
+  bikeID INT UNIQUE DEFAULT NULL,
+  stationID INT NOT NULL,
   PRIMARY KEY(stationID, slotID)
 );
 
@@ -96,13 +104,13 @@ CREATE TABLE slots(
  */
 
 CREATE TABLE bike_logs(
-  bikeID int NOT NULL,
+  bikeID INT NOT NULL,
   logTime DATETIME NOT NULL DEFAULT NOW(),
   latitude FLOAT( 10, 6 ) NOT NULL,
   longitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
   batteryPercentage DOUBLE NOT NULL,
-  totalKm int DEFAULT 0,
+  totalKm INT DEFAULT 0,
   PRIMARY KEY(bikeID, logTime)
 );
 
@@ -111,13 +119,13 @@ CREATE TABLE bike_logs(
  */
 
 CREATE TABLE trips(
-  tripID int NOT NULL AUTO_INCREMENT,
-  bikeID int NOT NULL,
+  tripID INT NOT NULL AUTO_INCREMENT,
+  bikeID INT NOT NULL,
   startTime DATETIME NOT NULL DEFAULT NOW(),
   endTime DATETIME,
-  startStation int NOT NULL,
-  endStation int,
-  userID int NOT NULL,
+  startStation INT NOT NULL,
+  endStation INT,
+  userID INT NOT NULL,
   PRIMARY KEY(tripID)
 );
 

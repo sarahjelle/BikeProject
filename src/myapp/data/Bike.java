@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 /**
  * Bike is a class containing all information about a real life bike needed in this project.
- * This is used sy
  */
 public class Bike {
     private int id;
@@ -32,6 +31,16 @@ public class Bike {
                         DELETE      = 4;
 
     // To be used when sending to DB
+
+    /**
+     * this constructor is the one to use when creating a new bike Object from scratch. This is an object which is meant to be sent
+     * to the Database for further use.
+     *
+     * @param price         the price of the bike
+     * @param purchased     the date of purchase
+     * @param type          the type of the bike
+     * @param make          the make of the bike
+     */
     public Bike(double price, LocalDate purchased, String type, String make) {
         this.price = price;
         this.purchased = purchased;
@@ -40,6 +49,21 @@ public class Bike {
     }
 
     // To be used returned from DB
+
+    /**
+     * This constructor is used when returning a Bike object from the database to the program.
+     *
+     * @param id                    the id of the bike
+     * @param make                  the make of the bike
+     * @param price                 the price of the bike
+     * @param type                  the type for the bike
+     * @param batteryPercentage     the battery percentage of the bike
+     * @param distanceTraveled      how far the bike has traveled
+     * @param location              the location of the bike
+     * @param status                the status of the bike
+     * @param purchased             the date of purchase date of the bike
+     * @param totalTrips            the number of trips the bike has had.
+     */
     public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased, int totalTrips){
         this.id = id;
         this.make = make;
@@ -96,8 +120,6 @@ public class Bike {
     public void setMake(String make){
         this.make = make;
     }
-
-
 
     public double getPrice() {
         return price;
