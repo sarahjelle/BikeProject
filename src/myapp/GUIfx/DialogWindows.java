@@ -2,6 +2,7 @@ package myapp.GUIfx;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 
 import java.util.Optional;
 
@@ -42,5 +43,18 @@ public class DialogWindows {
         alert.setHeaderText(header);
         alert.setContentText(information);
         alert.showAndWait();
+    }
+
+    public String inputDialog(String content, String header){
+        String input = null;
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setHeaderText(header);
+        dialog.setContentText(content);
+        Optional<String> result = dialog.showAndWait();
+        if(result.isPresent()){
+            input = result.get();
+        }
+
+        return input;
     }
 }

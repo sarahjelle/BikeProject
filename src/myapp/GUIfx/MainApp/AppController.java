@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import myapp.GUIfx.Admin.AdminController;
 import myapp.GUIfx.Bike.BikeController;
 import myapp.GUIfx.Bike.BikePaneController;
 import myapp.GUIfx.DockingStation.DockStationCenter;
@@ -27,9 +28,15 @@ public class AppController {
     @FXML private DockStationCenter dockController;
     @FXML private MapController map;
     @FXML private StatController2 statController;
+    @FXML private AdminController adminController;
 
     private Updater up;
     private Thread upThread;
+    private User user;
+
+    public void setUser(User loggedInUser){
+        user = loggedInUser;
+    }
 
     @FXML private void bike(){
         System.out.println(bikeController);
@@ -67,12 +74,18 @@ public class AppController {
         statController.openPane();
     }
 
+    @FXML private void admin(){
+        closeAll();
+        adminController.openPane(user);
+    }
+
 
     private void closeAll(){
         bikeController.closePane();
         dockController.closePane();
         statController.closePane();
         mapPane.setVisible(false);
+        adminController.closePane();
     }
 
     class Updater implements Runnable{

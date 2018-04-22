@@ -6,26 +6,51 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.text.Text?>
 <SplitPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="myapp.GUIfx.Admin.AdminController" fx:id="adminPane">
-    <BorderPane>
-        <center>
-            <GridPane>
-                <Label text="First name: "/>
-                <Label fx:id="firstnameInfo" GridPane.columnIndex="1"/>
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="myapp.GUIfx.Admin.AdminController" fx:id="adminPane" visible="false" dividerPositions="0.4">
+    <SplitPane orientation="VERTICAL">
+        <BorderPane>
+            <top>
+                <Label text="Your info"/>
+                <!--<Label text="UserID: "/>
+                <Label fx:id="idInfo"/>-->
+            </top>
+            <center>
+                <GridPane fx:id="adminInfo" alignment="CENTER" vgap="10" hgap="10">
+                    <Label text="First name: "/>
+                    <Label fx:id="firstnameInfo" GridPane.columnIndex="1"/>
 
-                <Label text="Surname: " GridPane.rowIndex="1"/>
-                <Label fx:id="surnameInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="Surname: " GridPane.rowIndex="1"/>
+                    <Label fx:id="surnameInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                <Label text="Phone: " GridPane.rowIndex="2"/>
-                <Label fx:id="phoneInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <Label text="Phone: " GridPane.rowIndex="2"/>
+                    <Label fx:id="phoneInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                <Label text="Email: " GridPane.rowIndex="3"/>
-                <Label fx:id="emailInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    <Label text="Email: " GridPane.rowIndex="3"/>
+                    <Label fx:id="emailInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                </GridPane>
+            </center>
+        </BorderPane>
+        <VBox spacing="15" alignment="CENTER">
+            <GridPane alignment="CENTER" vgap="10" hgap="10">
+                <Label text="Old password"/>
+                <PasswordField fx:id="oldPassword" GridPane.columnIndex="1"/>
+                <Label text="New password" GridPane.rowIndex="1"/>
+                <PasswordField fx:id="newPassword" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
             </GridPane>
+            <HBox alignment="CENTER">
+                <Button text="Change password" onAction="#changePassword"/>
+            </HBox>
+        </VBox>
+    </SplitPane>
+    <BorderPane>
+        <top>
+            <Label text="Other admins"/>
+        </top>
+        <center>
+            <ListView fx:id="adminList" onMouseClicked="#selectedRow"/>
         </center>
     </BorderPane>
-
-
 </SplitPane>

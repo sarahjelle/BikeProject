@@ -6,9 +6,12 @@ import javafx.fxml.*;
 import javafx.event.*;
 import javafx.scene.*;
 import javafx.stage.*;
+import myapp.GUIfx.Admin.AdminController;
+import myapp.data.User;
 
 
 public class Main extends Application{
+
     private void login(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("../SignIn/SignIn.fxml"));
         Scene scene = new Scene(root, 300, 300);
@@ -18,9 +21,12 @@ public class Main extends Application{
         primaryStage.show();
     }
 
-    public void loadApp(Stage primaryStage) throws Exception{
+    public void loadApp(Stage primaryStage, User loggedInUser) throws Exception{
         System.out.println("loading app");
-        Parent root = FXMLLoader.load(getClass().getResource("App.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("App.fxml"));
+        Parent root = (Parent) loader.load();
+        AppController appctrl = loader.getController();
+        appctrl.setUser(loggedInUser);
         System.out.println("loading app 2");
         Scene scene = new Scene(root, 700,500);
 
@@ -39,8 +45,8 @@ public class Main extends Application{
                 System.exit(0);
             }
         });
-        //login(primaryStage);
-        loadApp(primaryStage);
+        login(primaryStage);
+        //loadApp(primaryStage);
     }
 
     public static void main(String[]args){

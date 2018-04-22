@@ -17,7 +17,7 @@
             <Button onAction="#docking" text="Docking Station" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button onAction="#map"  text="Map" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button onAction="#statistic" text="Statistic" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-            <Button text="Admin" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button onAction="#admin" text="Admin" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
         </HBox>
     </top>
     <center>
@@ -26,6 +26,7 @@
             <fx:include source="../Statistic/Statistic.fxml"  fx:id="stat" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="0"/>
             <fx:include fx:id="bike" source="../Bike/BikePane.fxml" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
             <fx:include fx:id="dock" source="../DockingStation/DockCenterPane.fxml"  AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
+            <fx:include fx:id="admin" source="../Admin/AdminPane.fxml" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"/>
         </AnchorPane>
     </center>
 </BorderPane>

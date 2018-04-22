@@ -61,13 +61,23 @@
                     <Button text="Sign up" onAction="#signUp"/>
                 </HBox>
             </VBox>
+            <VBox alignment="CENTER" spacing="50" fx:id="newPasswordPane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
+                <HBox alignment="CENTER" spacing="10">
+                    <Label text="Email: "/>
+                    <TextField fx:id="emailPassword"/>
+                </HBox>
+                <HBox alignment="CENTER" spacing="10">
+                    <Button text="Back" onAction="#back"/>
+                    <Button text="Reset password" onAction="#forgotPassword"/>
+                </HBox>
+            </VBox>
         </AnchorPane>
     </center>
     <bottom>
         <HBox alignment="CENTER" fx:id="buttonBar">
             <Button text="Sign up" onAction="#openSignUp"/>
             <Separator orientation="VERTICAL"/>
-            <Button text="Forgot password"/>
+            <Button text="Forgot password" onAction="#openNewPassword"/>
             <padding>
                 <Insets bottom="5"/>
             </padding>
