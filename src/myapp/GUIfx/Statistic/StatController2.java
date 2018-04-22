@@ -277,7 +277,6 @@ public class StatController2 {
             while(!stop){
                 Object[][] bStats = stats.bikeStats();
                 if(kmStat == null){
-                    last_update_size = bStats[0].length;
                     final CategoryAxis xAxis = new CategoryAxis();
                     xAxis.setLabel("Docking station");
                     NumberAxis yAxis = new NumberAxis();
@@ -287,6 +286,7 @@ public class StatController2 {
                     for (int i=0; i<bStats[0].length; i++){
                         totkm.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
                     }
+                    last_update_size = totkm.getData().size();
                     kmStat = new ScatterChart<>(xAxis,yAxis);
                     kmStat.getData().addAll(totkm);
                     Platform.runLater(() -> {
@@ -348,7 +348,6 @@ public class StatController2 {
             while(!stop){
                 Object[][] bStats = stats.bikeStats();
                 if(tripStat == null){
-                    last_update_size = bStats[0].length;
                     final CategoryAxis xAxis = new CategoryAxis();
                     xAxis.setLabel("Docking station");
                     NumberAxis yAxis = new NumberAxis();
@@ -358,7 +357,8 @@ public class StatController2 {
                     for (int i=0; i<bStats[0].length; i++){
                         tottrip.getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
                     }
-                    tripStat = new ScatterChart<>(xAxis,yAxis);
+                    last_update_size = tottrip.getData().size();
+                            tripStat = new ScatterChart<>(xAxis,yAxis);
                     tripStat.getData().addAll(tottrip);
                     Platform.runLater(() -> {
                         stat4Pane.setCenter(tripStat);
