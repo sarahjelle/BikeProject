@@ -66,10 +66,10 @@
                             <Label fx:id="capacityInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                             <TextField fx:id="capacityEdit" visible=" false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                            <Label text="Available sloths: " GridPane.rowIndex="2"/>
+                            <Label text="Available slots: " GridPane.rowIndex="2"/>
                             <Label fx:id="openSpacesInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                            <Label text="Used spaces: " GridPane.rowIndex="3"/>
+                            <Label text="Occupied slots: " GridPane.rowIndex="3"/>
                             <Label fx:id="usedSpacesInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
                             <Label text="Battery usage: " GridPane.rowIndex="4"/>

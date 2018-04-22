@@ -9,10 +9,10 @@ public class User {
     private final int UserID;
     private final int UserClass;
 
-    private final String firstname;
-    private final String lastname;
-    private final int phone;
-    private final String email;
+    private String firstname;
+    private String lastname;
+    private int phone;
+    private String email;
     private final String landcode;
     private final String password;
 
@@ -66,16 +66,33 @@ public class User {
         return firstname;
     }
 
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+
     public String getLastname(){
         return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public int getPhone(){
         return phone;
     }
 
+    public void setPhone(int phone) {
+        this.phone = phone;
+    }
+
     public String getEmail(){
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getLandcode(){

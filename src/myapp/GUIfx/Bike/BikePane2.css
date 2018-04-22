@@ -17,3 +17,19 @@
 #topMenu Button:hover{
     -fx-text-fill: white;
 }
+
+#regBottomBar Button{
+    -fx-background-color: transparent;
+    -fx-text-fill: blue;
+    -fx-underline: true;
+}
+
+#editBottomBar Button{
+    -fx-background-color: transparent;
+    -fx-text-fill: blue;
+    -fx-underline: true;
+}
+
+.buttonstyling{
+    -fx-background-color: transparent;
+}

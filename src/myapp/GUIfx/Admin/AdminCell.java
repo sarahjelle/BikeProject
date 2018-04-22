@@ -5,6 +5,13 @@ import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
 import myapp.data.User;
 
+/**
+ * The AdminCell class creates custom ListCell, so the list of admins
+ * in the application can contain multiple values.
+ * The cell is composed of a HBox with different Labels.
+ *
+ * @author Sara Hjelle
+ */
 public class AdminCell extends ListCell<User> {
     private HBox hbox;
     private Label userId;
