@@ -31,12 +31,11 @@
                                GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                     <Label text="Password: " GridPane.rowIndex="1"/>
                     <PasswordField fx:id="passwordField"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1" onAction="#logIn"/>
                 </GridPane>
                 <Button text="Log in" onAction="#logIn"/>
 
-                <Text fx:id="actiontarget"
-                      GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                <Text fx:id="actiontarget" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
             </VBox>
             <VBox fx:id="signUpPane" alignment="CENTER" visible="false" spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
                 <GridPane alignment="CENTER" vgap="10" hgap="10">
@@ -52,9 +51,7 @@
 
                     <Label text="Email" GridPane.rowIndex="3"/>
                     <TextField fx:id="emailReg" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-
                 </GridPane>
-
 
                 <HBox spacing="10" alignment="CENTER">
                     <Button text="Back" onAction="#back"/>

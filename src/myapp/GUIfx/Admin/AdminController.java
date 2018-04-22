@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import myapp.GUIfx.DialogWindows;
 import myapp.GUIfx.SignIn.SignInController;
 import myapp.data.User;
@@ -23,6 +24,7 @@ public class AdminController implements Initializable{
     @FXML private Label surnameInfo;
     @FXML private Label phoneInfo;
     @FXML private Label emailInfo;
+    @FXML private HBox infoButtons;
 
     private User user;
     //private User user = new User(-1, "Sara", "Hjelle", 98899919, "sarahj.98@hotmail.com", "0047");
@@ -32,6 +34,17 @@ public class AdminController implements Initializable{
     @FXML private ListView<User> adminList;
 
     private DialogWindows dw = new DialogWindows();
+
+    //change password
+    @FXML private PasswordField oldPassword;
+    @FXML private PasswordField newPassword;
+
+    //edit
+    @FXML private TextField firstNameEdit;
+    @FXML private TextField surnameEdit;
+    @FXML private TextField phoneEdit;
+    @FXML private TextField emailEdit;
+    @FXML private HBox editButtons;
 
     public void initialize(URL url, ResourceBundle rb){
         adminList.setCellFactory(e -> new AdminCell());
@@ -55,6 +68,7 @@ public class AdminController implements Initializable{
         });
         thread.start();
     }
+
     public void openPane(User user){
         //user = signInController.getUser();
         this.user = user;
@@ -72,9 +86,6 @@ public class AdminController implements Initializable{
 
     @FXML private void showInfo(User user){
     }
-
-    @FXML private PasswordField oldPassword;
-    @FXML private PasswordField newPassword;
 
     @FXML private void changePassword(){
         String old = oldPassword.getText();
@@ -116,5 +127,35 @@ public class AdminController implements Initializable{
                 dw.errorWindow("Could not delete user!", userName);
             }
         }
+    }
+
+    @FXML private void openEdit(){
+        infoButtons.setVisible(false);
+        editButtons.setVisible(true);
+        firstnameInfo.setVisible(false);
+        surnameInfo.setVisible(false);
+        emailInfo.setVisible(false);
+        phoneInfo.setVisible(false);
+        firstNameEdit.setVisible(true);
+        firstNameEdit.setText(user.getFirstname());
+        surnameEdit.setVisible(true);
+        surnameEdit.setText(user.getLastname());
+        phoneEdit.setVisible(true);
+        phoneEdit.setText(Integer.toString(user.getPhone()));
+        emailEdit.setVisible(true);
+        emailEdit.setText(user.getEmail());
+    }
+
+    @FXML private void closeEdit(){
+        infoButtons.setVisible(true);
+        editButtons.setVisible(false);
+        firstnameInfo.setVisible(true);
+        surnameInfo.setVisible(true);
+        emailInfo.setVisible(true);
+        phoneInfo.setVisible(true);
+        firstNameEdit.setVisible(false);
+        surnameEdit.setVisible(false);
+        phoneEdit.setVisible(false);
+        emailEdit.setVisible(false);
     }
 }
