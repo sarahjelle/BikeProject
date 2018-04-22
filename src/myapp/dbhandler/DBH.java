@@ -1585,7 +1585,6 @@ public class DBH {
      */
     public boolean changePassword(User user, String newPassword, String oldPassword) {
         Hasher hasher = new Hasher();
-        connect();
         PreparedStatement stmt = null;
         try {
             if(db == null) {
@@ -1597,6 +1596,7 @@ public class DBH {
 
                 String hashedNewPassword = hasher.hash(newPassword, salt);
 
+                connect();
                 stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE userID = ?");
                 stmt.setString(1, hashedNewPassword);
                 stmt.setString(2, salt);
