@@ -4,6 +4,8 @@ import myapp.GUIfx.Map.*;
 import myapp.data.*;
 import myapp.dbhandler.*;
 
+import java.util.Random;
+
 public class Router implements Runnable{
     private Boolean stop = false;
     private MapsAPI map = new MapsAPI();
@@ -18,7 +20,7 @@ public class Router implements Runnable{
     private static int UPDATE_INTERVAL = 60000; // millis
     private static final double ERROR_TOLERANCE = 0.0000001;
     private static final double AVRG_BIKE_SPEED = 0.4305; // m/s
-    private static final double POWER_USAGE_PER_M = 0.5; // W / m
+    private static final double POWER_USAGE_PER_S = 0.005; // W / m
 
 
     private int WayPointsIterator = 1;
@@ -70,8 +72,19 @@ public class Router implements Runnable{
                 if((System.currentTimeMillis() - StartTime) >= UPDATE_INTERVAL){
                     //Update loc to DB
                     DBH handler = new DBH();
-                    Location actNewLoc = map.SnapToRoad(new Location(null, bikeToMove.getLocation().getLatitude(), bikeToMove.getLocation().getLongitude()));
-                    bikeToMove.setLocation(actNewLoc);
+                    Location actNewLoc = null;
+                    try{
+                        actNewLoc = map.SnapToRoad(new Location(null, bikeToMove.getLocation().getLatitude(), bikeToMove.getLocation().getLongitude()));
+                    } catch (Exception e){
+                        // MapsAPI key has expired
+                        e.printStackTrace();
+                    }
+                    if(actNewLoc == null || actNewLoc.getLatitude() == null || actNewLoc.getLongitude() == null){
+
+                    } else{
+                        bikeToMove.setLocation(actNewLoc);
+                    }
+
                     System.out.println(bikeToMove.getLocation().getLatitude() + ", " + bikeToMove.getLocation().getLongitude() + " : " + bikeToMove.getBatteryPercentage());
                     Bike[] arr = {bikeToMove};
                     Bike[] ret = handler.logBikes(arr);
@@ -164,13 +177,21 @@ public class Router implements Runnable{
 
                     double newLat = latAt + latChange;
                     double newLng = lngAt + lngChange;
-                    //Location actNewLoc = map.SnapToRoad(new Location(null, newLat, newLng));
+
                     Location newLoc = new Location(null, newLat, newLng);
                     bikeToMove.setLocation(newLoc);
+
+
                     int dist = (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000;
-                    double batteryLeft = bikeToMove.getBatteryPercentage() - (1 / POWER_USAGE_PER_M);
+                    System.out.println();
+                    Random rand = new Random();
+                    double batteryLeft = bikeToMove.getBatteryPercentage() - (POWER_USAGE_PER_S * rand.nextDouble());
+                    System.out.println("Distance: " + distance + " BatteryLeft: " + batteryLeft + " Battery decended: " + (POWER_USAGE_PER_S * rand.nextDouble()));
                     bikeToMove.setDistanceTraveled(dist);
                     bikeToMove.setBatteryPercentage(batteryLeft);
+                    if(bikeToMove.getBatteryPercentage() < 0.0){
+                        bikeToMove.setBatteryPercentage(0.0);
+                    }
 
                     //System.out.println(newLat + ", " + newLng);
                     double checkLat = Math.abs(bikeToMove.getLocation().getLatitude() - nextLocation.getLatitude());

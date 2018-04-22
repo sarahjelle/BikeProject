@@ -3,7 +3,9 @@ package myapp.hasher;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
+import myapp.MailHandler.*;
 import static javax.swing.JOptionPane.*;
 
 public class Hasher {
@@ -44,10 +46,48 @@ public class Hasher {
         return generatedHash;
     }
 
+    public String generateRandomPassword(){
+        Random rand = new Random();
+        char[] pwd = new char[10];
+        for (int i = 0; i < pwd.length; i++) {
+            pwd[i] = (char) (rand.nextInt(121-33) + 33); //[33, 121] except 96
+            if(pwd[i] == 96){
+                i--;
+            }
+        }
+        String pw = "";
+        for (int i = 0; i < pwd.length; i++) {
+            pw += "" + pwd[i];
+        }
+        return pw;
+    }
+
+    public String generateSalt(){
+        return System.currentTimeMillis() + "" ;
+    }
+
 }
 
 class HashTest{
     public static void main(String[]args){
+        /*
+        Hasher hasher = new Hasher();
+        String temp_pw = hasher.generateRandomPassword();
+        String temp_salt = hasher.generateSalt();
+        try{
+            MailHandler mailer = new MailHandler("New temporary pw", "martin.moan1@gmail.com", temp_pw);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        String temp_hashed_pw = hasher.hash(temp_pw, temp_salt);
+        String hashed_input = null;
+        do{
+            String input = javax.swing.JOptionPane.showInputDialog("Enter the temporary password you received to your e-mail address: ");
+            hashed_input = hasher.hash(input, temp_salt);
+        } while(!hashed_input.equals(temp_hashed_pw));
+        */
+
         String unhashedPwd = "martin";
         String salt = "" + System.currentTimeMillis();
 

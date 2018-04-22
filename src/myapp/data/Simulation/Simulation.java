@@ -100,7 +100,14 @@ public class Simulation implements Runnable{
         while(!stop){
             DBH handler = new DBH();
             for (int i = 0; i < docking_stations.length; i++) {
-                double dockPowerUsage = docking_stations[i].getBikes().length * STATION_POWER_USAGE_PR_BIKE;
+                int numberOfBikes = 0;
+                Bike[] bikesHere = docking_stations[i].getBikes();
+                for (int j = 0; j < bikesHere.length; j++) {
+                    if(bikesHere[j] != null){
+                        numberOfBikes++;
+                    }
+                }
+                double dockPowerUsage = numberOfBikes * STATION_POWER_USAGE_PR_BIKE;
                 docking_stations[i].setPowerUsage(dockPowerUsage);
                 handler.logDocking(docking_stations[i]);
             }
@@ -375,8 +382,15 @@ class SimTest{
             }
         }
         System.out.println("Simulation is initialized");
-        javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
-        sim.stop();
+        //javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
+
+        try{
+            simThread.join();
+        } catch (InterruptedException ex){
+            sim.stop();
+            ex.printStackTrace();
+        }
+
 
         if(javax.swing.JOptionPane.showConfirmDialog(null, "Remove any unfinished trips and dock?") == 0){
             DBH handler = new DBH();

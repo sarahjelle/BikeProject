@@ -2,10 +2,7 @@ package myapp.GUIfx.Map;
 
 import myapp.data.Location;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -248,6 +245,23 @@ public class MapsAPI {
 
         try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
             JsonObject obj = rdr.readObject();
+            if(obj == null){
+                return null;
+            } else{
+                JsonString jsonStatus = obj.getJsonString("status");
+                if(jsonStatus == null){
+                    return null;
+                } else{
+                    String status = jsonStatus.getString();
+                    if(status == null){
+                        return null;
+                    } else{
+                        if(status.equals("ZERO_RESULTS")){
+                            return null;
+                        }
+                    }
+                }
+            }
 
             JsonArray snappedPoints = obj.getJsonArray("snappedPoints");
             JsonObject location = snappedPoints.getJsonObject(0);

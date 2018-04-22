@@ -227,6 +227,7 @@ public class StatController2 {
                             valueCounter++;
                         }
                         seriesCounter++;
+                        valueCounter = 0;
                     }
                     // Add columns that are not present
                     for(int i = dockStat.getData().size(); i < dockStats[0].length; i++){
