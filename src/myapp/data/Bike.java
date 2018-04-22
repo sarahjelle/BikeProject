@@ -256,10 +256,10 @@ public class Bike {
 
     /**
      * finishLastRepairRequest takes the parameters given and finishes the last Repair object in the Repair object array. It also register it to the database through finishRepairRequest method in the Repair object.
-     * @param returnDesc
-     * @param returnDate
-     * @param price
-     * @return
+     * @param   returnDesc  the description of the fixed bike
+     * @param   returnDate  the date of return
+     * @param   price       the cost of the repair
+     * @return              a boolean based on results from DBH. True = Finished request, False = Not finished request
      */
     public boolean finishLastRepairRequest(String returnDesc, LocalDate returnDate, double price) {
         Repair rep = getLatestRepairRequest();
