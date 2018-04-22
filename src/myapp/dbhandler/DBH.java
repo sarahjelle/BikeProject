@@ -217,14 +217,15 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public int registerBike(Bike bike) {
-        connect();
         PreparedStatement stmt = null;
         try {
+
+            String purchased = (bike.getPurchased() == null) ? purchased = LocalDate.now().toString() : bike.getPurchased().toString();
+
+            connect();
             if(db == null) {
                 return -1;
             }
-
-            String purchased = (bike.getPurchased() == null) ? purchased = LocalDate.now().toString() : bike.getPurchased().toString();
 
             stmt = db.prepareStatement("INSERT INTO bikes (price, purchaseDate, make, type) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setDouble(1, bike.getPrice());
@@ -265,9 +266,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<Bike> getAllBikes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -378,10 +379,10 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Bike[] getAllBikesOnTrip(){
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> outList = new ArrayList<>();
         try{
+            connect();
             if(db == null){
                 return null;
             }
@@ -487,9 +488,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<Bike> getLoggedBikes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -534,9 +535,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean deleteBike(int id) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return false;
             }
@@ -581,9 +582,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean updateBike(Bike bike) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return false;
             }
@@ -632,10 +633,10 @@ public class DBH {
     private void updateBikeFromLog(Bike bike) {
         PreparedStatement stmt = null;
         try {
+
             if(db == null) {
                 return;
             }
-
             stmt = db.prepareStatement("UPDATE bikes SET totalKm = ?, batteryPercentage = ? WHERE bikeID = ?");
             stmt.setInt(1, bike.getDistanceTraveled());
             stmt.setDouble(2, bike.getBatteryPercentage());
@@ -660,11 +661,11 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Bike[] logBikes(Bike[] bikes) {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> bikesNotUpdated = new ArrayList<>();
         Bike[] toReturn = null;
         try {
+            connect();
             if(db == null) {
                 return bikes;
             }
@@ -706,9 +707,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<String> getBikeMakes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -738,9 +739,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<String> getBikeTypes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -770,9 +771,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private void changeStatus(int bikeID, int status) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
             }
@@ -808,9 +809,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public int registerDocking(Docking dock) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return -1;
             }
@@ -846,9 +847,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<Docking> getAllDockingStations() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -910,9 +911,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Docking getDockingStationByName(String name) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -962,9 +963,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean rentBike(User userRentingBike, Bike bikeToRent, int dockID){
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1023,9 +1024,6 @@ public class DBH {
     public boolean endRent(Bike bike, int dockID, int spot){
         PreparedStatement stmt = null;
         try{
-            if(db == null){
-                return false;
-            }
             stmt = db.prepareStatement("UPDATE trips SET endTime = NOW(), endStation = ? WHERE bikeID = ? AND endStation IS NULL AND endTime IS NULL");
             stmt.setInt(1, dockID);
             stmt.setInt(2, bike.getId());
@@ -1071,9 +1069,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private boolean undockBike(Bike bike, int dockID){
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1103,9 +1101,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private boolean dockBike(Bike bike, int dockID, int spot){
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1142,10 +1140,10 @@ public class DBH {
 
         ArrayList<Bike> bikes = getAllBikes();
 
-        connect();
         PreparedStatement stmt = null;
         try {
             for (int i = 0; i < stations.length; i++) {
+                connect();
                 if (db == null) {
                     return null;
                 }
@@ -1188,9 +1186,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public void logDocking (Docking dock) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
             }
@@ -1217,9 +1215,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Docking getDockingByID(int id) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -1268,9 +1266,6 @@ public class DBH {
         
         PreparedStatement stmt = null;
         try {
-            if(db == null) {
-                return false;
-            }
 
             //stmt = db.prepareStatement("UPDATE docking_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
             //stmt.setString(1, updatedDock.getName());
@@ -1286,6 +1281,9 @@ public class DBH {
                     updateDockingSlots(orgDock, change);
 
                     connect();
+                    if(db == null) {
+                        return false;
+                    }
                     stmt = db.prepareStatement("UPDATE docking_stations SET maxSlots = ? WHERE stationID = ?");
                     stmt.setInt(1, updatedDock.getCapacity());
                     stmt.setInt(2, updatedDock.getId());
@@ -1318,13 +1316,13 @@ public class DBH {
     public boolean deleteDocking(Docking dock) {
         PreparedStatement stmt = null;
         try {
-            if(db == null) {
-                return false;
-            }
 
             Docking orgDock = getDockingByID(dock.getId());
 
             connect();
+            if(db == null) {
+                return false;
+            }
             stmt = db.prepareStatement("UPDATE docking_stations SET status = ?, maxSlots = ? WHERE stationID = ?");
             stmt.setInt(1, Docking.DELETED);
             stmt.setInt(2, 0);
@@ -1363,9 +1361,9 @@ public class DBH {
      * @param   capacityChange  the amount in positive or negative direction. Positive = add, negative = delete
      */
     private void updateDockingSlots(Docking dock, int capacityChange) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
             }
@@ -1406,9 +1404,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private void generateDockingSlots(int amount, int stationID) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
             }
@@ -1439,12 +1437,12 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean checkIfUserExist(String mail) {
-        connect();
         Hasher hasher = new Hasher();
         PreparedStatement stmt = null;
         boolean exsist = false;
 
         try {
+            connect();
             if(db == null) {
                 return true;
             }
@@ -1478,9 +1476,9 @@ public class DBH {
     public int registerUser(User user, boolean sendMail) {
         Hasher hasher = new Hasher();
         if(!checkIfUserExist(user.getEmail())) {
-            connect();
             PreparedStatement stmt = null;
             try {
+                connect();
                 if(db == null) {
                     return -1;
                 }
@@ -1505,7 +1503,7 @@ public class DBH {
 
                     String mail = user.getEmail();
 
-                    String msg = "You have now been registered to RentaBike!\n\nYour user details are displayed below\nUsername: " + user.getEmail() + "\nPassword: " + user.getPassword() + "\n\nWe kindly ask you to change you password at first chance.\n\n\nBest Regards,\nRentaBike Team";
+                    String msg = "You have now been registered to RentaBike!\n\nYour user details are displayed below\nUsername: " + user.getEmail() + "\nPassword: " + user.getPassword() + "\n\nWe kindly ask you to change your password at first chance.\n\n\nBest Regards,\nRentaBike Team";
                     try {
                         System.out.println("Sending mail!");
                         new MailHandler(subj, mail, msg);
@@ -1534,10 +1532,10 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public User loginUser(String email, String password) {
-        connect();
         Hasher hasher = new Hasher();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -1545,7 +1543,7 @@ public class DBH {
             stmt.setString(1, email);
             stmt.setInt(2, User.ADMINISTRATOR);
 
-            ResultSet rs =execSQLRS(stmt);
+            ResultSet rs = execSQLRS(stmt);
             User correctUser = null;
 
             if(rs.next()) {
@@ -1575,6 +1573,41 @@ public class DBH {
     }
 
     /**
+     * updateUser is a method for updating all the information about a User object in the database
+     * @param   user    The user to be updated
+     * @return          a boolean based on the results from the database. True = updated, False = not updated.
+     */
+    public boolean updateUser(User user) {
+        PreparedStatement stmt = null;
+        try {
+            connect();
+            if(db == null) {
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE users SET email = ?, firstname = ?, lastname = ?, phone = ? WHERE userID = ?");
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getFirstname());
+            stmt.setString(3, user.getLastname());
+            stmt.setInt(4, user.getPhone());
+            stmt.setInt(5, user.getUserID());
+
+            if(!execSQLBool(stmt)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
      * changePassword checks if the password in the database is equal to the password passed in. If so the old password would be updated
      * with the new password.
      *
@@ -1587,18 +1620,18 @@ public class DBH {
      */
     public boolean changePassword(User user, String newPassword, String oldPassword) {
         Hasher hasher = new Hasher();
-        connect();
         PreparedStatement stmt = null;
         try {
-            if(db == null) {
-                return false;
-            }
 
             if(loginUser(user.getEmail(), oldPassword) != null) {
                 String salt = hasher.hashSalt(System.currentTimeMillis() + "");
 
                 String hashedNewPassword = hasher.hash(newPassword, salt);
 
+                connect();
+                if(db == null) {
+                    return false;
+                }
                 stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE userID = ?");
                 stmt.setString(1, hashedNewPassword);
                 stmt.setString(2, salt);
@@ -1625,9 +1658,9 @@ public class DBH {
      */
     public boolean forceChangePassword(User user, String newPassword) {
         Hasher hasher = new Hasher();
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return false;
             }
@@ -1658,13 +1691,13 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean deleteUser(User user) {
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
-            stmt = db.prepareStatement("UPDATE users SET userTypeID = ? WHERE userID = ?");
+            stmt = db.prepareStatement("UPDATE users SET userTypeID = ?, email = NULL WHERE userID = ?");
 
             stmt.setInt(1, User.SOFTDELETE);
             stmt.setInt(2, user.getUserID());
@@ -1691,13 +1724,8 @@ public class DBH {
     public boolean forgottenPassword(String mail) {
         Hasher hasher = new Hasher();
         if(!checkIfUserExist(mail)) {
-            connect();
             PreparedStatement stmt = null;
             try {
-                if(db == null) {
-                    return false;
-                }
-
                 Random rand = new Random();
                 char[] pwd = new char[10];
                 for (int i = 0; i < pwd.length; i++) {
@@ -1715,6 +1743,10 @@ public class DBH {
 
                 String password = hasher.hash(pw, salt);
 
+                connect();
+                if(db == null) {
+                    return false;
+                }
                 stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE email = ?");
                 stmt.setString(1, password);
                 stmt.setString(2, salt);
@@ -1754,11 +1786,11 @@ public class DBH {
      * @author Martin Moan
      */
     private User[] getUserByType(int type) {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<User> usersList = new ArrayList<>();
         User[] users = null;
         try {
+            connect();
             if(db == null) {
                 return users;
             }
@@ -1817,12 +1849,12 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private Repair[] getRepairsByID(int bikeID) {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Repair> repairList = new ArrayList<>();
         Repair[] repairs = null;
 
         try {
+            connect();
             if(db == null) {
                 return repairs;
             }
@@ -1866,9 +1898,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private int getBikeIDByCaseID(int caseID) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return -1;
             }
@@ -1927,9 +1959,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean registerRepairRequest(int bikeID, String desc, LocalDate date) {
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1966,9 +1998,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean finishRepairRequest(int caseID, String desc, LocalDate date, double price) {
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -2005,11 +2037,11 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private int[] getUnfinishedTripsBikeID() {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Integer> ids = new ArrayList<>();
 
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -2048,11 +2080,11 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private BikeSlotPair[] findOpenSpaces() {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<BikeSlotPair> spots = new ArrayList<>();
 
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -2097,7 +2129,6 @@ public class DBH {
 
         PreparedStatement stmt = null;
         try{
-
             if(javax.swing.JOptionPane.showConfirmDialog(null,"Are you sure?") == 0) {
 
                 for(int id : bikeIDs) {
