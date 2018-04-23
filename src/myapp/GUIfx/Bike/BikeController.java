@@ -563,10 +563,12 @@ public class BikeController implements Initializable {
     //methods for bike registration
     private ArrayList<String> getDockingStationNames(){
         ArrayList<String> stationNames = new ArrayList<>();
-        ArrayList<Docking> stations = dbh.getAllDockingStations();
+        Docking[] stations = dbh.getAllDockingStationsWithBikes();
 
-        for(int i = 0; i < stations.size(); i++){
-            stationNames.add(stations.get(i).getName());
+        for(int i = 0; i < stations.length; i++){
+            if(stations[i].getFreeSpaces() > 0) {
+                stationNames.add(stations[i].getName());
+            }
         }
 
         return stationNames;
@@ -640,17 +642,19 @@ public class BikeController implements Initializable {
             LocalDate date = dateReg.getValue();
             String type = typeReg.getSelectionModel().getSelectedItem();
             String make = makeReg.getText();
+            Docking dock = dbh.getDockingStationByName(locationReg.getSelectionModel().getSelectedItem());
 
             Bike bike = new Bike(price, date, type, make);
             int id = dbh.registerBike(bike);
-            if (id < 0) {
-                int bikeId = dbh.registerBike(bike);
-                if (bikeId > 0) {
+            if (id > 0) {
+                bike = dbh.getBikeByID(id);
+                if(dock.dockBikeWihtoutRent(bike)) {
                     //refresh();
-                    dw.informationWindow("Bike were succsesfully added to the database!", "BikeID: " + bikeId);
+                    dw.informationWindow("Bike were succsesfully added to the database!", "BikeID: " + id);
                     //showInfo(bike);
                     openPane();
                 } else {
+                    dbh.deleteBike(id);
                     dw.errorWindow("Could not register bike. Something went wrong in the database", "Registration error");
                     openPane();
                 }
