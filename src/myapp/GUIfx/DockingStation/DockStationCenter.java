@@ -17,6 +17,11 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
+/**
+ * DockingStationCenter is the controller class of DockingCenterPane.fxml.
+ * This class contains methods to create a list of all the docking stations,
+ * add a new docking station, edit/delete a station and see which bikes is at a station.
+ */
 public class DockStationCenter implements Initializable{
     //DBH
     DBH dbh = new DBH();
@@ -67,6 +72,10 @@ public class DockStationCenter implements Initializable{
         bikeList.setCellFactory(e -> new BikeAtDock());
     }
 
+    /**
+     * openPane() is used in the appController to make the docking page visible
+     * when a user wants to see it.
+     */
     public void openPane(){
         refresh();
         closeAll();
@@ -74,26 +83,40 @@ public class DockStationCenter implements Initializable{
         listPane.setVisible(true);
     }
 
+    /**
+     * closePane() closes the docking window when the user wants to go
+     * to bike, map, statistic or admin.
+     */
     public void closePane(){
         closeAll();
         dockPane.setVisible(false);
 
     }
 
+    /**
+     * Help method to close all the panes in the docking pane.
+     */
     public void closeAll(){
         regDock.setVisible(false);
         dockInfo.setVisible(false);
         listPane.setVisible(false);
     }
 
+    /**
+     * Method used on cancel buttons, the method closes
+     * all panes and opens the list of docking stations.
+     */
     @FXML private void cancel(){
         refresh();
         closeAll();
         listPane.setVisible(true);
     }
 
-    //refresh information from database
-    private void refresh(){
+    /**
+     * The refresh() method refreshes the list of docking stations.
+     * This is used so the list always is up to date with the database.
+     */
+    @FXML private void refresh(){
         dockingList.getItems().clear();
         Thread thread = new Thread(() -> {
             stations = dbh.getAllDockingStationsWithBikes();
@@ -108,6 +131,11 @@ public class DockStationCenter implements Initializable{
         thread.start();
     }
 
+    /**
+     * refreshBikeList() is used to refresh the list of bikes at a certain station.
+     * This is used so the list always is up to date with the database.
+     * @param dock the docking station where a user wants to see the docked bikes.
+     */
     private void refreshBikeList(Docking dock){
         bikeList.getItems().clear();
 
@@ -128,6 +156,10 @@ public class DockStationCenter implements Initializable{
         thread.start();
     }
 
+    /**
+     * Method to display all the information about a docking station.
+     * @param dock the docking station a user wants to se the information about.
+     */
     private void showInfo(Docking dock){
         idTmp = dock.getId();
         name = dock.getName();
@@ -144,14 +176,21 @@ public class DockStationCenter implements Initializable{
         refreshBikeList(dock);
     }
 
+    /**
+     * selectedRow() is used when a user clicks on a row in the list of docking stations.
+     * The method uses showInfo to display information about the selected docking.
+     */
     @FXML private void selectedRow(){
-        //Docking dock = (Docking)dockingList.getItems().get(dockingList.getSelectionModel().getSelectedIndex());
         Docking dock  = dockingList.getSelectionModel().getSelectedItem();
         showInfo(dock);
         closeAll();
         dockInfo.setVisible(true);
     }
 
+    /**
+     * search() is used when a user wants to search for a docking station using it id.
+     * The method uses showInfo to display the info about the docking.
+     */
     @FXML private void search(){
         String dockID = searchInput.getText();
         int id = -1;
@@ -169,12 +208,19 @@ public class DockStationCenter implements Initializable{
         }
     }
 
+    /**
+     * Method to go back to the infopage about a bike instead of going
+     * all the way back to the list.
+     */
     @FXML private void showInfoBack(){
         showInfo(dbh.getDockingByID(idTmp));
         closeAll();
         dockInfo.setVisible(true);
     }
 
+    /**
+     * Method to open the page where a user can register a new docking station
+     */
     @FXML private void openRegDock(){
         addressReg.clear();
         capacityReg.clear();
@@ -182,6 +228,12 @@ public class DockStationCenter implements Initializable{
         regDock.setVisible(true);
     }
 
+    /**
+     * Method to check if the information the user wants to register
+     * about a docking station is valid.
+     * @return true if the information is valid, false if the information
+     * is invalid.
+     */
     private boolean regOK(){
         boolean ok = true;
 
@@ -205,6 +257,10 @@ public class DockStationCenter implements Initializable{
         return ok;
     }
 
+    /**
+     * regDock() registers a docking station to the database, if
+     * regOK() returns true.
+     */
     @FXML private void regDock(){
         if(regOK()) {
             String address = addressReg.getText();
@@ -222,6 +278,10 @@ public class DockStationCenter implements Initializable{
         }
     }
 
+    /**
+     * deleteDocking() deletes a docking station in the user confirms the action.
+     * It is only possible to delete a docking station if there is no bikes docked at the station.
+     */
     @FXML private void deleteDocking(){
         boolean ok = dw.confirmWindow("Are you sure you want to delete docking station with this information? " +
                 "\nID: " + idTmp +"\nAddress: " + name, "Delete docking station?");
@@ -248,6 +308,10 @@ public class DockStationCenter implements Initializable{
         }
     }
 
+    /**
+     * This method opens the page where a user can edit the information about a
+     * docking station.
+     */
     @FXML private void openEditPane(){
         capacityInfo.setVisible(false);
         infoButtonBar.setVisible(false);
@@ -257,6 +321,10 @@ public class DockStationCenter implements Initializable{
         capacityEdit.setPromptText(Integer.toString(dock.getCapacity()));
     }
 
+    /**
+     * This method updates the information about a docking station.
+     * It is only possible to update the capacity.
+     */
     @FXML private void editDock(){
         int capacity = -1;
         try{
@@ -288,6 +356,11 @@ public class DockStationCenter implements Initializable{
     }
 }
 
+/**
+ * DockBikeData is a class to create an Object with a Bike and an int to represent
+ * the slotnumber the bike is at.
+ * The class is used to fill the list of bikes at the docking station with correct in
+ */
 class DockBikeData{
     private Bike bike;
     private int slotNumber;

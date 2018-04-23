@@ -10,6 +10,13 @@ import myapp.data.Bike;
 
 import java.util.List;
 
+/**
+ * The BikeCell class is used create a ListCell for the list of bikes.
+ * The ListCell is composed of a HBox containing Labels for bikeID, type, make and
+ * a progressBar to show the battery percentage.
+ *
+ * @author Sara Hjelle
+ */
 public class BikeCell extends ListCell<Bike>{
 
     private HBox hbox;
@@ -19,8 +26,10 @@ public class BikeCell extends ListCell<Bike>{
     private ProgressBar battery;
     private ProgressIndicator pi;
 
-
-
+    /**
+     * The constructor creates all the labels and adds them to the HBox.
+     * The width is preset to make all the cells the same size.
+     */
     public BikeCell(){
         hbox = new HBox(50);
         bikeid = new Label();
@@ -35,6 +44,13 @@ public class BikeCell extends ListCell<Bike>{
         hbox.getChildren().addAll(bikeid, type, make, battery);
     }
 
+    /**
+     * This method fills a cell with the bike object, if the boolean is false.
+     * This is were all the labels gets a value.
+     * If the boolean is true the graphics is set to null.
+     * @param item the Bike object to be filled in the cell.
+     * @param empty this is whether or not the cell represent any domain data.
+     */
     @Override
     public void updateItem(Bike item, boolean empty){
         super.updateItem(item, empty);

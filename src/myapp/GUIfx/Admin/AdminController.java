@@ -81,7 +81,9 @@ public class AdminController implements Initializable{
 
             Platform.runLater(() -> {
                 for (int i = 0; i < admins.length; i++){
-                    adminList.getItems().add(admins[i]);
+                    //if(user.getUserClass() != User.SOFTDELETE) {
+                        adminList.getItems().add(admins[i]);
+                    //}
                 }
             });
         });
@@ -111,7 +113,7 @@ public class AdminController implements Initializable{
 
     /**
      * The changePassword method makes it possible for the logged in user to
-     * change a his/hers password.
+     * change his/hers password.
      */
     @FXML private void changePassword(){
         String old = oldPassword.getText();
@@ -159,8 +161,14 @@ public class AdminController implements Initializable{
                 dw.errorWindow("Could not delete user!", userName);
             }
         }
+        else{
+            openPane(user);
+        }
     }
 
+    /**
+     * The openEdit() method opens the edit pane on a admin.
+     */
     @FXML private void openEdit(){
         infoButtons.setVisible(false);
         editButtons.setVisible(true);
@@ -178,6 +186,10 @@ public class AdminController implements Initializable{
         emailEdit.setText(user.getEmail());
     }
 
+    /**
+     * The close() method closes the edit pane and signup pane.
+     * It makes the info pane visible again.
+     */
     @FXML private void close(){
         infoButtons.setVisible(true);
         editButtons.setVisible(false);
@@ -241,11 +253,21 @@ public class AdminController implements Initializable{
         }
     }
 
+    /**
+     * The openSignUp method opens the pane where you can register a
+     * new admin.
+     */
     @FXML private void openSignUp(){
         adminInfo.setVisible(false);
         signupPane.setVisible(true);
     }
 
+    /**
+     * Registers the written information about a new administrator.
+     * Before it registers the information it runs the signUpOk method
+     * to check if all the information is the right format.
+     * If all the information is correct an email is sent to the new user.
+     */
     @FXML private void signUp(){
         if(signUpOK()){
             String firstName = firstNameReg.getText().trim();
@@ -266,6 +288,13 @@ public class AdminController implements Initializable{
         }
     }
 
+    /**
+     * This method goes through the input about a new administrator.
+     * If a value is null or the wrong datatype (e.g. not numeric characters as a phonenumber)
+     * it returns false, if everything is correct it returns true.
+     * @return true = valid input, the user can be registered, false = some input is null
+     * or wrong datatype.
+     */
     private boolean signUpOK(){
         boolean ok = true;
 
@@ -306,6 +335,11 @@ public class AdminController implements Initializable{
         return ok;
     }
 
+    /**
+     * The logOut() method makes it possible for the logged in user to log out of the application.
+     * When the user confirms that he/she wants to log out the main application is closed, and the log in
+     * pane is opened.
+     */
     @FXML private void logOut(){
         boolean ok = dw.confirmWindow("Are you sure you want to log out of the application? ",
                 "Log out");

@@ -27,6 +27,7 @@
             <HBox fx:id="searchMenu">
                 <TextField fx:id="searchInput" onAction="#search"/>
                 <Button text="Search" onAction="#search"/>
+                <Button text="Refresh" onAction="#refresh"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button text="New docking station" onAction="#openRegDock"/>
                 <padding>

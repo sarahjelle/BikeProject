@@ -17,34 +17,51 @@ import myapp.dbhandler.*;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * AppController is the controller of App.fxml.
+ * This class contains methods to open the different panes
+ * (bike, dicking station, map, statistic, admin).
+ */
 public class AppController {
     @FXML private BikeController bikeController;
     @FXML private DockStationCenter dockController;
     @FXML private MapController map;
     @FXML private StatController2 statController;
     @FXML private AdminController adminController;
+    @FXML private WebView mapPane;
 
     private Updater up;
     private Thread upThread;
     private User user;
 
+    /**
+     * Set the User to the user that logged in to the application
+     * @param loggedInUser the user that logged in.
+     */
     public void setUser(User loggedInUser){
         user = loggedInUser;
     }
 
+    /**
+     * Opens the bike pane.
+     */
     @FXML private void bike(){
         System.out.println(bikeController);
         closeAll();
         bikeController.openPane();
     }
 
+    /**
+     * Opens the docking pane
+     */
     @FXML private void docking(){
         closeAll();
         dockController.openPane();
     }
 
-    @FXML private WebView mapPane;
-
+    /**
+     * Method to show map with bikes
+     */
     @FXML private void map() {
 
         closeAll();
@@ -59,19 +76,27 @@ public class AppController {
         }
     }
 
-
+    /**
+     * Open the pane with different statistic
+     */
     @FXML private void statistic(){
         System.out.println("Statistic");
         closeAll();
         statController.openPane();
     }
 
+    /**
+     * Opens the admin pane.
+     */
     @FXML private void admin(){
         closeAll();
         adminController.openPane(user);
     }
 
-
+    /**
+     * This is a help method to set all the panes visibility to false,
+     * to make sure another pane does not lay on top when a new is opened.
+     */
     private void closeAll(){
         bikeController.closePane();
         dockController.closePane();
