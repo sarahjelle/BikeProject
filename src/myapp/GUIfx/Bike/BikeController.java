@@ -249,7 +249,8 @@ public class BikeController implements Initializable {
 
     @FXML
     private void selectedRow() {
-        Bike bike = (Bike) bikeList.getItems().get(bikeList.getSelectionModel().getSelectedIndex());
+        //Bike bike = (Bike) bikeList.getItems().get(bikeList.getSelectionModel().getSelectedIndex());
+        Bike bike = bikeList.getSelectionModel().getSelectedItem();
         showInfo(bike);
     }
 
@@ -274,7 +275,7 @@ public class BikeController implements Initializable {
 
     @FXML
     private void showInfo(Bike bike) {
-        //Update attributes for bike choosen
+        //Update attributes for bike chosen
         id = bike.getId();
         makeTmp = bike.getMake();
         typeTmp = bike.getType();
@@ -294,7 +295,7 @@ public class BikeController implements Initializable {
         double battery = bike.getBatteryPercentage()*100;
         batteryInfo.setText(Double.toString(battery) + "%");
         distanceInfo.setText(Integer.toString(bike.getDistanceTraveled()));
-        //tripInfo.setText(Integer.toString(bike.getTotalTrips()));
+        tripInfo.setText(Integer.toString(bike.getTotalTrips()));
 
         refreshRepair(bike);
 
@@ -418,8 +419,7 @@ public class BikeController implements Initializable {
 
         if(ok){
             refresh();
-            dw.informationWindow("Repair request were added: " +
-                    "\n", "Repair is added");
+            dw.informationWindow("Repair request were added and the bike will not be able to rent. ", "Repair is added");
             showInfo(findBike(id));
         }
         else{
@@ -446,7 +446,7 @@ public class BikeController implements Initializable {
             if(registered){
                 refresh();
                 dw.informationWindow("Repair request were sucsesfully added! \n" +
-                        "The status is now available, and the bike is ready to be rented", "BikeID: " + id);
+                        "The bike is ready to be rented", "BikeID: " + id);
                 showInfoBack();
             }
             else{

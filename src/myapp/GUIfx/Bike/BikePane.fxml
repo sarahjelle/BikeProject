@@ -222,7 +222,7 @@
                     <center>
                         <VBox alignment="CENTER" spacing="20">
                             <GridPane alignment="CENTER" hgap="15" vgap="15">
-                                <Label text="Date sent: " GridPane.rowIndex="0"/>
+                                <Label text="Return date: " GridPane.rowIndex="0"/>
                                 <DatePicker fx:id="dateReturn" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
                                 <Label text="Price: " GridPane.rowIndex="1"/>
                                 <TextField fx:id="priceRepair" GridPane.rowIndex="1" GridPane.columnIndex="1"/>

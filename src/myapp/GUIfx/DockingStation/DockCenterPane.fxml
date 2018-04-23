@@ -28,7 +28,7 @@
                 <TextField fx:id="searchInput"/>
                 <Button text="Search" onAction="#search"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="+ new docking station" onAction="#openRegDock"/>
+                <Button text="New docking station" onAction="#openRegDock"/>
                 <padding>
                     <Insets left="10" bottom="5" top="5"/>
                 </padding>
