@@ -1530,3 +1530,26 @@ UPDATE slots SET bikeID = 250 WHERE slotID = 50 AND stationID = 5;
 INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'martin@mail.com', 'passord', 'salt', 'Martin', 'Moan', 99999999, 0047);
 INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'frank@mail.com', 'passord', 'salt', 'Frank', 'Kjosås', 66666666, 0047);
 INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode) VALUES (3, 'jonnyboi@mail.com', 'passord', 'salt', 'Jonas Gahr', 'Støre', 70707070, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname1", "Lname1", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname2", "Lname2", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname3", "Lname3", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname4", "Lname4", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname5", "Lname5", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname6", "Lname6", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname7", "Lname7", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname8", "Lname8", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname9", "Lname9", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname10", "Lname10", 123213213, 0047);
+INSERT INTO users (userTypeID, email, password, salt, firstname, lastname, phone, landcode)
+VALUES (3, "testmail@mail.com", "password", "salt", "Fname11", "Lname11", 123213213, 0047);
+

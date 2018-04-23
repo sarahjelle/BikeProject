@@ -230,6 +230,7 @@ public class Simulation implements Runnable{
      * @return User[] with length = percentageOfUsersToMove * "All-Users-Stored-In-Database.length" or length = NumberOfUsersToMove
      */
     private User[] getUserSubset(){
+        System.out.println("Getting users");
         int percentage;
         if(percentageOfUsersToMove <= 1){
             percentage = (int)(users.length * percentageOfUsersToMove);
@@ -245,6 +246,8 @@ public class Simulation implements Runnable{
             percentage = NumberOfUsersToMove;
         }
 
+        ArrayList<User> safeUserList = new ArrayList<User>(Arrays.asList(users));
+
         User[] subset = new User[percentage];
         if(percentage == users.length){
             for (int i = 0; i < subset.length; i++) {
@@ -256,7 +259,7 @@ public class Simulation implements Runnable{
             for (int i = 0; i < subset.length; i++) {
                 boolean precentMoreThanOnceInSubset = false;
                 do{
-                    subset[i] = users[rand.nextInt(users.length)];
+                    subset[i] = safeUserList.get(rand.nextInt(safeUserList.size()));
                     for (int j = 0; j < subset.length; j++) {
                         if(j != i){
                             if(subset[j] != null){
@@ -267,6 +270,7 @@ public class Simulation implements Runnable{
                         }
                     }
                 } while(precentMoreThanOnceInSubset);
+                safeUserList.remove(subset[i]);
             }
             return subset;
         }
@@ -280,6 +284,7 @@ public class Simulation implements Runnable{
      * @return Router[] containing Router Runnables ready to start.
      */
     private Router[] getRouters(User[] userSubSet){
+        System.out.println("Getting routers");
         Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
         DBH handler = new DBH();
@@ -299,6 +304,7 @@ public class Simulation implements Runnable{
 
             routers[i] = new Router(customer, bike, start, end);
             routers[i].setUpdateInterval(UPDATE_INTERVAL);
+            System.out.println("Router " + (i+1) + " created");
         }
         return routers;
     }
@@ -373,6 +379,8 @@ class SimTest{
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
         sim.setUpdateInterval(3000);
+        //sim.setUserPercentage(0.5);
+        sim.setNumberOfUsers(3);
 
         Thread simThread = new Thread(sim);
         simThread.start();

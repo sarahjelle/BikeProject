@@ -39,11 +39,16 @@ public class DBH {
 
     private Connection db = null;
 
+    /*
     private String host     = "mysql.stud.iie.ntnu.no";
     private String username = "fredrmed";
     private String password = "IOFa0YRq";
     private String database = "fredrmed";
-
+    */
+    private String host     = "mysql.stud.iie.ntnu.no";
+    private String username = "martimoa";
+    private String password = "GJJsovuI";
+    private String database = "martimoa";
     /*
      * CONNECTION METHOD.
      */
@@ -674,7 +679,7 @@ public class DBH {
             if(db == null) {
                 return bikes;
             }
-            stmt = db.prepareStatement("INSERT INTO bike_logs (bikeID, longitude, latitude, altitude, batteryPercentage, totalKM) VALUES (?,?,?,?,?,?)");
+            stmt = db.prepareStatement("INSERT INTO bike_logs (bikeID, longitude, latitude, altitude, batteryPercentage, totalKm) VALUES (?,?,?,?,?,?)");
             MapsAPI map = new MapsAPI();
             for (int i = 0; i < bikes.length; i++) {
                 stmt.setDouble(1, bikes[i].getId());

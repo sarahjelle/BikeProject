@@ -20,7 +20,7 @@ CREATE TABLE bikes (
   make VARCHAR(25) NOT NULL,
   type VARCHAR(30) NOT NULL,
   batteryPercentage DOUBLE DEFAULT 0.0,
-  totalm BIGINT DEFAULT 0,
+  totalKm BIGINT DEFAULT 0,
   PRIMARY KEY (bikeID)
 );
 
@@ -81,6 +81,7 @@ CREATE TABLE docking_stations(
   maxSlots INT NOT NULL DEFAULT 0,
   latitude FLOAT( 10, 6 ) NOT NULL,
   longitude FLOAT( 10, 6 ) NOT NULL,
+  status INT NOT NULL DEFAULT 1,
   PRIMARY KEY(stationID)
 );
 
@@ -110,7 +111,7 @@ CREATE TABLE bike_logs(
   longitude FLOAT( 10, 6 ) NOT NULL,
   altitude FLOAT( 10, 6 ) NOT NULL,
   batteryPercentage DOUBLE NOT NULL,
-  totalm BIGINT DEFAULT 0,
+  totalKm BIGINT DEFAULT 0,
   PRIMARY KEY(bikeID, logTime)
 );
 
@@ -161,19 +162,11 @@ DROP VIEW IF EXISTS bikesWithDockingLocation;
 DROP VIEW IF EXISTS undockedBikesWithNewestLogLoc;
 DROP VIEW IF EXISTS allBikesWithLoc;
 
-CREATE VIEW newestLogs AS (SELECT b.*, l.latitude, l.longitude, l.altitude FROM bikes b JOIN bike_logs l WHERE b.bikeID = l.bikeID AND l.logTime = (SELECT MAX(logTime) FROM bike_logs log WHERE log.bikeID = b.bikeID));
-
-CREATE VIEW undockedBikes AS SELECT * FROM bikes WHERE bikeID NOT IN (SELECT bikeID FROM slots WHERE bikeID IS NOT NULL);
-
-CREATE VIEW bikesWithDockingLocation AS (SELECT b.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, b.batteryPercentage, b.totalKm, fromDock.latitude, fromDock.longitude FROM bikes b INNER JOIN
-  (SELECT s.bikeID, s.stationID, ds.latitude, ds.longitude FROM slots s INNER JOIN
-    (SELECT d.stationID, d.latitude, d.longitude FROM docking_stations d) ds ON ds.stationID = s.stationID
-  WHERE s.bikeID IS NOT NULL) fromDock ON fromDock.bikeID = b.bikeID);
-
-CREATE VIEW undockedBikesWithNewestLogLoc AS (SELECT l.bikeID, b.price, b.purchaseDate, b.totalTrips, b.status, b.make, b.type, l.batteryPercentage, l.totalKm, l.latitude, l.longitude FROM newestLogs l LEFT JOIN (SELECT * FROM bikes) b ON b.bikeID = l.bikeID);
-
-CREATE VIEW allBikesWithLoc AS SELECT * FROM bikesWithDockingLocation b UNION (SELECT * FROM undockedBikesWithNewestLogLoc l WHERE l.bikeID != b.bikeID);
-
+DROP VIEW IF EXISTS undockedBikesNew;
+DROP VIEW IF EXISTS newestLogsNew;
+DROP VIEW IF EXISTS dockedBikesWithDocLocNew;
+DROP VIEW IF EXISTS undockedBikesWithNewestLogLocNew;
+DROP VIEW IF EXISTS allBikesWithLocNew;
 
 CREATE VIEW undockedBikesNew AS (SELECT * FROM bikes b WHERE b.bikeID NOT IN (SELECT s.bikeID FROM slots s WHERE s.bikeID IS NOT NULL));
 
