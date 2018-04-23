@@ -118,6 +118,31 @@ document.removeBike = function removeBike(id){
 }
 
 document.addDocks = function addDocks(docking_stations){
+    // Remove any docks that is not in docking_stations
+    for(var i = 0; i < docks.length; i++){
+        var present = false;
+        for(var j = 0; j < docking_stations.length; j++){
+            if(docks[i].id == docking_stations[j].id){
+                present = true;
+                break;
+            }
+        }
+        if(!present){
+            // Remove docks[i] from docks
+            // Find docks[i] marker and remove it from map
+            for(var j = 0; j < dockMarkers.length; j++){
+                if(dockMarkers[j].id == docks[i].id){
+                    dockMarkers[i].setMap(null);
+                    dockMarkers[i] = null;
+                    dockMarkers.splice(j, 1);
+                    break;
+                }
+            }
+            docks[i] = null;
+            docks.splice(i, 1);
+            i--;
+        }
+    }
     for(var i = 0; i < docking_stations.length; i++){
         document.addDock(docking_stations[i]);
     }
