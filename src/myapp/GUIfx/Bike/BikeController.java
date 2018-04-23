@@ -295,7 +295,18 @@ public class BikeController implements Initializable {
         double battery = bike.getBatteryPercentage()*100;
         batteryInfo.setText(Double.toString(battery) + "%");
         distanceInfo.setText(Integer.toString(bike.getDistanceTraveled()));
-        tripInfo.setText(Integer.toString(bike.getTotalTrips()));
+        System.out.println(bike.getTotalTrips());
+        if(bike == null){
+            System.out.println("Bike is null");
+        } else{
+            System.out.println("Bike is not null");
+        }
+        if(tripInfo == null){
+            System.out.println("Tripinfo is null");
+        } else{
+            System.out.println("Tripinfo is not null");
+        }
+        tripInfo.setText(bike.getTotalTrips() + "");
 
         refreshRepair(bike);
 
@@ -707,9 +718,14 @@ public class BikeController implements Initializable {
                     ArrayList<Bike> inList = handler.getLoggedBikes();
                     in = new Bike[inList.size()];
                     in = inList.toArray(in);
-                    for (int i = 0; i < in.length; i++) {
-                        if(in[i].getId() == centerBike.getId()){
-                            centerBike = in[i];
+
+                    ArrayList<Bike> bList = handler.getAllBikes();
+                    Bike[] bin = new Bike[bList.size()];
+                    bin = bList.toArray(bin);
+
+                    for (int i = 0; i < bin.length; i++) {
+                        if(bin[i].getId() == centerBike.getId()){
+                            centerBike = bin[i];
                             break;
                         }
                     }

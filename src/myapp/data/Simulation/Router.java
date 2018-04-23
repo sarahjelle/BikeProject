@@ -19,7 +19,7 @@ public class Router implements Runnable{
     private boolean isDocked = false;
     private static int UPDATE_INTERVAL = 60000; // millis
     private static final double ERROR_TOLERANCE = 0.0000001;
-    private static final double AVRG_BIKE_SPEED = 0.4305; // m/s
+    private static final double AVRG_BIKE_SPEED = 10.0;//0.4305; // m/s
     private static final double POWER_USAGE_PER_S = 0.005; // W / m
 
 

@@ -231,8 +231,8 @@ public class Docking {
             if(bikes[i] != null) {
                 if(bikes[i].getStatus() == Bike.AVAILABLE) {
                     if (bikes[i].getBatteryPercentage() >= MINIMUM_BAT_LEVEL) {
+                        bike = bikes[i];
                         if(dbh.rentBike(user, bike, id)) {
-                            bike = bikes[i];
                             bikes[i] = null;
 
                             Bike[] bArr = new Bike[1];
