@@ -13,7 +13,7 @@ public class Bike {
     private double price;
     private double batteryPercentage;
     private int distanceTraveled;
-    private int totalTrips;
+    private int totalTrips = 0;
     private Location location;
     private Repair[] repairs = new Repair[0];
     /*

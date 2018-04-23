@@ -387,7 +387,8 @@ public class DBH {
             if(db == null){
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew");
+            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew WHERE status != ?");
+            stmt.setInt(1, Bike.DELETE);
             ResultSet set = execSQLRS(stmt);
             while(set.next()){
                 outList.add(new Bike(
@@ -495,7 +496,8 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew");
+            stmt = db.prepareStatement("SELECT * FROM undockedBikesWithNewestLogLocNew WHERE status != ?");
+            stmt.setInt(1, Bike.DELETE);
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<Bike>();
 
@@ -536,6 +538,7 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean deleteBike(int id) {
+        Bike bike = getBikeByID(id);
         PreparedStatement stmt = null;
         try {
             connect();
@@ -548,6 +551,7 @@ public class DBH {
             stmt.setInt(2, id);
 
             if(!execSQLBool(stmt)) {
+                undockBike(bike);
                 stmt.close();
                 db.close();
                 return false;
@@ -1020,7 +1024,7 @@ public class DBH {
             stmt.setInt(2, dockID);
             stmt.setInt(3, userRentingBike.getUserID());
             if(execSQLBool(stmt)) {
-                if(undockBike(bikeToRent, dockID)) {
+                if(undockBike(bikeToRent)) {
                     stmt.close();
                     db.close();
                     connect();
@@ -1107,12 +1111,11 @@ public class DBH {
      * undockBike is used by rentBike() to take care of the undocking section of the query.
      *
      * @param   bike    the Bike object wanting to be undocked
-     * @param   dockID  the ID of the docking station.
      * @return          boolean based on the results from the SQL query. True = OK, False = something went wrong
      * @see Bike
      * @author Fredrik Mediaa
      */
-    private boolean undockBike(Bike bike, int dockID){
+    private boolean undockBike(Bike bike){
         PreparedStatement stmt = null;
         try{
             connect();
@@ -1121,7 +1124,6 @@ public class DBH {
             }
 
             stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.bikeID = ?");
-            //stmt.setInt(1, dockID);
             stmt.setInt(1, bike.getId());
             boolean output = execSQLBool(stmt);
             stmt.close();
