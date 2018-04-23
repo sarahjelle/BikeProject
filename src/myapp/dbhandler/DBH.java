@@ -272,7 +272,8 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM allBikesWithLocNew");
+            stmt = db.prepareStatement("SELECT * FROM allBikesWithLocNew WHERE status != ?");
+            stmt.setInt(1, Bike.DELETE);
             ResultSet bikeset = execSQLRS(stmt);
             ArrayList<Bike> bikes = new ArrayList<>();
             while(bikeset.next()) {
