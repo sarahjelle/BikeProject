@@ -123,7 +123,7 @@
                                 <Label fx:id="distanceInfo" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
                                 <Label text="Total trips: " GridPane.rowIndex="7"/>
-                                <Label fx:id="tripsInfo" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                                <Label fx:id="tripInfo" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
                             </GridPane>
                         </center>
                         <bottom>
