@@ -37,6 +37,13 @@ public class RepairCell extends ListCell<Repair>{
         hbox.getChildren().addAll(dateSent, price, status);
     }
 
+    /**
+     * This method fills a cell with the information from a Repair object.
+     * A cell is only filled if boolean empty is false.
+     * If empty is true the graphics is set to null.
+     * @param item the new object for the cell.
+     * @param empty this is whether or not this cell represent any domain data.
+     */
     @Override
     public void updateItem(Repair item, boolean empty){
         super.updateItem(item, empty);

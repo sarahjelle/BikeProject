@@ -45,11 +45,11 @@ public class BikeCell extends ListCell<Bike>{
     }
 
     /**
-     * This method fills a cell with the bike object, if the boolean is true.
+     * This method fills a cell with the bike object, if the boolean is false.
      * This is were all the labels gets a value.
+     * If the boolean is true the graphics is set to null.
      * @param item the Bike object to be filled in the cell.
      * @param empty this is whether or not the cell represent any domain data.
-     *              if the boolean is true, this cell can be filled.
      */
     @Override
     public void updateItem(Bike item, boolean empty){

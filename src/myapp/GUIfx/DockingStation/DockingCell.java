@@ -8,6 +8,12 @@ import myapp.data.Docking;
 
 import java.util.HashMap;
 
+/**
+ * DockingCell is a class to create custom ListCells in the list of docking stations.
+ * The cell is composed of a HBox with Labels containg information about a docking station.
+ *
+ * @author Sara Hjelle
+ */
 public class DockingCell extends ListCell<Docking>{
     private HBox hBox;
     private Label id;
@@ -16,6 +22,11 @@ public class DockingCell extends ListCell<Docking>{
     private Label openSpaces;
     private Label bikesAtDock;
 
+    /**
+     * The constructor creates all the Labels and adds them to the HBox.
+     * The width of each Label is set, so the elements of the list is places on the same
+     * space in each row.
+     */
     public DockingCell(){
         hBox = new HBox(50);
         id = new Label();
@@ -31,6 +42,12 @@ public class DockingCell extends ListCell<Docking>{
         hBox.getChildren().addAll(id, name, capacity, bikesAtDock);
     }
 
+    /**
+     * This method fills a cell with the Docking object, that is sent in if
+     * the boolean is false. If the boolean is true the graphics is set to null.
+     * @param item the new Docking object for the cell.
+     * @param empty this is whether or not this cell represent any domain data.
+     */
     @Override
     public void updateItem(Docking item, boolean empty){
         super.updateItem(item, empty);

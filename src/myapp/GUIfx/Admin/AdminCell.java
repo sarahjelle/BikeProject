@@ -41,7 +41,7 @@ public class AdminCell extends ListCell<User> {
 
     /**
      * This method fills a cell with the user object, that is sent in if
-     * the boolean is true.
+     * the boolean is false. If the boolean is true the graphics is set to null.
      * @param user the new object for the cell.
      * @param empty this is whether or not this cell represent any domain data.
      */
