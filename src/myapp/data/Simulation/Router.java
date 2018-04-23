@@ -6,6 +6,12 @@ import myapp.dbhandler.*;
 
 import java.util.Random;
 
+/**
+ * Router class implementing Runnable interface allowing it to be placed in a Thread object and run.
+ * The Router moves one Bike object from one start Docking station to another end Docking station, and when the bike
+ * arrives at the end station, it tries to dock.
+ * The Router routes the Bike through a series of geographical waypoints it receives from the MapsAPI class.
+ */
 public class Router implements Runnable{
     private Boolean stop = false;
     private MapsAPI map = new MapsAPI();
@@ -28,6 +34,13 @@ public class Router implements Runnable{
     private long TotalStartTime = -1;
     private long TotalTime = -1;
 
+    /**
+     * Constructs and initialized the Router runnable, with a User, Bike and start- and end- Docking stations.
+     * @param customer User object the Bike is rented to.
+     * @param bikeToMove The Bike object to move.
+     * @param start The Docking object the Bike was rented at.
+     * @param end  The Docking object the Bike will be moved to.
+     */
     public Router(User customer, Bike bikeToMove, Docking start, Docking end){
         if(customer == null){
             throw new IllegalArgumentException("Customer is null");
@@ -59,6 +72,15 @@ public class Router implements Runnable{
         System.out.println();
     }
 
+    /**
+     * When the Router is placed as an argument to a Thread object, and the Thread.start() method is called on the Thread object, this method is called.
+     * This method calls Router.move() on the object, logs the Bike objects geographical location to the database through the DBH class,
+     * and waits for a predefined period of time to pass.
+     * The Router will repeat the steps above indefinitely until either the Router.stop() method is called from another thread,
+     * or until the Bike arrives at the end Docking station, at which point the Bike will try to dock to the end Docking object, ending the trip,
+     * and will call Router.stop() on itself.
+     * This period of time is defined by the UPDATE_INTERVAL variable that has a default value of 60000ms (60s).
+     */
     public void run(){
         long StartTime = System.currentTimeMillis();
         while(!stop){
@@ -132,6 +154,9 @@ public class Router implements Runnable{
         }
     }
 
+    /**
+     * Used to stop the Router object from running. Must be called on the Router object itself, not on the containing Thread object.
+     */
     public void stop(){
         this.stop = true;
     }
