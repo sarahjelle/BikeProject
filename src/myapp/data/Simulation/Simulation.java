@@ -291,9 +291,12 @@ public class Simulation implements Runnable{
             Bike bike = null;
             do{
                 start = docking_stations[rand.nextInt(docking_stations.length)];
-                end = docking_stations[rand.nextInt(docking_stations.length)];
                 bike = start.rentBike(customer);
-            } while(start == null || end == null || bike == null || bike.getLocation().getLatitude() == null || bike.getLocation().getLongitude() == null || start == end);
+            } while(start == null || bike == null || bike.getLocation().getLatitude() == null || bike.getLocation().getLongitude() == null);
+            do{
+                end = docking_stations[rand.nextInt(docking_stations.length)];
+            } while(start == end || end == null);
+
             routers[i] = new Router(customer, bike, start, end);
             routers[i].setUpdateInterval(UPDATE_INTERVAL);
         }
@@ -382,15 +385,8 @@ class SimTest{
             }
         }
         System.out.println("Simulation is initialized");
-        //javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
-
-        try{
-            simThread.join();
-        } catch (InterruptedException ex){
-            sim.stop();
-            ex.printStackTrace();
-        }
-
+        javax.swing.JOptionPane.showMessageDialog(null, "End simulation? ");
+        sim.stop();
 
         if(javax.swing.JOptionPane.showConfirmDialog(null, "Remove any unfinished trips and dock?") == 0){
             DBH handler = new DBH();

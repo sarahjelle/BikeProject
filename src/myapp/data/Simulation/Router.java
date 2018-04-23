@@ -74,7 +74,7 @@ public class Router implements Runnable{
                     DBH handler = new DBH();
                     Location actNewLoc = null;
                     try{
-                        actNewLoc = map.SnapToRoad(new Location(null, bikeToMove.getLocation().getLatitude(), bikeToMove.getLocation().getLongitude()));
+                        //actNewLoc = map.SnapToRoad(new Location(null, bikeToMove.getLocation().getLatitude(), bikeToMove.getLocation().getLongitude()));
                     } catch (Exception e){
                         // MapsAPI key has expired
                         e.printStackTrace();
@@ -85,7 +85,7 @@ public class Router implements Runnable{
                         bikeToMove.setLocation(actNewLoc);
                     }
 
-                    System.out.println(bikeToMove.getLocation().getLatitude() + ", " + bikeToMove.getLocation().getLongitude() + " : " + bikeToMove.getBatteryPercentage());
+                    System.out.println("ID: " + bikeToMove.getId() + " " + bikeToMove.getLocation().getLatitude() + ", " + bikeToMove.getLocation().getLongitude() + " : " + bikeToMove.getBatteryPercentage());
                     Bike[] arr = {bikeToMove};
                     Bike[] ret = handler.logBikes(arr);
                     StartTime = System.currentTimeMillis();
@@ -186,7 +186,6 @@ public class Router implements Runnable{
                     System.out.println();
                     Random rand = new Random();
                     double batteryLeft = bikeToMove.getBatteryPercentage() - (POWER_USAGE_PER_S * rand.nextDouble());
-                    System.out.println("Distance: " + distance + " BatteryLeft: " + batteryLeft + " Battery decended: " + (POWER_USAGE_PER_S * rand.nextDouble()));
                     bikeToMove.setDistanceTraveled(dist);
                     bikeToMove.setBatteryPercentage(batteryLeft);
                     if(bikeToMove.getBatteryPercentage() < 0.0){

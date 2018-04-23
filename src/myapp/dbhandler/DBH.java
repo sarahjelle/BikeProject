@@ -858,7 +858,7 @@ public class DBH {
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM docking_stations");
+            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE status = 1");
             ResultSet dockingSet = execSQLRS(stmt);
             ArrayList<Docking> docks = new ArrayList<>();
             while(dockingSet.next()) {
@@ -1132,7 +1132,7 @@ public class DBH {
     }
 
     /**
-     * getAllDockingStationsWithBikes returns a Docking object array containing all information about the stations
+     * ingStationsWithBikes returns a Docking object array containing all information about the stations
      * and a Bike object array where Bike objects are put in their right spot.
      *
      * @return      a Docking object array with everything there is to find.

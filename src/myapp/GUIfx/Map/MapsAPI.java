@@ -245,9 +245,11 @@ public class MapsAPI {
 
         try (InputStream is = url.openStream(); JsonReader rdr = Json.createReader(is)) {
             JsonObject obj = rdr.readObject();
+
             if(obj == null){
                 return null;
-            } else{
+            }
+            /*else{
                 JsonString jsonStatus = obj.getJsonString("status");
                 if(jsonStatus == null){
                     return null;
@@ -262,13 +264,27 @@ public class MapsAPI {
                     }
                 }
             }
+            */
 
             JsonArray snappedPoints = obj.getJsonArray("snappedPoints");
+            if(snappedPoints == null){
+                return null;
+            }
             JsonObject location = snappedPoints.getJsonObject(0);
-            JsonObject location2 = location.getJsonObject("location");
+            if(location == null){
+                return null;
+            }
 
-            double latitude = location2.getJsonNumber("latitude").doubleValue();
-            double longitude = location2.getJsonNumber("longitude").doubleValue();
+            JsonObject location2 = location.getJsonObject("location");
+            if(location2 == null){
+                return null;
+            }
+
+            Double latitude = location2.getJsonNumber("latitude").doubleValue();
+            Double longitude = location2.getJsonNumber("longitude").doubleValue();
+            if(latitude == null || longitude == null){
+                return null;
+            }
             String address = getAddress(latitude, longitude);
             snapped = new Location(address, latitude, longitude);
 
