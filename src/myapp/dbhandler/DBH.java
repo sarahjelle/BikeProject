@@ -1739,7 +1739,7 @@ public class DBH {
      */
     public boolean forgottenPassword(String mail) {
         Hasher hasher = new Hasher();
-        if(!checkIfUserExist(mail)) {
+        if(checkIfUserExist(mail)) {
             PreparedStatement stmt = null;
             try {
                 Random rand = new Random();

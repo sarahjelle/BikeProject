@@ -19,7 +19,7 @@ CREATE TABLE bikes (
   status INT DEFAULT 1,
   make VARCHAR(25) NOT NULL,
   type VARCHAR(30) NOT NULL,
-  batteryPercentage DOUBLE DEFAULT 0.0,
+  batteryPercentage DOUBLE DEFAULT 1.0,
   totalKm BIGINT DEFAULT 0,
   PRIMARY KEY (bikeID)
 );

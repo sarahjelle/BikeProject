@@ -167,7 +167,7 @@ public class SignInController {
         boolean ok = dbh.forgottenPassword(email);
 
         if(ok){
-            dw.informationWindow("New password is sent to your email", "Email" + email);
+            dw.informationWindow("New password is sent to your email", "Email: " + email);
             back();
         }
         else{
