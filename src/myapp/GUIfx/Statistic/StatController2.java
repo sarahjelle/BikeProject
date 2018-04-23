@@ -161,10 +161,18 @@ public class StatController2 {
                     });
                 } else{
                     //pieChart.getData().clear();
-                    int valueCounter = 2;
+                    int valueCounter = 0;
+                    String[] names = {"On trip: "+ bikeAv[0],
+                            "In repair: " + bikeAv[1],
+                            "Available: " + bikeAv[2]};
+
                     for(final PieChart.Data data : pieChart.getData()){
+                        final int counter = valueCounter;
+                        Platform.runLater(() -> {
+                            data.setName(names[counter]);
+                        });
                         data.setPieValue(bikeAv[valueCounter]);
-                        valueCounter--;
+                        valueCounter++;
                     }
                 }
                 try{
