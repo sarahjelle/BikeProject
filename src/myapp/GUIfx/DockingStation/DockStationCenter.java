@@ -68,6 +68,7 @@ public class DockStationCenter implements Initializable{
     }
 
     public void openPane(){
+        refresh();
         closeAll();
         dockPane.setVisible(true);
         listPane.setVisible(true);
@@ -86,6 +87,7 @@ public class DockStationCenter implements Initializable{
     }
 
     @FXML private void cancel(){
+        refresh();
         closeAll();
         listPane.setVisible(true);
     }
@@ -143,7 +145,8 @@ public class DockStationCenter implements Initializable{
     }
 
     @FXML private void selectedRow(){
-        Docking dock = (Docking) dockingList.getItems().get(dockingList.getSelectionModel().getSelectedIndex());
+        //Docking dock = (Docking)dockingList.getItems().get(dockingList.getSelectionModel().getSelectedIndex());
+        Docking dock  = dockingList.getSelectionModel().getSelectedItem();
         showInfo(dock);
         closeAll();
         dockInfo.setVisible(true);
@@ -211,7 +214,7 @@ public class DockStationCenter implements Initializable{
 
             if (dockId > 0) {
                 refresh();
-                dw.informationWindow("Docking station were successfully added!", "DockingID: " + dockId);
+                dw.informationWindow("Docking station was successfully added!", "DockingID: " + dockId);
                 openPane();
             } else {
                 dw.errorWindow("Something went wrong with the database", "Could not register docking station");
@@ -221,21 +224,26 @@ public class DockStationCenter implements Initializable{
 
     @FXML private void deleteDocking(){
         boolean ok = dw.confirmWindow("Are you sure you want to delete docking station with this information? " +
-                "\nID: " + idTmp +"\nAddresse: " + name, "Delete docking station?");
+                "\nID: " + idTmp +"\nAddress: " + name, "Delete docking station?");
 
         if(ok){
             Docking dock = dbh.getDockingByID(idTmp);
-            boolean deleted = dbh.deleteDocking(dock);
 
-            if(deleted){
-                //bikeList.getItems().clear();
-                refresh();
-                dw.informationWindow("Docking station were successfully deleted", "Docking station: " + idTmp);
-                openPane();
+            if(dock.getUsedSpaces() == 0) {
+                boolean deleted = dbh.deleteDocking(dock);
+
+                if (deleted) {
+                    //bikeList.getItems().clear();
+                    refresh();
+                    dw.informationWindow("Docking station were successfully deleted", "Docking station: " + idTmp);
+                    openPane();
+                } else {
+                    dw.informationWindow("Something went wrong with the database, could not delete docking " +
+                            "station", "DockingID: " + idTmp);
+                }
             }
             else{
-                dw.informationWindow("Something went wrong with the database, could not delete docking " +
-                        "station", "DockingID: " + idTmp );
+                dw.errorWindow("It is not possible to delete a docking station with docked bikes. ", "Could not delete docking station");
             }
         }
     }
@@ -260,7 +268,7 @@ public class DockStationCenter implements Initializable{
 
         if(capacity > 0){
             boolean ok = dw.confirmWindow("Do you want to change capacity of docking "
-                    + idTmp + "to: " + capacity + "?", "Edit docking station" );
+                    + idTmp + " to: " + capacity + "?", "Edit docking station" );
 
             if(ok){
                 Docking dock = dbh.getDockingByID(idTmp);
