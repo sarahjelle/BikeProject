@@ -161,10 +161,10 @@ public class StatController2 {
                     });
                 } else{
                     //pieChart.getData().clear();
-                    int valueCounter = 0;
+                    int valueCounter = 2;
                     for(final PieChart.Data data : pieChart.getData()){
                         data.setPieValue(bikeAv[valueCounter]);
-                        valueCounter++;
+                        valueCounter--;
                     }
                 }
                 try{
@@ -281,6 +281,7 @@ public class StatController2 {
                         }
                         valueCounter=0;
                         seriesCounter++;
+                        valueCounter = 0;
                     }
                     currentNumOfXYDataPoints = dockStat.getData().get(0).getData().size();
                 }

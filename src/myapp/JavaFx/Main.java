@@ -1,4 +1,4 @@
-package myapp.GUIfx;
+package myapp.JavaFx;
 
 import javafx.application.Application;
 import javafx.fxml.*;

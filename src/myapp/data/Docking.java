@@ -185,13 +185,17 @@ public class Docking {
      *          <code>false</code> if the bike could not be redocked
      */
     public boolean dockBike(Bike bike) {
+        double prevBat = bike.getBatteryPercentage();
+        bike.setBatteryPercentage(1.0);
         int spot = findFirstOpen() + 1;
+
         bike.setStatus(dbh.getBikeByID(bike).getStatus());
         if(dbh.endRent(bike,id, spot) && spot > 0) {
             spot--;
             bikes[spot] = bike;
             return true;
         }
+        bike.setBatteryPercentage(prevBat);
         return false;
     }
 

@@ -144,11 +144,6 @@ public class AppController {
                         }
                     }
 
-                    System.out.println();
-                    for (int i = 0; i < dockings.length; i++) {
-                        System.out.println("ID: " + dockings[i].getId() + " " + dockings[i].getUsedSpaces());
-                    }
-                    System.out.println();
                     Bike[] b = new Bike[bikesList.size()];
                     if(bikesList != null){
                         this.bikes = bikesList.toArray(b);
@@ -159,7 +154,6 @@ public class AppController {
                     //removeAll(engine);//removeBike(bikes[i], engine);
                     updateBikes(bikes, engine);
                     if(!allEqualUsedSpace || !noNewDocks){
-                        System.out.println("Updating docks");
                         addDocks(dockings, engine);
                     }
                     StartTime = System.currentTimeMillis();
@@ -201,7 +195,6 @@ public class AppController {
 
             }
             final String input = "[" + arr + "]";
-            System.out.println(input);
             try{
 
                 Platform.runLater(() -> {
@@ -226,7 +219,6 @@ public class AppController {
 
             }
             final String input = "[" + arr + "]";
-            System.out.println(input);
             try{
                 Platform.runLater(() -> {
                     engine.getLoadWorker().stateProperty().addListener((e) -> {

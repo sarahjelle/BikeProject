@@ -676,9 +676,17 @@ public class DBH {
                 stmt.setDouble(2, bikes[i].getLocation().getLongitude());
                 stmt.setDouble(3, bikes[i].getLocation().getLatitude());
                 if(bikes[i].getLocation().getAltitude() != null){
-                    stmt.setInt(4, Integer.parseInt(bikes[i].getLocation().getAltitude().toString()));
+                    Double DAlt = Double.parseDouble(bikes[i].getLocation().getAltitude().toString());
+                    double dAlt = (double) DAlt;
+                    int iAlt = (int) dAlt;
+                    stmt.setInt(4, iAlt);
                 } else{
-                    stmt.setInt(4, Integer.parseInt(map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString()));
+                    String sAlt = map.getAltitude(bikes[i].getLocation().getLatitude(), bikes[i].getLocation().getLongitude()).toString();
+                    Double DAlt = Double.parseDouble(sAlt);
+                    double dAlt = (double) DAlt;
+                    int iAlt = (int) dAlt;
+
+                    stmt.setInt(4, iAlt);
                 }
                 stmt.setDouble(4, 0.0);
                 stmt.setDouble(5, bikes[i].getBatteryPercentage());
@@ -1111,9 +1119,9 @@ public class DBH {
                 return false;
             }
 
-            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.stationID = ? AND slots.bikeID = ?");
-            stmt.setInt(1, dockID);
-            stmt.setInt(2, bike.getId());
+            stmt = db.prepareStatement("UPDATE slots SET slots.bikeID = NULL WHERE slots.bikeID = ?");
+            //stmt.setInt(1, dockID);
+            stmt.setInt(1, bike.getId());
             boolean output = execSQLBool(stmt);
             stmt.close();
             db.close();
@@ -1159,7 +1167,7 @@ public class DBH {
     }
 
     /**
-     * getAllDockingStationsWithBikes returns a Docking object array containing all information about the stations
+     * ingStationsWithBikes returns a Docking object array containing all information about the stations
      * and a Bike object array where Bike objects are put in their right spot.
      *
      * @return      a Docking object array with everything there is to find.

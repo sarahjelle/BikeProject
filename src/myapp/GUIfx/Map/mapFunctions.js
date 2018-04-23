@@ -1,6 +1,6 @@
 var map;
 var bikes = [];
-var centerPos = {lat: 63.429148, lng: 10.392461};
+var centerPos = {lat: 63.427800, lng: 10.421447};
 let markers = [];
 
 var docks = [];
@@ -13,7 +13,7 @@ var markerInfWList = [];
 
 function initMap() {
     var options = {
-        zoom: 13,
+        zoom: 12,
         center: centerPos,
         disableDefaultUI: true
     };
@@ -25,6 +25,7 @@ function initMap() {
     };
 
 }
+
 document.addBikes = function addBikes(bikesArr){
     for(var i = 0; i < bikesArr.length; i++){
            document.addBike(bikesArr[i]);
@@ -150,13 +151,37 @@ document.addDock = function addDock(dock){
         });
         infoWindows.push({id: dock.id, inf: infoWindow});
         var counter = 0;
+        var isOpen = false;
+        var lockOpen = false;
         google.maps.event.addListener(marker,'click',function(){
-            if(counter == 0){
+            if(!isOpen){
                 infoWindow.open(map,marker);
-                counter = 1;
-            } else if(counter == 1){
+                isOpen = true;
+                lockOpen = true;
+            } else if(isOpen && lockOpen){
                 infoWindow.close(map,marker);
-                counter = 0;
+                isOpen = false;
+                lockOpen = false;
+            } else if(isOpen){
+                //infoWindow.close(map,marker);
+                isOpen = true;
+                lockOpen = true;
+            }
+
+
+        });
+
+        google.maps.event.addListener(marker, 'mouseover', function(){
+            if(!isOpen){
+                infoWindow.open(map, marker);
+                isOpen = true;
+            }
+        });
+        google.maps.event.addListener(marker, 'mouseout', function(){
+            if(isOpen && !lockOpen){
+                // Close
+                infoWindow.close(map, marker);
+                isOpen = false;
             }
         });
         var element = {id: dock.id, marker: marker, infoW: infoWindow};
