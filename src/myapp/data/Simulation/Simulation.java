@@ -230,7 +230,6 @@ public class Simulation implements Runnable{
      * @return User[] with length = percentageOfUsersToMove * "All-Users-Stored-In-Database.length" or length = NumberOfUsersToMove
      */
     private User[] getUserSubset(){
-        System.out.println("Getting users");
         int percentage;
         if(percentageOfUsersToMove <= 1){
             percentage = (int)(users.length * percentageOfUsersToMove);
@@ -284,7 +283,6 @@ public class Simulation implements Runnable{
      * @return Router[] containing Router Runnables ready to start.
      */
     private Router[] getRouters(User[] userSubSet){
-        System.out.println("Getting routers");
         Router[] routers = new Router[userSubSet.length];
         Random rand = new Random();
         DBH handler = new DBH();
@@ -379,8 +377,25 @@ class SimTest{
         //int id, String name, Location location, int capacity
         Simulation sim = new Simulation();
         sim.setUpdateInterval(3000);
-        //sim.setUserPercentage(0.5);
-        sim.setNumberOfUsers(3);
+
+        boolean validInput = false;
+        Double percentage = null;
+        do{
+            String input = javax.swing.JOptionPane.showInputDialog("Enter percentage (0.0 - 1.0) of test-customers to use in the simulation: ");
+            try{
+                percentage = Double.parseDouble(input);
+                if(percentage >= 0.0 && percentage <= 1.0){
+                    validInput = true;
+                }
+            } catch(Exception e){
+                javax.swing.JOptionPane.showMessageDialog(null, "Please enter a valid number between 0.0 and 1.0");
+                validInput = false;
+            }
+
+        } while(!validInput);
+
+        sim.setUserPercentage(percentage);
+        //sim.setNumberOfUsers(3);
 
         Thread simThread = new Thread(sim);
         simThread.start();

@@ -208,7 +208,6 @@ public class Router implements Runnable{
 
 
                     int dist = (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000;
-                    System.out.println();
                     Random rand = new Random();
                     double batteryLeft = bikeToMove.getBatteryPercentage() - (POWER_USAGE_PER_S * rand.nextDouble());
                     bikeToMove.setDistanceTraveled(dist);
@@ -243,9 +242,25 @@ public class Router implements Runnable{
                 hasArrived = true;
                 //Dock to endStation
                 isDocked = end.dockBike(bikeToMove);
-                System.out.println("ROUTER ABLE TO DOCK TO END: " + isDocked);
+                if(!isDocked){
+                    try{
+                        Thread.sleep(1000);
+                    } catch(InterruptedException ex){
+                        ex.printStackTrace();
+                    }
+                }
+                isDocked = end.dockBike(bikeToMove);
+                //System.out.println("ROUTER ABLE TO DOCK TO END: " + isDocked);
             }
         } else{
+            isDocked = end.dockBike(bikeToMove);
+            if(!isDocked){
+                try{
+                    Thread.sleep(1000);
+                } catch(InterruptedException ex){
+                    ex.printStackTrace();
+                }
+            }
             isDocked = end.dockBike(bikeToMove);
             System.out.println("ROUTER ABLE TO DOCK TO END: " + isDocked);
         }
