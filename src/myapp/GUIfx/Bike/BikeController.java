@@ -86,6 +86,9 @@ public class BikeController implements Initializable {
     private Label distanceInfo;
     @FXML private Label tripInfo;
 
+    @FXML private Label dockInfo;
+    @FXML private Label dockID;
+
     //List of repairs
     @FXML
     private ListView<Repair> repairList;
@@ -307,6 +310,36 @@ public class BikeController implements Initializable {
             System.out.println("Tripinfo is not null");
         }
         tripInfo.setText(bike.getTotalTrips() + "");
+
+        DBH handler = new DBH();
+        Docking[] dockings = handler.getAllDockingStationsWithBikes();
+        boolean docked = false;
+        int atDockIndex = -1;
+        for (int i = 0; i < dockings.length; i++) {
+            Bike[] bikesHere = dockings[i].getBikes();
+            if(bikesHere != null){
+                for (int j = 0; j < bikesHere.length; j++) {
+                    if(bikesHere[j] != null){
+                        if(bikesHere[j].getId() == bike.getId()){
+                            docked = true;
+                            atDockIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(docked){
+            // Bike is docked
+            dockID.setText(dockings[atDockIndex].getName().split(",")[0] + "");
+            dockID.setVisible(true);
+            dockInfo.setVisible(true);
+        } else{
+            dockID.setText("");
+            dockID.setVisible(false);
+            dockInfo.setVisible(false);
+        }
+
 
         refreshRepair(bike);
 

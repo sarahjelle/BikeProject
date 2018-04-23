@@ -77,6 +77,7 @@ public class Bike {
         this.totalTrips = totalTrips;
     }
 
+    /*
     // UNKNOWN USAGE
     public Bike(int id, String make, double price, String type, double batteryPercentage, int distanceTraveled){
         this.id = id;
@@ -108,6 +109,7 @@ public class Bike {
             this.distanceTraveled = 0;
         }
     }
+    */
 
     public int getId() {
         return id;

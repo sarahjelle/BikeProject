@@ -124,6 +124,8 @@
 
                                 <Label text="Total trips: " GridPane.rowIndex="7"/>
                                 <Label fx:id="tripInfo" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                                <Label fx:id="dockInfo" text="Docked at: " GridPane.rowIndex="8"/>
+                                <Label fx:id="dockID" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
                             </GridPane>
                         </center>
                         <bottom>
