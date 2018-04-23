@@ -6,7 +6,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import myapp.GUIfx.DialogWindows;
+import myapp.GUIfx.MainApp.Main;
 import myapp.GUIfx.SignIn.SignInController;
 import myapp.data.User;
 import myapp.dbhandler.DBH;
@@ -23,7 +26,8 @@ import java.util.ResourceBundle;
  */
 public class AdminController implements Initializable{
     @FXML private SplitPane adminPane;
-    @FXML private GridPane adminInfo;
+    @FXML private VBox adminInfo;
+    @FXML private VBox signupPane;
 
     //info
     @FXML private Label firstnameInfo;
@@ -37,6 +41,7 @@ public class AdminController implements Initializable{
     private DBH dbh = new DBH();
     private User[] admins;
     @FXML private ListView<User> adminList;
+    private Main main = new Main();
 
     private DialogWindows dw = new DialogWindows();
 
@@ -50,6 +55,12 @@ public class AdminController implements Initializable{
     @FXML private TextField phoneEdit;
     @FXML private TextField emailEdit;
     @FXML private HBox editButtons;
+
+    //new admin
+    @FXML private TextField firstNameReg;
+    @FXML private TextField lastNameReg;
+    @FXML private TextField phoneReg;
+    @FXML private TextField emailReg;
 
     /**
      *
@@ -94,7 +105,7 @@ public class AdminController implements Initializable{
         this.user = user;
         adminPane.setVisible(true);
         adminInfo.requestLayout();
-        closeEdit();
+        close();
         firstnameInfo.setText(user.getFirstname());
         surnameInfo.setText(user.getLastname());
         phoneInfo.setText(Integer.toString(user.getPhone()));
@@ -174,7 +185,7 @@ public class AdminController implements Initializable{
         emailEdit.setText(user.getEmail());
     }
 
-    @FXML private void closeEdit(){
+    @FXML private void close(){
         infoButtons.setVisible(true);
         editButtons.setVisible(false);
         firstnameInfo.setVisible(true);
@@ -185,6 +196,7 @@ public class AdminController implements Initializable{
         surnameEdit.setVisible(false);
         phoneEdit.setVisible(false);
         emailEdit.setVisible(false);
+        signupPane.setVisible(false);
     }
 
     /**
@@ -232,6 +244,85 @@ public class AdminController implements Initializable{
             }
             else{
                 dw.errorWindow("Your information could not be updated", "Information update failed");
+            }
+        }
+    }
+
+    @FXML private void openSignUp(){
+        adminInfo.setVisible(false);
+        signupPane.setVisible(true);
+    }
+
+    @FXML private void signUp(){
+        if(signUpOK()){
+            String firstName = firstNameReg.getText().trim();
+            String surname = lastNameReg.getText().trim();
+            int phone = Integer.parseInt(phoneReg.getText().trim());
+            String email = emailReg.getText().trim();
+
+            User newUser = new User(-1, firstName, surname, phone, email, "0047");
+            int id = dbh.registerUser(newUser, true);
+
+            if(id > 0){
+                dw.informationWindow("New user is registered, and an email is sent with a new " +
+                        "password to: " + email, "Information registered!");
+            }
+            else{
+                dw.errorWindow("Something went wrong with the database...", "Could not register user");
+            }
+        }
+    }
+
+    private boolean signUpOK(){
+        boolean ok = true;
+
+        if(firstNameReg.getText().trim().isEmpty()){
+            firstNameReg.setPromptText("Field is empty");
+            ok = false;
+        }
+
+        if(lastNameReg.getText().trim().isEmpty()){
+            lastNameReg.setPromptText("Field is empty");
+            ok = false;
+        }
+
+        if(emailReg.getText().trim().isEmpty()){
+            emailReg.setPromptText("Field is empty");
+            ok = false;
+        }
+
+        String phone = phoneReg.getText().trim();
+
+        if(phoneReg.getText().trim().isEmpty()){
+            phoneReg.setPromptText("Field is empty");
+            ok = false;
+        }
+        else if(phone.length() != 8){
+            phoneReg.setPromptText("8 numeric characters");
+            ok = false;
+        }
+        else{
+            try{
+                int tlf = Integer.parseInt(phone);
+            }catch (Exception e){
+                ok = false;
+                phoneReg.setPromptText("Only numeric characters");
+            }
+        }
+
+        return ok;
+    }
+
+    @FXML private void logOut(){
+        boolean ok = dw.confirmWindow("Are you sure you want to log out of the application? ",
+                "Log out");
+
+        if(ok){
+            Stage currentStage = (Stage)adminPane.getScene().getWindow();
+            try{
+                main.login(currentStage);
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }

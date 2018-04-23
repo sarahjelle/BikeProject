@@ -12,7 +12,7 @@ import myapp.data.User;
 
 public class Main extends Application{
 
-    private void login(Stage primaryStage) throws Exception{
+    public void login(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("../SignIn/SignIn.fxml"));
         Scene scene = new Scene(root, 300, 300);
 
