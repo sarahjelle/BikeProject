@@ -974,39 +974,12 @@ public class DBH {
      */
     public Docking getDockingStationByName(String name) {
         PreparedStatement stmt = null;
-        try {
-            connect();
-            if(db == null) {
-                return null;
-            }
+        Docking[] docks = getAllDockingStationsWithBikes();
 
-            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE stationName = ?");
-            stmt.setString(1, name);
-            ResultSet dockingSet = execSQLRS(stmt);
-            while(dockingSet.next()) {
-                Docking dock = new Docking(
-                        dockingSet.getInt("stationID"),
-                        dockingSet.getString("stationName"),
-                        new Location(
-                                dockingSet.getDouble("latitude"),
-                                dockingSet.getDouble("longitude")
-                        ),
-                        dockingSet.getInt("maxSlots"),
-                        dockingSet.getInt("status")
-                );
-                stmt.close();
-                db.close();
-
+        for(Docking dock : docks) {
+            if(dock.getName().equals(name)) {
                 return dock;
             }
-
-            stmt.close();
-            db.close();
-
-            return null;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
         }
         return null;
     }
@@ -1162,7 +1135,7 @@ public class DBH {
      * @see Bike
      * @author Fredrik Mediaa
      */
-    private boolean dockBike(Bike bike, int dockID, int spot){
+    public boolean dockBike(Bike bike, int dockID, int spot){
         PreparedStatement stmt = null;
         try{
             connect();

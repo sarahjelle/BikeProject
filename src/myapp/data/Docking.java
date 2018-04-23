@@ -187,10 +187,29 @@ public class Docking {
     public boolean dockBike(Bike bike) {
         int spot = findFirstOpen() + 1;
         bike.setStatus(dbh.getBikeByID(bike).getStatus());
-        if(dbh.endRent(bike,id, spot)) {
+        if(dbh.endRent(bike,id, spot) && spot > 0) {
             spot--;
             bikes[spot] = bike;
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * Docks a bike to the first open spot on a docking status. Used to redock bikes that have been rented for trips.
+     * @param bike the bike to dock
+     * @return <code>true</code> if docking of bike was successful,
+     *          <code>false</code> if the bike could not be redocked
+     */
+    public boolean dockBikeWihtoutRent(Bike bike) {
+        int spot = findFirstOpen() + 1;
+        bike.setStatus(dbh.getBikeByID(bike).getStatus());
+        if(dbh.dockBike(bike, id, spot)) {
+            if(spot > 0) {
+                spot--;
+                bikes[spot] = bike;
+                return true;
+            }
         }
         return false;
     }
