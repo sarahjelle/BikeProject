@@ -49,8 +49,6 @@ public class AppController {
 
         closeAll();
         mapPane.setVisible(true);
-        //URL url = getClass().getResource("../Map/map.html");
-        //mapPane.getEngine().load(url.toExternalForm());
 
         if(up == null){
             up = new Updater();
@@ -107,7 +105,7 @@ public class AppController {
                 addDock(dockings[i], mapPane.getEngine());
             }
             */
-            URL url = getClass().getResource("../Map/map.html");
+            URL url = this.getClass().getResource("../Map/map.html");
             mapPane.getEngine().load(url.toExternalForm());
             mapPane.getEngine().setJavaScriptEnabled(true);
             //removeAll(mapPane.getEngine());
