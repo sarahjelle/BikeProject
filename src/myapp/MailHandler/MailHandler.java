@@ -20,7 +20,7 @@ public class MailHandler {
      * @param subject   the title of the email
      * @param mailTo    the mail address of the receiver
      * @param text      the whole message which is sent to the receiver
-     * @throws MessagingException
+     * @throws MessagingException throws an MessagingException if something goes wrong
      */
     public MailHandler(String subject, String mailTo, String text) throws MessagingException {
         final String    mail        = "su1.team3@gmail.com",
