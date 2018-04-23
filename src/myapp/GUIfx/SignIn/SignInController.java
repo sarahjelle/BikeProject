@@ -114,7 +114,7 @@ public class SignInController {
                 back();
             }
             else{
-                dw.informationWindow("Something went wrong with the database...", "Could not register user");
+                dw.errorWindow("Something went wrong with the database...", "Could not register user");
             }
 
         }
