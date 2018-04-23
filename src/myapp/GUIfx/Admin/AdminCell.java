@@ -8,7 +8,8 @@ import myapp.data.User;
 /**
  * The AdminCell class creates custom ListCell, so the list of admins
  * in the application can contain multiple values.
- * The cell is composed of a HBox with different Labels.
+ * The cell is composed of a HBox with different Labels, and the Labels are filled
+ * with information about the admin.
  *
  * @author Sara Hjelle
  */
@@ -20,6 +21,11 @@ public class AdminCell extends ListCell<User> {
     private Label phone;
     private Label email;
 
+    /**
+     * The constructor creates all the Labels and adds them to the HBox.
+     * The width of each Label is set, so the elements of the list is places on the same
+     * space in each row.
+     */
     public AdminCell(){
         hbox = new HBox(50);
         userId = new Label();
@@ -35,6 +41,11 @@ public class AdminCell extends ListCell<User> {
         hbox.getChildren().addAll(firstName, phone, email);
     }
 
+    /**
+     * 
+     * @param user
+     * @param empty
+     */
     @Override
     public void updateItem(User user, boolean empty){
         super.updateItem(user, empty);

@@ -365,7 +365,7 @@ public class BikeController implements Initializable {
     @FXML private void showRepair(){
         Repair repair = repairList.getSelectionModel().getSelectedItem();
         dateSentRepInfo.setText(repair.getRequestDate().toString());
-        descBeforeInfo.setText(repair.getDesc());
+        descBeforeInfo.setText(repair.getDesc().trim());
         if(repair.getStatus()){
             priceRepairInfo.setText(Double.toString(repair.getPrice()));
             descAfterInfo.setText(repair.getReturnDesc());
@@ -459,6 +459,8 @@ public class BikeController implements Initializable {
                 dw.informationWindow("Repair request were sucsesfully added! \n" +
                         "The bike is ready to be rented", "BikeID: " + id);
                 showInfoBack();
+                repairInfoPane.setVisible(false);
+                repairListPane.setVisible(true);
             }
             else{
                 dw.informationWindow("Could not add repair request to the database", "BikeID: " + id);
