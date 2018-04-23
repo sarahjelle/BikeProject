@@ -14,21 +14,19 @@
 <?import javafx.scene.web.WebView?>
 <AnchorPane fx:id="testbikeremoveme" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="myapp.GUIfx.Bike.BikeController"
-            prefHeight="400.0" prefWidth="600.0" stylesheets="@BikePane2.css">
+            prefHeight="400.0" prefWidth="600.0" stylesheets="@BikePane.css">
 
     <BorderPane fx:id="listPane" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
         <bottom>
             <HBox fx:id="topMenu">
                 <TextField promptText="bikeid" fx:id="searchInput" onAction="#search" prefHeight="20"/>
-                <Button onAction="#search" prefHeight="20">
-                    <graphic>
-                        <ImageView fitHeight="15" fitWidth="15">
-                            <Image url="@../Images/Search.png" />
-                        </ImageView>
-                    </graphic>
-                </Button>
+                <Button text="Search" onAction="#search" prefHeight="20"/>
                 <Button text="Refresh" onAction="#refresh" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Region HBox.hgrow="ALWAYS"/>
                 <Button text="New bike" onAction="#openRegBike" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <padding>
+                    <Insets top="5" bottom="5" left="10"/>
+                </padding>
             </HBox>
         </bottom>
         <center>
@@ -71,7 +69,6 @@
                 </GridPane>
                 <HBox alignment="CENTER" spacing="10">
                     <Button text="Register" onAction="#regBike"/>
-                    <Separator orientation="VERTICAL"/>
                     <Button text="Cancel" onAction="#cancel"/>
                 </HBox>
             </VBox>
@@ -93,6 +90,9 @@
             <HBox fx:id="topIdOutput">
                 <Label text="Bikeid: "/>
                 <Label fx:id="idOutput"/>
+                <padding>
+                    <Insets left="10"/>
+                </padding>
             </HBox>
         </top>
         <center>
@@ -127,10 +127,13 @@
                             </GridPane>
                         </center>
                         <bottom>
-                            <HBox alignment="CENTER">
-                                <Button text="Edit" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#openEditPane"/>
-                                <Button text="Repair" onAction="#openRepairPane" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Button text="Delete" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#deleteBike"/>
+                            <HBox alignment="CENTER" spacing="20">
+                                <Button text="Edit" onAction="#openEditPane"/>
+                                <Button text="Repair" onAction="#openRepairPane"/>
+                                <Button text="Delete" onAction="#deleteBike"/>
+                                <padding>
+                                    <Insets bottom="10"/>
+                                </padding>
                             </HBox>
                         </bottom>
                     </BorderPane>
@@ -172,10 +175,12 @@
                                     </GridPane>
                                 </center>
                                 <bottom>
-                                    <HBox alignment="CENTER">
-                                        <Button text="Show all repairs" onAction="#showAllRepairs" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                        <Separator orientation="VERTICAL"/>
-                                        <Button text="Finish repair" fx:id="finishRepair" visible="false" onAction="#openRepairPane" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                                    <HBox alignment="CENTER" spacing="10">
+                                        <Button text="Show all repairs" onAction="#showAllRepairs"/>
+                                        <Button text="Finish repair" fx:id="finishRepair" visible="false" onAction="#openRepairPane"/>
+                                        <padding>
+                                            <Insets bottom="10"/>
+                                        </padding>
                                     </HBox>
                                 </bottom>
                             </BorderPane>
@@ -185,45 +190,60 @@
                 </SplitPane>
                 <BorderPane fx:id="repairPaneBefore" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
                     <top>
-                        <Label text="Before repair"/>
+                        <Label text="Before repair" style="-fx-font-size: 15">
+                            <padding>
+                                <Insets left="10" top="10"/>
+                            </padding>
+                        </Label>
                     </top>
                     <center>
-                        <GridPane alignment="CENTER" hgap="10.0" vgap="10.0">
-                            <Label text="Date sent: " GridPane.rowIndex="0"/>
-                            <DatePicker fx:id="dateSent" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                            <Label text="Description: " GridPane.rowIndex="1" />
-                            <TextArea fx:id="descriptionBefore" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        </GridPane>
+                        <VBox spacing="20" alignment="CENTER">
+                            <GridPane alignment="CENTER" hgap="10.0" vgap="10.0">
+                                <Label text="Date sent: " GridPane.rowIndex="0"/>
+                                <DatePicker fx:id="dateSent" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                <Label text="Description: " GridPane.rowIndex="1" />
+                                <TextArea fx:id="descriptionBefore" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            </GridPane>
+                            <HBox alignment="CENTER" spacing="10">
+                                <Button text="Register" onAction="#beforeRepair" />
+                                <Button onAction="#showInfoBack" text="Cancel"/>
+                            </HBox>
+                        </VBox>
                     </center>
-                    <bottom>
-                        <HBox alignment="CENTER">
-                            <Button text="Register" onAction="#beforeRepair" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                            <Button onAction="#showInfoBack" text="Cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        </HBox>
-                    </bottom>
                 </BorderPane>
                 <BorderPane fx:id="repairPaneAfter" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
                     <top>
-                        <Label text="On return"/>
+                        <Label text="On return" style="-fx-font-size: 15" alignment="CENTER">
+                            <padding>
+                                <Insets left="10" top="10"/>
+                            </padding>
+                        </Label>
                     </top>
                     <center>
-                        <GridPane alignment="CENTER" hgap="15" vgap="15">
-                            <Label text="Date sent: " GridPane.rowIndex="0"/>
-                            <DatePicker fx:id="dateReturn" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                            <Label text="Price: " GridPane.rowIndex="1"/>
-                            <TextField fx:id="priceRepair" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                            <Label text="Description: " GridPane.rowIndex="2" />
-                            <TextArea fx:id="descriptionDone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        </GridPane>
+                        <VBox alignment="CENTER" spacing="20">
+                            <GridPane alignment="CENTER" hgap="15" vgap="15">
+                                <Label text="Date sent: " GridPane.rowIndex="0"/>
+                                <DatePicker fx:id="dateReturn" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                <Label text="Price: " GridPane.rowIndex="1"/>
+                                <TextField fx:id="priceRepair" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                <Label text="Description: " GridPane.rowIndex="2" />
+                                <TextArea fx:id="descriptionDone" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            </GridPane>
+                            <HBox alignment="CENTER" spacing="10">
+                                <Button text="Register" onAction="#afterRepair"/>
+                                <Button onAction="#showInfoBack" text="Cancel"/>
+                            </HBox>
+                        </VBox>
                     </center>
-                    <bottom>
-                        <HBox alignment="CENTER">
-                            <Button text="Register" onAction="#afterRepair" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                            <Button onAction="#showInfoBack" text="Cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        </HBox>
-                    </bottom>
                 </BorderPane>
                 <BorderPane fx:id="editPane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0">
+                    <top>
+                        <Label text="Edit bike" style="-fx-font-size: 15">
+                            <padding>
+                                <Insets left="10" top="10"/>
+                            </padding>
+                        </Label>
+                    </top>
                     <center>
                         <VBox alignment="CENTER" spacing="30">
                             <GridPane alignment="CENTER" hgap="15" vgap="15">

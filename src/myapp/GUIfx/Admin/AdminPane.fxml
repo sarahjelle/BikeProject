@@ -15,49 +15,52 @@
     <SplitPane orientation="VERTICAL">
         <BorderPane>
             <top>
-                <Label text="Your info"/>
+                <VBox>
+                    <Label text="Your info" style="-fx-font-size: 20">
+                        <padding>
+                            <Insets left="10"/>
+                        </padding>
+                    </Label>
+                    <Separator orientation="HORIZONTAL"/>
+                </VBox>
             </top>
             <center>
-                <GridPane fx:id="adminInfo" alignment="CENTER" vgap="10" hgap="10">
-                    <Label text="First name: "/>
-                    <Label fx:id="firstnameInfo" GridPane.columnIndex="1"/>
-                    <TextField fx:id="firstNameEdit" visible="false" GridPane.columnIndex="1"/>
+                <VBox alignment="CENTER" spacing="20">
+                    <GridPane fx:id="adminInfo" alignment="CENTER" vgap="10" hgap="10">
+                        <Label text="First name: "/>
+                        <Label fx:id="firstnameInfo" GridPane.columnIndex="1"/>
+                        <TextField fx:id="firstNameEdit" visible="false" GridPane.columnIndex="1"/>
 
-                    <Label text="Surname: " GridPane.rowIndex="1"/>
-                    <Label fx:id="surnameInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                    <TextField fx:id="surnameEdit" visible="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Surname: " GridPane.rowIndex="1"/>
+                        <Label fx:id="surnameInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <TextField fx:id="surnameEdit" visible="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                    <Label text="Phone: " GridPane.rowIndex="2"/>
-                    <Label fx:id="phoneInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-                    <TextField fx:id="phoneEdit" visible="false" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Phone: " GridPane.rowIndex="2"/>
+                        <Label fx:id="phoneInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <TextField fx:id="phoneEdit" visible="false" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                    <Label text="Email: " GridPane.rowIndex="3"/>
-                    <Label fx:id="emailInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                    <TextField fx:id="emailEdit" visible="false" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                </GridPane>
+                        <Label text="Email: " GridPane.rowIndex="3"/>
+                        <Label fx:id="emailInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <TextField fx:id="emailEdit" visible="false" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <AnchorPane>
+                        <HBox fx:id="infoButtons" alignment="CENTER" spacing="20" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                            <Button text="Edit"  onAction="#openEdit"/>
+                            <Button text="Log out" />
+                            <padding>
+                                <Insets bottom="5"/>
+                            </padding>
+                        </HBox>
+                        <HBox visible="false" fx:id="editButtons" spacing="20" alignment="CENTER" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                            <Button text="Cancel" onAction="#closeEdit"/>
+                            <Button text="Submit changes" onAction="#edit"/>
+                            <padding>
+                                <Insets bottom="5"/>
+                            </padding>
+                        </HBox>
+                    </AnchorPane>
+                </VBox>
             </center>
-            <bottom>
-                <AnchorPane>
-                    <HBox fx:id="infoButtons" alignment="CENTER" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                        <Button text="Cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        <Separator orientation="VERTICAL"/>
-                        <Button text="Edit" HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#openEdit"/>
-                        <Separator orientation="VERTICAL"/>
-                        <Button text="Log out" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        <padding>
-                            <Insets bottom="5"/>
-                        </padding>
-                    </HBox>
-                    <HBox visible="false" fx:id="editButtons" alignment="CENTER" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                        <Button text="Cancel" onAction="#closeEdit" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        <Separator orientation="VERTICAL"/>
-                        <Button text="Submit changes" onAction="#edit" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        <padding>
-                            <Insets bottom="5"/>
-                        </padding>
-                    </HBox>
-                </AnchorPane>
-            </bottom>
         </BorderPane>
         <VBox spacing="15" alignment="CENTER">
             <GridPane alignment="CENTER" vgap="10" hgap="10">

@@ -4,20 +4,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import myapp.GUIfx.Bike.BikeData;
 import myapp.GUIfx.DialogWindows;
 import myapp.data.Bike;
 import myapp.data.Docking;
 import myapp.dbhandler.DBH;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
@@ -37,6 +33,7 @@ public class DockStationCenter implements Initializable{
     //Pane with list and search
     @FXML private ListView<Docking> dockingList;
     @FXML private BorderPane listPane;
+    @FXML private TextField searchInput;
 
     //dockInfo
     @FXML private BorderPane dockInfo;
@@ -150,6 +147,23 @@ public class DockStationCenter implements Initializable{
         showInfo(dock);
         closeAll();
         dockInfo.setVisible(true);
+    }
+
+    @FXML private void search(){
+        String dockID = searchInput.getText();
+        int id = -1;
+
+        try{
+            id = Integer.parseInt(dockID);
+        }catch (Exception e){
+            searchInput.setPromptText("Write a number");
+        }
+        if(id > 0) {
+            Docking dock = dbh.getDockingByID(id);
+            showInfo(dock);
+            closeAll();
+            dockInfo.setVisible(true);
+        }
     }
 
     @FXML private void showInfoBack(){

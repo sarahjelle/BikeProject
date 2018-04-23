@@ -162,7 +162,9 @@ public class BikeController implements Initializable {
 
             Platform.runLater(() -> {
                 for (int i = 0; i < bikes.size(); i++) {
-                    bikeList.getItems().add(bikes.get(i));
+                    if(bikes.get(i).getStatus() != Bike.DELETE) {
+                        bikeList.getItems().add(bikes.get(i));
+                    }
                 }
             });
         });
@@ -262,7 +264,7 @@ public class BikeController implements Initializable {
             searchInput.setStyle("-fx-text-fill: red");
         }
 
-        if (bikeId >= 0) {
+        if (bikeId > 0) {
             Bike bike = findBike(bikeId);
             if (bike instanceof Bike && bike != null) {
                 showInfo(bike);
