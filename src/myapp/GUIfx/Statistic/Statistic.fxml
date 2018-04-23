@@ -9,7 +9,9 @@
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
-<BorderPane  stylesheets="@Statistic.css" visible="false" fx:id="statPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.Statistic.StatController2">
+<?import javafx.geometry.Insets?>
+
+<BorderPane stylesheets="@Statistic.css" visible="false" fx:id="statPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="myapp.GUIfx.Statistic.StatController2">
     <center>
         <AnchorPane>
             <BorderPane fx:id="stat1Pane" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"/>
@@ -24,6 +26,9 @@
             <Button text="Docking status" onAction="#openStat2" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button text="Average km" onAction="#openStat3" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button text="Average number of trips" onAction="#openStat4" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <padding>
+                <Insets left="10" right="10" bottom="5" top="5"/>
+            </padding>
         </HBox>
     </bottom>
 </BorderPane>

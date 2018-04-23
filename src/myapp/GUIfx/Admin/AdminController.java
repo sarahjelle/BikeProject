@@ -21,6 +21,8 @@ import java.util.ResourceBundle;
 /**
  * The AdminController is the controller of AdminPane.fxml.
  * The class contains methods to fill the AdminPane with information.
+ * It also contains methods to log out, see other admins contact information, register new admins
+ * and change the users own information.
  *
  * @author Sara Hjelle
  */
@@ -62,18 +64,9 @@ public class AdminController implements Initializable{
     @FXML private TextField phoneReg;
     @FXML private TextField emailReg;
 
-    /**
-     *
-     * @param url
-     * @param rb
-     */
     public void initialize(URL url, ResourceBundle rb){
         adminList.setCellFactory(e -> new AdminCell());
         refreshList();
-    }
-
-    public void setAdmin(User user){
-        this.user = user;
     }
 
     /**
