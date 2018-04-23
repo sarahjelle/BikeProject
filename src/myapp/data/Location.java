@@ -4,7 +4,10 @@ import myapp.GUIfx.Map.MapsAPI;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-
+/**
+ * Location is a object representing the Location-holders position. This is supposed to belong to
+ * for example a Bike or a Docking object.
+ */
 public class Location implements Serializable {
 
     private String name;
@@ -13,6 +16,12 @@ public class Location implements Serializable {
     private Double altitude;
     private LocalDate localDate;
 
+    /**
+     * This constructor is meant for creating location object where to lat, long and altitude is unknown.
+     * By entering the name and setting getCoords to true it will automatically create a complete Location object.
+     * @param name          the address of the location
+     * @param getCoords     True = getting coords from google maps, False = not getting coords.
+     */
     public Location(String name, boolean getCoords) {
         this.name = name;
         Double[] latlongalt = MapsAPI.get().getLatLongAlt(name);
@@ -34,6 +43,9 @@ public class Location implements Serializable {
         this.name = "";
     }
 
+    /**
+     * empty constructor for testing purposes, Not safe to use without caution!
+     */
     public Location() {
         this.name      = null;
         this.latitude  = null;
@@ -54,6 +66,11 @@ public class Location implements Serializable {
         }
     }
 
+    /**
+     * Constructor to be used when only lat and long is known
+     * @param lat   the latitude of the position
+     * @param lng   the longitude of the position
+     */
     public Location(double lat, double lng) {
         this.latitude = lat;
         this.longitude = lng;

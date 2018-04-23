@@ -1,23 +1,37 @@
 package myapp.data;
 import java.util.Random;
+
+/**
+ * User is a representation of the people either maintaining the system, renting the bikes or repairing them.
+ */
 public class User {
     public final static int ADMINISTRATOR = 1,
-                            REPERATØR = 2,
-                            KUNDE = 3,
+                            REPAIRMAN = 2,
+                            CUSTOMER = 3,
                             SOFTDELETE = 99;
 
     private final int UserID;
     private final int UserClass;
 
-    private final String firstname;
-    private final String lastname;
-    private final int phone;
-    private final String email;
+    private String firstname;
+    private String lastname;
+    private int phone;
+    private String email;
     private final String landcode;
     private final String password;
 
 
-    //Complete new user to be registered in DB
+    /**
+     * When creating a new user in the code, this is the constructor to be used. It creates a temporary password for the user,
+     * and holds all information needed to be registered in the database.
+     *
+     * @param UserClass     not in use at the moment, but can be used for adding users with different level of access
+     * @param firstname     the firstname of the user
+     * @param lastname      the lastname of the user
+     * @param phone         the phonenumber of the user
+     * @param email         the email and username of the person. Passwords and information is sent to this. Used to login user
+     * @param landcode      the landcode, to support phones from other countries.
+     */
     public User(int UserClass, String firstname, String lastname, int phone, String email, String landcode){
         this.UserID = -1;
         this.UserClass = UserClass;
@@ -42,7 +56,16 @@ public class User {
         this.password = pw;
     }
 
-    //To be used when an already registered user logs in
+    /**
+     * This constructor is used by the Database, returning a fulfilled user with all information needed.
+     * @param UserID        the users ID
+     * @param UserClass     the level of access the user is given
+     * @param firstname     the firstname of the user
+     * @param lastname      the lastname of the usr
+     * @param phone         the phonenumber of the user
+     * @param email         the email and username of the person. Passwords and information is sent to this. Used to login user
+     * @param landcode      the landcode, to support phones from other countries.
+     */
     public User(int UserID, int UserClass, String firstname, String lastname, int phone, String email, String landcode){
         this.UserID = UserID;
         this.UserClass = UserClass;
@@ -66,16 +89,33 @@ public class User {
         return firstname;
     }
 
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+
     public String getLastname(){
         return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public int getPhone(){
         return phone;
     }
 
+    public void setPhone(int phone) {
+        this.phone = phone;
+    }
+
     public String getEmail(){
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getLandcode(){

@@ -16,6 +16,8 @@ import javafx.scene.layout.HBox;
 import myapp.Stats.DummyBikeInfo;
 import myapp.data.Bike;
 
+import java.lang.management.PlatformManagedObject;
+
 public class StatController2 {
     @FXML
     private BorderPane statPane;
@@ -148,11 +150,11 @@ public class StatController2 {
                 if(pieChart == null){
                     ObservableList<PieChart.Data> pieChartData =
                             FXCollections.observableArrayList(
-                                    new PieChart.Data("In repair", bikeAv[2]),
-                                    new PieChart.Data("On trip", bikeAv[1]),
-                                    new PieChart.Data("Available", bikeAv[0]));
+                                    new PieChart.Data("On trip: "+bikeAv[0], bikeAv[0]),
+                                    new PieChart.Data("In repair: "+bikeAv[1], bikeAv[1]),
+                                    new PieChart.Data("Available: "+bikeAv[2], bikeAv[2]));
                     pieChart = new PieChart(pieChartData);
-                    pieChart.setTitle("");
+                    pieChart.setTitle("Bike statuses for all bikes");
 
                     Platform.runLater(() -> {
                         stat1Pane.setCenter(pieChart);
@@ -183,6 +185,7 @@ public class StatController2 {
     private class DockingChartUpdater implements Runnable{
         private Boolean stop = false;
         private int UPDATE_INTERVAL = 5000; //ms
+        private int currentNumOfXYDataPoints=0;
 
         public DockingChartUpdater(){}
 
@@ -193,10 +196,9 @@ public class StatController2 {
         public void run(){
             while(!stop){
                 Object[][] dockStats = stats.dockingStatistics();
-
                 if(dockStat == null){
                     CategoryAxis xAxis = new CategoryAxis();
-                    xAxis.setLabel("Docking station");
+                    xAxis.setLabel("Docking station name");
                     NumberAxis yAxis = new NumberAxis(0,100,5);
                     yAxis.setLabel("Slots");
                     XYChart.Series<String, Number> cap = new XYChart.Series();
@@ -205,16 +207,67 @@ public class StatController2 {
                         cap.getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
                         taken.getData().add(new XYChart.Data(dockStats[0][i],dockStats[2][i]));
                     }
+                    currentNumOfXYDataPoints=cap.getData().size();
                     dockStat = new BarChart<>(xAxis,yAxis);
                     dockStat.getData().addAll(cap,taken);
-                    cap.setName("Total number of slots");
+                    cap.setName("Station capacity");
                     taken.setName("Occupied slots");
                     Platform.runLater(() -> {
                         stat2Pane.setCenter(dockStat);
                     });
-                } else{
-                    // Update already present columns
-                    // HJELP MARTIN, nå er det to series som må oppdateres
+                }else{
+                    // Check for change in columns
+                    if (dockStats[0].length < currentNumOfXYDataPoints) {
+                        XYChart.Series<String, Number> capSeries = dockStat.getData().get(0);
+                        XYChart.Series<String, Number> takenSeries = dockStat.getData().get(1);
+
+                        for (int i = 0; i < capSeries.getData().size(); i++) {
+                            XYChart.Data<String, Number> capObj = capSeries.getData().get(i);
+                            XYChart.Data<String, Number> takenObj = takenSeries.getData().get(i);
+                            boolean present = false;
+                            for (int j = 0; j < dockStats[0].length; j++) {
+                                if(capObj.getXValue().toString().equals((String) dockStats[0][j])){
+                                    present = true;
+                                    break;
+                                }
+                            }
+                            if(!present){
+                                capSeries.getData().remove(capObj);
+                                takenSeries.getData().remove(takenObj);
+                            }
+                        }
+                    }
+                    else if (dockStats[0].length > currentNumOfXYDataPoints){
+                        // Columns have been added
+                        XYChart.Series<String, Number> capSeries = dockStat.getData().get(0);
+                        XYChart.Series<String, Number> takenSeries = dockStat.getData().get(1);
+                        for (int i = 0; i < dockStats[0].length; i++){
+                            //XYChart.Data<String, Number> capObj = capSeries.getData().get(i);
+                            //XYChart.Data<String, Number> takenObj = takenSeries.getData().get(i);
+                            boolean present = false;
+                            for (int j = 0; j < capSeries.getData().size(); j++) {
+                                if(capSeries.getData().get(j).getXValue().toString().equals((String) dockStats[0][i])){
+                                    present = true;
+                                    break;
+                                }
+                            }
+                            if(!present){
+                                // Add column
+                                final int counter = i;
+                                Platform.runLater(() -> {
+                                    capSeries.getData().add(new XYChart.Data<String, Number>((String)dockStats[0][counter], (Number)dockStats[1][counter]));
+                                    takenSeries.getData().add(new XYChart.Data<String, Number>((String)dockStats[0][counter], (Number)dockStats[2][counter]));
+                                });
+
+                                //capObj.setYValue((Number)dockStats[1][i]);
+                                //takenObj.setYValue((Number)dockStats[2][i]);
+                            }
+
+                            //dockStat.getData().get(0).getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
+                            //dockStat.getData().get(1).getData().add(new XYChart.Data(dockStats[0][i], dockStats[2][i]));
+                        }
+                    }
+                    // Update existing columns
                     int valueCounter = 0;
                     int seriesCounter = 0;
                     for(XYChart.Series<String, Number> data : dockStat.getData()){
@@ -226,16 +279,11 @@ public class StatController2 {
                             }
                             valueCounter++;
                         }
+                        valueCounter=0;
                         seriesCounter++;
                         valueCounter = 0;
                     }
-                    // Add columns that are not present
-                    for(int i = dockStat.getData().size(); i < dockStats[0].length; i++){
-                        // TO SERIER, virker dette??
-                        // There is only one data-series, so get(0) works
-                        dockStat.getData().get(0).getData().add(new XYChart.Data(dockStats[0][i], dockStats[1][i]));
-                        dockStat.getData().get(1).getData().add(new XYChart.Data(dockStats[0][i], dockStats[2][i]));
-                    }
+                    currentNumOfXYDataPoints = dockStat.getData().get(0).getData().size();
                 }
                 try{
                     Thread.sleep(UPDATE_INTERVAL);
@@ -264,42 +312,68 @@ public class StatController2 {
         public void run(){
             while(!stop){
                 Object[][] bStats = stats.bikeStats();
-                //int[][] bStats = {{1,2,3,4,5,6,7,8,9,10}, {1,12,16,11,9,3,1,6,3,9}, {1,3,6,2,4,3,1,2,8,2}};
                 if(kmStat == null){
-                    last_update_size = bStats[0].length;
                     final CategoryAxis xAxis = new CategoryAxis();
                     xAxis.setLabel("Docking station");
                     NumberAxis yAxis = new NumberAxis();
                     yAxis.setLabel("Average value");
-                    XYChart.Series totkm = new XYChart.Series();
+                    ScatterChart.Series<String, Number> totkm = new ScatterChart.Series<>();
                     totkm.setName("Average total km for docked bikes");
                     for (int i=0; i<bStats[0].length; i++){
-                        totkm.getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
+                        totkm.getData().add(new ScatterChart.Data<String, Number>((String)bStats[0][i], (Number)bStats[1][i]));
                     }
+                    last_update_size = totkm.getData().size();
                     kmStat = new ScatterChart<>(xAxis,yAxis);
                     kmStat.getData().addAll(totkm);
                     Platform.runLater(() -> {
                         stat3Pane.setCenter(kmStat);
                     });
-                } else if(bStats[0].length != last_update_size){
-                    //More bikes has been registered
-                    for (int i = kmStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
-                        kmStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
-                    }
                 } else{
-                    int valueCounter = 0;
-                    int seriesCounter = 0;
-                    int bikeCounter = 0;
-                    for(final XYChart.Series<String, Number> dataSeries : kmStat.getData()){
-                        for(final XYChart.Data<String, Number> data : dataSeries.getData()) {
-                                data.setYValue((double)bStats[1][valueCounter]);
-                            valueCounter++;
+                    if(bStats[0].length > last_update_size){
+                        // Add new stations
+                        ScatterChart.Series<String, Number> series = kmStat.getData().get(0);
+
+                        for (int i = series.getData().size(); i < bStats[0].length; i++) {
+                            final int counter = i;
+                            Platform.runLater(() -> {
+                                series.getData().add(
+                                        new ScatterChart.Data<String, Number>(
+                                                (String) bStats[0][counter],
+                                                (Number)bStats[1][counter]
+                                        )
+                                );
+                            });
+                        }
+                    } else if(bStats[0].length < last_update_size){
+                        // Remove stations existing on graph that are not present in bStats
+                        ScatterChart.Series<String, Number> series = kmStat.getData().get(0);
+
+                        for (int i = 0; i < series.getData().size(); i++) {
+                            ScatterChart.Data<String, Number> data = series.getData().get(i);
+                            boolean present = false;
+                            for (int j = 0; j < bStats[0].length; j++) {
+                                if(data.getXValue().toString().equals((String) bStats[0][j])){
+                                    present = true;
+                                    break;
+                                }
+                            }
+                            if(!present){
+                                series.getData().remove(data);
+                            }
                         }
                     }
+                    // Update stations values
+                    ScatterChart.Series<String, Number> series = kmStat.getData().get(0);
+                    int valueCounter = 0;
+                    for (int i = 0; i < series.getData().size(); i++) {
+                        ScatterChart.Data<String, Number> data = series.getData().get(i);
+                        data.setYValue((Number)bStats[1][valueCounter]);
+                        valueCounter++;
+                    }
+
                 }
 
                 last_update_size = bStats[0].length;
-
                 try{
                     Thread.sleep(UPDATE_INTERVAL);
                 } catch (InterruptedException ex){
@@ -328,39 +402,84 @@ public class StatController2 {
             while(!stop){
                 Object[][] bStats = stats.bikeStats();
                 if(tripStat == null){
-                    last_update_size = bStats[0].length;
                     final CategoryAxis xAxis = new CategoryAxis();
                     xAxis.setLabel("Docking station");
                     NumberAxis yAxis = new NumberAxis();
                     yAxis.setLabel("Average value");
-                    XYChart.Series tottrip = new XYChart.Series();
+                    ScatterChart.Series<String, Number> tottrip = new ScatterChart.Series<String, Number>();
                     tottrip.setName("Average number of total trips for docked bikes");
                     for (int i=0; i<bStats[0].length; i++){
-                        tottrip.getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
+                        tottrip.getData().add(new ScatterChart.Data<String, Number>( (String)bStats[0][i], (Number)bStats[2][i]));
                     }
+                    last_update_size = bStats[0].length;//tottrip.getData().size();
                     tripStat = new ScatterChart<>(xAxis,yAxis);
                     tripStat.getData().addAll(tottrip);
                     Platform.runLater(() -> {
                         stat4Pane.setCenter(tripStat);
                     });
-                } else if(bStats[0].length != last_update_size){
-                    //More bikes has been registered
-                    for (int i = tripStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
-                        tripStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[1][i]));
-                    }
                 } else{
-                    int valueCounter = 0;
-                    int seriesCounter = 0;
-                    int bikeCounter = 0;
-                    for(final XYChart.Series<String, Number> dataSeries : tripStat.getData()){
-                        for(final XYChart.Data<String, Number> data : dataSeries.getData()) {
-                            data.setYValue((double)bStats[2][valueCounter]);
+                    if (bStats[0].length > last_update_size) {
+                        // Add new stations
+                        ScatterChart.Series<String, Number> series = tripStat.getData().get(0);
+
+                        for (int i = series.getData().size(); i < bStats[0].length; i++) {
+                            System.out.println("Adding new data-point");
+                            final int counter = i;
+                            Platform.runLater(() -> {
+                                series.getData().add(
+                                        new ScatterChart.Data<String, Number>(
+                                                (String) bStats[0][counter],
+                                                (Number)bStats[2][counter]
+                                        )
+                                );
+                            });
                         }
+                        /*
+                        // Stations have been removed
+                        tripStat.getData().get(0).getData().removeAll();
+                        tripStat.getData().get(1).getData().removeAll();
+                        // Adds datapoints to the series
+                        for (int i = 0; i < bStats[0].length; i++) {
+                            tripStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
+                        }
+                        */
+                    }
+                    else if (bStats[0].length < last_update_size){
+                        // Remove stations existing on graph that are not present in bStats
+                        ScatterChart.Series<String, Number> series = tripStat.getData().get(0);
+
+                        for (int i = 0; i < series.getData().size(); i++) {
+                            ScatterChart.Data<String, Number> data = series.getData().get(i);
+                            boolean present = false;
+                            for (int j = 0; j < bStats[0].length; j++) {
+                                if(data.getXValue().toString().equals((String) bStats[0][j])){
+                                    present = true;
+                                    break;
+                                }
+                            }
+                            if(!present){
+                                Platform.runLater(() -> {
+                                    series.getData().remove(data);
+                                });
+                            }
+                        }
+                        /*
+                        // Stations have been added
+                        for (int i = tripStat.getData().get(0).getData().size(); i < bStats[0].length; i++) {
+                            tripStat.getData().get(0).getData().add(new XYChart.Data(bStats[0][i], bStats[2][i]));
+                        }
+                        */
+                    }
+                    // Update stations values
+                    ScatterChart.Series<String, Number> series = tripStat.getData().get(0);
+                    int valueCounter = 0;
+                    for (int i = 0; i < series.getData().size(); i++) {
+                        ScatterChart.Data<String, Number> data = series.getData().get(i);
+                        data.setYValue((Number)bStats[2][valueCounter]);
                         valueCounter++;
                     }
                 }
-
-                last_update_size = bStats[0].length;
+                last_update_size = bStats[0].length; //tripStat.getData().get(0).getData().size();
 
                 try{
                     Thread.sleep(UPDATE_INTERVAL);

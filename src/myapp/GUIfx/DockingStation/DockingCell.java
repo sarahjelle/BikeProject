@@ -42,5 +42,8 @@ public class DockingCell extends ListCell<Docking>{
             bikesAtDock.setText(Integer.toString(item.getUsedSpaces()));
             setGraphic(hBox);
         }
+        else{
+            setGraphic(null);
+        }
     }
 }

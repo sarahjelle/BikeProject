@@ -46,13 +46,16 @@ public class GenerateStats {
     public int[] bikeAvailability(){
         int[] availStats = new int[3];
         for (Bike b : bikes){
-            if (b.getStatus() == 1){
+            // On trip
+            if (b.getStatus() == 2){
                 availStats[0]++;
             }
-            if (b.getStatus() == 2){
+            // In repair
+            if (b.getStatus() == 3){
                 availStats[1]++;
             }
-            if (b.getStatus() == 3){
+            // Available
+            if (b.getStatus() == 1){
                 availStats[2]++;
             }
         }

@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static java.lang.Math.abs;
 import static java.lang.Math.toIntExact;
 
 import com.sun.org.apache.regexp.internal.RE;
@@ -215,14 +217,15 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public int registerBike(Bike bike) {
-        connect();
         PreparedStatement stmt = null;
         try {
+
+            String purchased = (bike.getPurchased() == null) ? purchased = LocalDate.now().toString() : bike.getPurchased().toString();
+
+            connect();
             if(db == null) {
                 return -1;
             }
-
-            String purchased = (bike.getPurchased() == null) ? purchased = LocalDate.now().toString() : bike.getPurchased().toString();
 
             stmt = db.prepareStatement("INSERT INTO bikes (price, purchaseDate, make, type) VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             stmt.setDouble(1, bike.getPrice());
@@ -263,9 +266,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<Bike> getAllBikes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -376,10 +379,10 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Bike[] getAllBikesOnTrip(){
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> outList = new ArrayList<>();
         try{
+            connect();
             if(db == null){
                 return null;
             }
@@ -485,9 +488,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<Bike> getLoggedBikes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -532,9 +535,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean deleteBike(int id) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return false;
             }
@@ -579,9 +582,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean updateBike(Bike bike) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return false;
             }
@@ -630,10 +633,10 @@ public class DBH {
     private void updateBikeFromLog(Bike bike) {
         PreparedStatement stmt = null;
         try {
+
             if(db == null) {
                 return;
             }
-
             stmt = db.prepareStatement("UPDATE bikes SET totalKm = ?, batteryPercentage = ? WHERE bikeID = ?");
             stmt.setInt(1, bike.getDistanceTraveled());
             stmt.setDouble(2, bike.getBatteryPercentage());
@@ -658,11 +661,11 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Bike[] logBikes(Bike[] bikes) {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Bike> bikesNotUpdated = new ArrayList<>();
         Bike[] toReturn = null;
         try {
+            connect();
             if(db == null) {
                 return bikes;
             }
@@ -712,9 +715,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<String> getBikeMakes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -744,18 +747,18 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<String> getBikeTypes() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT DISTINCT type FROM bikes ORDER BY type");
+            stmt = db.prepareStatement("SELECT description FROM bikeTypes WHERE active = 1 ORDER BY description");
             ResultSet type = execSQLRS(stmt);
             ArrayList<String> typeArray = new ArrayList<>();
 
             while(type.next()) {
-                typeArray.add(type.getString("type"));
+                typeArray.add(type.getString("description"));
             }
 
             stmt.close();
@@ -769,6 +772,66 @@ public class DBH {
     }
 
     /**
+     * deleteBikeType sets the description given to an inactive state.
+     * @param   desc    String object of the description wanted to be deleted
+     * @return          a boolean based on the result, True = deleted, False = not deleted
+     */
+    public boolean deleteBikeType(String desc) {
+        PreparedStatement stmt = null;
+        try {
+            connect();
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE bikeTypes SET active = 0 WHERE description = ?");
+            stmt.setString(1, desc);
+
+            if(!execSQLBool(stmt)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * addBikeType inserts a new type of bike to the bikeTypes table enabling users to use the new type
+     * @param   desc    String object with the name of the wanted type
+     * @return          a boolean based on the result, True = added, False = not added
+     */
+    public boolean addBikeType(String desc) {
+        PreparedStatement stmt = null;
+        try {
+            connect();
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("INSERT INTO bikeTypes (description) VALUES (?)");
+            stmt.setString(1, desc);
+
+            if(!execSQLBool(stmt)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
      * changeStatus takes care of changing status of a bike in the database for other methods.
      *
      * @param   bikeID  the bike ID of the bike to be changed
@@ -776,9 +839,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private void changeStatus(int bikeID, int status) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
             }
@@ -814,9 +877,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public int registerDocking(Docking dock) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return -1;
             }
@@ -852,13 +915,15 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public ArrayList<Docking> getAllDockingStations() {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
-            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE status = 1");
+            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE status = ?");
+            stmt.setInt(1, Docking.AVAILABLE);
+
             ResultSet dockingSet = execSQLRS(stmt);
             ArrayList<Docking> docks = new ArrayList<>();
             while(dockingSet.next()) {
@@ -916,40 +981,13 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Docking getDockingStationByName(String name) {
-        connect();
         PreparedStatement stmt = null;
-        try {
-            if(db == null) {
-                return null;
-            }
+        Docking[] docks = getAllDockingStationsWithBikes();
 
-            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE stationName = ?");
-            stmt.setString(1, name);
-            ResultSet dockingSet = execSQLRS(stmt);
-            while(dockingSet.next()) {
-                Docking dock = new Docking(
-                        dockingSet.getInt("stationID"),
-                        dockingSet.getString("stationName"),
-                        new Location(
-                                dockingSet.getDouble("latitude"),
-                                dockingSet.getDouble("longitude")
-                        ),
-                        dockingSet.getInt("maxSlots"),
-                        dockingSet.getInt("status")
-                );
-                stmt.close();
-                db.close();
-
+        for(Docking dock : docks) {
+            if(dock.getName().equals(name)) {
                 return dock;
             }
-
-            stmt.close();
-            db.close();
-
-            return null;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
         }
         return null;
     }
@@ -968,9 +1006,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean rentBike(User userRentingBike, Bike bikeToRent, int dockID){
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1027,24 +1065,21 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean endRent(Bike bike, int dockID, int spot){
-        connect();
         PreparedStatement stmt = null;
         try{
-            if(db == null){
-                return false;
-            }
             stmt = db.prepareStatement("UPDATE trips SET endTime = NOW(), endStation = ? WHERE bikeID = ? AND endStation IS NULL AND endTime IS NULL");
             stmt.setInt(1, dockID);
             stmt.setInt(2, bike.getId());
 
-            if(execSQLBool(stmt)) {
-                if(dockBike(bike, dockID, spot)) {
+            if(dockBike(bike, dockID, spot)) {
+                connect();
+                if(execSQLBool(stmt)) {
                     stmt.close();
                     db.close();
                     connect();
-                    bike.setStatus(Bike.AVAILABLE);
+                    bike = getBikeByID(bike);
                     stmt = db.prepareStatement("UPDATE bikes SET status = ? WHERE bikeID = ?");
-                    if(bike.getStatus() != Bike.TRIP){
+                    if(bike.getStatus() == Bike.TRIP){
                         stmt.setInt(1, Bike.AVAILABLE);
                     } else{
                         stmt.setInt(1, bike.getStatus());
@@ -1077,9 +1112,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private boolean undockBike(Bike bike, int dockID){
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1108,10 +1143,10 @@ public class DBH {
      * @see Bike
      * @author Fredrik Mediaa
      */
-    private boolean dockBike(Bike bike, int dockID, int spot){
-        connect();
+    public boolean dockBike(Bike bike, int dockID, int spot){
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1148,10 +1183,10 @@ public class DBH {
 
         ArrayList<Bike> bikes = getAllBikes();
 
-        connect();
         PreparedStatement stmt = null;
         try {
             for (int i = 0; i < stations.length; i++) {
+                connect();
                 if (db == null) {
                     return null;
                 }
@@ -1194,9 +1229,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public void logDocking (Docking dock) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
             }
@@ -1223,9 +1258,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Docking getDockingByID(int id) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -1272,29 +1307,29 @@ public class DBH {
     public boolean editDocking(Docking updatedDock) {
         Docking orgDock = getDockingByID(updatedDock.getId());
         
-        connect();
         PreparedStatement stmt = null;
         try {
-            if(db == null) {
-                return false;
-            }
 
-            stmt = db.prepareStatement("UPDATE docking_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
-            stmt.setString(1, updatedDock.getName());
-            stmt.setInt(2, updatedDock.getCapacity());
-            stmt.setDouble(3, updatedDock.getLocation().getLatitude());
-            stmt.setDouble(4, updatedDock.getLocation().getLongitude());
-            stmt.setInt(5, updatedDock.getStatus());
-            stmt.setInt(6, updatedDock.getId());
-
+            //stmt = db.prepareStatement("UPDATE docking_stations SET stationName = ?, maxSlots = ?, latitude = ?, longitude = ?, status = ? WHERE stationID = ?");
+            //stmt.setString(1, updatedDock.getName());
+            //stmt.setInt(2, updatedDock.getCapacity());
+            //stmt.setDouble(3, updatedDock.getLocation().getLatitude());
+            //stmt.setDouble(4, updatedDock.getLocation().getLongitude());
+            //stmt.setInt(5, updatedDock.getStatus());
+            //stmt.setInt(6, updatedDock.getId());
 
             if(orgDock != null) {
-                if(orgDock.getCapacity() < updatedDock.getCapacity()) {
-                    //Mindre en det som blir nytt, da maa det legges til mer i databasen.
-                    System.out.println("Her mangler det noe!");
-                } else if (orgDock.getCapacity() > updatedDock.getCapacity()) {
-                    //Mer en det som er blir nytt, da maa det fjernes fra databasen.
-                    System.out.println("Her mangler det noe!");
+                if (orgDock.getCapacity() != updatedDock.getCapacity()) {
+                    int change = updatedDock.getCapacity() - orgDock.getCapacity();
+                    updateDockingSlots(orgDock, change);
+
+                    connect();
+                    if(db == null) {
+                        return false;
+                    }
+                    stmt = db.prepareStatement("UPDATE docking_stations SET maxSlots = ? WHERE stationID = ?");
+                    stmt.setInt(1, updatedDock.getCapacity());
+                    stmt.setInt(2, updatedDock.getId());
                 }
             }
 
@@ -1322,26 +1357,27 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean deleteDocking(Docking dock) {
-        connect();
         PreparedStatement stmt = null;
         try {
-            if(db == null) {
-                return false;
-            }
-
-            stmt = db.prepareStatement("UPDATE docking_stations SET status = ? WHERE stationID = ?");
-            stmt.setInt(1, Docking.DELETED);
-            stmt.setInt(2, dock.getId());
 
             Docking orgDock = getDockingByID(dock.getId());
 
-            System.out.println("IMPORTANT! REMEMBER TO REMOVE SLOTS!!!!!");
+            connect();
+            if(db == null) {
+                return false;
+            }
+            stmt = db.prepareStatement("UPDATE docking_stations SET status = ?, maxSlots = ? WHERE stationID = ?");
+            stmt.setInt(1, Docking.DELETED);
+            stmt.setInt(2, 0);
+            stmt.setInt(3, dock.getId());
+
 
             if(!execSQLBool(stmt)) {
                 stmt.close();
                 db.close();
                 return false;
             }
+            updateDockingSlots(dock, -dock.getCapacity());
             stmt.close();
             db.close();
             return true;
@@ -1352,48 +1388,40 @@ public class DBH {
         return false;
     }
 
-    /* THIS IS NOT FINISHED!!
-     * updateDockingSlots takes care of removing slots when the amount is changed. This method is summoned by editDocking
+    /**
+     * updateDockingSlots takes care of all the logic in relation to deleting slots belonging to docking stations when the
+     * amount is changed
      *
-     * @param   amountToRemove  the amount to be changed, both positive and negative directions
-     * @param   stationID       the station where the amount is to be chagned
-     * @author Fredrik Mediaa
+     * @param   dock            the original docking station preferably an update version from the database
+     * @param   capacityChange  the amount in positive or negative direction. Positive = add, negative = delete
      */
-    /*
-    private void updateDockingSlots(int amountToRemove, int stationID) {
-        connect();
+    private void updateDockingSlots(Docking dock, int capacityChange) {
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
+            }
+            if(capacityChange > 0) {
+                stmt = db.prepareStatement("INSERT INTO slots (stationID, slotID) VALUES (?, ?)");
+                for(int i = 0; i < capacityChange; i++) {
+                System.out.println("INSERTING SLOT " + (dock.getCapacity() + 1 + i));
+                    stmt.setInt(1, dock.getId());
+                    stmt.setInt(2, ((dock.getCapacity() + 1 + i)));
+                    execSQLBool(stmt);
+                }
+            } else if (capacityChange < 0) {
+                stmt = db.prepareStatement("DELETE FROM slots WHERE stationID = ? AND slotID = ?");
+                for(int i = 0; i < Math.abs(capacityChange); i++) {
+                    System.out.println("DELETING SLOT " + (dock.getCapacity() - i));
+                    stmt.setInt(1, dock.getId());
+                    stmt.setInt(2, dock.getCapacity() - i);
+                    execSQLBool(stmt);
+                }
             }
 
             stmt = db.prepareStatement("SELECT * FROM slots WHERE bikeID IS NULL and stationID = ?");
 
-
-            if(amountToRemove > 0) {
-                PreparedStatement stmtMax = db.prepareStatement("SELECT MAX(slotID) AS maxi FROM slots WHERE stationID = ?");
-                stmtMax.setInt(1, stationID);
-                ResultSet rsmax = execSQLRS(stmtMax);
-                if(rsmax.next()) {
-                    for(int i = amountToRemove; i > 0; i--) {
-                        PreparedStatement stmtDelete = db.prepareStatement("DELETE FROM slots WHERE slotID = ? AND stationID = ?");
-                        stmtDelete.setInt(1, rsmax.getInt("maxi") - i);
-                        stmtDelete.setInt(2, stationID);
-                        execSQLBool(stmtDelete);
-                        stmtDelete.close();
-                    }
-                }
-            }
-
-            stmt.setInt(1, stationID);
-
-            amountToRemove++;
-            PreparedStatement stmtAdd = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
-            stmtAdd.setInt(1, );
-            stmtAdd.setInt(2, stationID);
-
-            }
 
             stmt.close();
             db.close();
@@ -1401,8 +1429,7 @@ public class DBH {
             forceClose();
             e.printStackTrace();
         }
-    }*/
-
+    }
 
     /**
      * generateDockingSlots is a method for generating all hte slots assosiated with the Docking object
@@ -1412,16 +1439,16 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private void generateDockingSlots(int amount, int stationID) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return;
             }
             stmt = db.prepareStatement("INSERT INTO slots (slotID, stationID) VALUES (?, ?)");
 
             for(int i = 0; i < amount; i++) {
-                stmt.setInt(1, i);
+                stmt.setInt(1, i + 1);
                 stmt.setInt(2, stationID);
 
                 execSQLBool(stmt);
@@ -1445,12 +1472,12 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean checkIfUserExist(String mail) {
-        connect();
         Hasher hasher = new Hasher();
         PreparedStatement stmt = null;
         boolean exsist = false;
 
         try {
+            connect();
             if(db == null) {
                 return true;
             }
@@ -1484,9 +1511,9 @@ public class DBH {
     public int registerUser(User user, boolean sendMail) {
         Hasher hasher = new Hasher();
         if(!checkIfUserExist(user.getEmail())) {
-            connect();
             PreparedStatement stmt = null;
             try {
+                connect();
                 if(db == null) {
                     return -1;
                 }
@@ -1511,7 +1538,7 @@ public class DBH {
 
                     String mail = user.getEmail();
 
-                    String msg = "You have now been registered to RentaBike!\n\nYour user details are displayed below\nUsername: " + user.getEmail() + "\nPassword: " + user.getPassword() + "\n\nWe kindly ask you to change you password at first chance.\n\n\nBest Regards,\nRentaBike Team";
+                    String msg = "You have now been registered to RentaBike!\n\nYour user details are displayed below\nUsername: " + user.getEmail() + "\nPassword: " + user.getPassword() + "\n\nWe kindly ask you to change your password at first chance.\n\n\nBest Regards,\nRentaBike Team";
                     try {
                         System.out.println("Sending mail!");
                         new MailHandler(subj, mail, msg);
@@ -1540,10 +1567,10 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public User loginUser(String email, String password) {
-        connect();
         Hasher hasher = new Hasher();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -1551,7 +1578,7 @@ public class DBH {
             stmt.setString(1, email);
             stmt.setInt(2, User.ADMINISTRATOR);
 
-            ResultSet rs =execSQLRS(stmt);
+            ResultSet rs = execSQLRS(stmt);
             User correctUser = null;
 
             if(rs.next()) {
@@ -1581,6 +1608,41 @@ public class DBH {
     }
 
     /**
+     * updateUser is a method for updating all the information about a User object in the database
+     * @param   user    The user to be updated
+     * @return          a boolean based on the results from the database. True = updated, False = not updated.
+     */
+    public boolean updateUser(User user) {
+        PreparedStatement stmt = null;
+        try {
+            connect();
+            if(db == null) {
+                return false;
+            }
+
+            stmt = db.prepareStatement("UPDATE users SET email = ?, firstname = ?, lastname = ?, phone = ? WHERE userID = ?");
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getFirstname());
+            stmt.setString(3, user.getLastname());
+            stmt.setInt(4, user.getPhone());
+            stmt.setInt(5, user.getUserID());
+
+            if(!execSQLBool(stmt)) {
+                stmt.close();
+                db.close();
+                return false;
+            }
+            stmt.close();
+            db.close();
+            return true;
+        } catch(SQLException e) {
+            forceClose();
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
      * changePassword checks if the password in the database is equal to the password passed in. If so the old password would be updated
      * with the new password.
      *
@@ -1593,18 +1655,18 @@ public class DBH {
      */
     public boolean changePassword(User user, String newPassword, String oldPassword) {
         Hasher hasher = new Hasher();
-        connect();
         PreparedStatement stmt = null;
         try {
-            if(db == null) {
-                return false;
-            }
 
             if(loginUser(user.getEmail(), oldPassword) != null) {
                 String salt = hasher.hashSalt(System.currentTimeMillis() + "");
 
                 String hashedNewPassword = hasher.hash(newPassword, salt);
 
+                connect();
+                if(db == null) {
+                    return false;
+                }
                 stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE userID = ?");
                 stmt.setString(1, hashedNewPassword);
                 stmt.setString(2, salt);
@@ -1631,9 +1693,9 @@ public class DBH {
      */
     public boolean forceChangePassword(User user, String newPassword) {
         Hasher hasher = new Hasher();
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return false;
             }
@@ -1664,13 +1726,13 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean deleteUser(User user) {
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
-            stmt = db.prepareStatement("UPDATE users SET userTypeID = ? WHERE userID = ?");
+            stmt = db.prepareStatement("UPDATE users SET userTypeID = ?, email = NULL WHERE userID = ?");
 
             stmt.setInt(1, User.SOFTDELETE);
             stmt.setInt(2, user.getUserID());
@@ -1697,13 +1759,8 @@ public class DBH {
     public boolean forgottenPassword(String mail) {
         Hasher hasher = new Hasher();
         if(!checkIfUserExist(mail)) {
-            connect();
             PreparedStatement stmt = null;
             try {
-                if(db == null) {
-                    return false;
-                }
-
                 Random rand = new Random();
                 char[] pwd = new char[10];
                 for (int i = 0; i < pwd.length; i++) {
@@ -1721,6 +1778,10 @@ public class DBH {
 
                 String password = hasher.hash(pw, salt);
 
+                connect();
+                if(db == null) {
+                    return false;
+                }
                 stmt = db.prepareStatement("UPDATE users SET password = ?, salt = ? WHERE email = ?");
                 stmt.setString(1, password);
                 stmt.setString(2, salt);
@@ -1760,11 +1821,11 @@ public class DBH {
      * @author Martin Moan
      */
     private User[] getUserByType(int type) {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<User> usersList = new ArrayList<>();
         User[] users = null;
         try {
+            connect();
             if(db == null) {
                 return users;
             }
@@ -1795,14 +1856,26 @@ public class DBH {
         return users;
     }
 
+    /**
+     * getAllCustomers gives you all users in the database with status equal to User.CUSTOMER
+     * @return      an User object array
+     */
     public User[] getAllCustomers(){
         return getUserByType(3);
     }
 
+    /**
+     * getAllAdminUsers gives you all users in the database with status equal to User.ADMINISTRATOR
+     * @return      an User object array
+     */
     public User[] getAllAdminUsers() {
         return getUserByType(1);
     }
 
+    /**
+     * getAllRepairUsers gives you all users in the database with status equal to User.REPAIRMAN
+     * @return      an User object array
+     */
     public User[] getAllRepairUsers() {
         return getUserByType(2);
     }
@@ -1823,12 +1896,12 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private Repair[] getRepairsByID(int bikeID) {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Repair> repairList = new ArrayList<>();
         Repair[] repairs = null;
 
         try {
+            connect();
             if(db == null) {
                 return repairs;
             }
@@ -1872,9 +1945,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private int getBikeIDByCaseID(int caseID) {
-        connect();
         PreparedStatement stmt = null;
         try {
+            connect();
             if(db == null) {
                 return -1;
             }
@@ -1933,9 +2006,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean registerRepairRequest(int bikeID, String desc, LocalDate date) {
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -1972,9 +2045,9 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public boolean finishRepairRequest(int caseID, String desc, LocalDate date, double price) {
-        connect();
         PreparedStatement stmt = null;
         try{
+            connect();
             if(db == null){
                 return false;
             }
@@ -2011,11 +2084,11 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private int[] getUnfinishedTripsBikeID() {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<Integer> ids = new ArrayList<>();
 
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -2054,11 +2127,11 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     private BikeSlotPair[] findOpenSpaces() {
-        connect();
         PreparedStatement stmt = null;
         ArrayList<BikeSlotPair> spots = new ArrayList<>();
 
         try {
+            connect();
             if(db == null) {
                 return null;
             }
@@ -2103,7 +2176,6 @@ public class DBH {
 
         PreparedStatement stmt = null;
         try{
-
             if(javax.swing.JOptionPane.showConfirmDialog(null,"Are you sure?") == 0) {
 
                 for(int id : bikeIDs) {

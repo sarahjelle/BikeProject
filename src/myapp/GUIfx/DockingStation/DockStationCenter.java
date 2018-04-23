@@ -4,20 +4,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import myapp.GUIfx.Bike.BikeData;
 import myapp.GUIfx.DialogWindows;
 import myapp.data.Bike;
 import myapp.data.Docking;
 import myapp.dbhandler.DBH;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
@@ -35,8 +31,9 @@ public class DockStationCenter implements Initializable{
     @FXML private AnchorPane dockPane;
 
     //Pane with list and search
-    @FXML private ListView dockingList;
+    @FXML private ListView<Docking> dockingList;
     @FXML private BorderPane listPane;
+    @FXML private TextField searchInput;
 
     //dockInfo
     @FXML private BorderPane dockInfo;
@@ -64,7 +61,6 @@ public class DockStationCenter implements Initializable{
     public void initialize(URL url, ResourceBundle rb){
         dockingList.setCellFactory(e -> new DockingCell());
 
-        System.out.println("Initialize start");
         refresh();
 
         //list at the infopage
@@ -120,10 +116,6 @@ public class DockStationCenter implements Initializable{
                 for(int i = 0; i < bikes.length; i++){
                     if(bikes[i] != null && bikes[i] instanceof Bike) {
                         bikeList.getItems().add(new DockBikeData(bikes[i], i+1));
-                        System.out.println("Adding Bicycle");
-                    }
-                    else{
-                        bikeList.getItems().add(new DockBikeData(null, i+1));
                     }
                 }
                 bikeList.refresh();
@@ -155,6 +147,23 @@ public class DockStationCenter implements Initializable{
         showInfo(dock);
         closeAll();
         dockInfo.setVisible(true);
+    }
+
+    @FXML private void search(){
+        String dockID = searchInput.getText();
+        int id = -1;
+
+        try{
+            id = Integer.parseInt(dockID);
+        }catch (Exception e){
+            searchInput.setPromptText("Write a number");
+        }
+        if(id > 0) {
+            Docking dock = dbh.getDockingByID(id);
+            showInfo(dock);
+            closeAll();
+            dockInfo.setVisible(true);
+        }
     }
 
     @FXML private void showInfoBack(){
@@ -212,13 +221,14 @@ public class DockStationCenter implements Initializable{
 
     @FXML private void deleteDocking(){
         boolean ok = dw.confirmWindow("Are you sure you want to delete docking station with this information? " +
-                "\n ID: " + idTmp +"\nAddresse: " + name, "Delete docking station?");
+                "\nID: " + idTmp +"\nAddresse: " + name, "Delete docking station?");
 
         if(ok){
             Docking dock = dbh.getDockingByID(idTmp);
             boolean deleted = dbh.deleteDocking(dock);
 
             if(deleted){
+                //bikeList.getItems().clear();
                 refresh();
                 dw.informationWindow("Docking station were successfully deleted", "Docking station: " + idTmp);
                 openPane();

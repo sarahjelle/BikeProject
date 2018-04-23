@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 /**
  * Bike is a class containing all information about a real life bike needed in this project.
- * This is used sy
  */
 public class Bike {
     private int id;
@@ -32,6 +31,16 @@ public class Bike {
                         DELETE      = 4;
 
     // To be used when sending to DB
+
+    /**
+     * this constructor is the one to use when creating a new bike Object from scratch. This is an object which is meant to be sent
+     * to the Database for further use.
+     *
+     * @param price         the price of the bike
+     * @param purchased     the date of purchase
+     * @param type          the type of the bike
+     * @param make          the make of the bike
+     */
     public Bike(double price, LocalDate purchased, String type, String make) {
         this.price = price;
         this.purchased = purchased;
@@ -40,6 +49,21 @@ public class Bike {
     }
 
     // To be used returned from DB
+
+    /**
+     * This constructor is used when returning a Bike object from the database to the program.
+     *
+     * @param id                    the id of the bike
+     * @param make                  the make of the bike
+     * @param price                 the price of the bike
+     * @param type                  the type for the bike
+     * @param batteryPercentage     the battery percentage of the bike
+     * @param distanceTraveled      how far the bike has traveled
+     * @param location              the location of the bike
+     * @param status                the status of the bike
+     * @param purchased             the date of purchase date of the bike
+     * @param totalTrips            the number of trips the bike has had.
+     */
     public Bike(int id,  String make, double price, String type, double batteryPercentage, int distanceTraveled, Location location, int status, LocalDate purchased, int totalTrips){
         this.id = id;
         this.make = make;
@@ -96,8 +120,6 @@ public class Bike {
     public void setMake(String make){
         this.make = make;
     }
-
-
 
     public double getPrice() {
         return price;
@@ -175,6 +197,11 @@ public class Bike {
         return location;
     }
 
+    /**
+     * equals compares the ID of the given bike with its own ad returns true if they are equal.
+     * @param bike      the bike to compare IDs to
+     * @return          True = Equal, False = Not equal
+     */
     public boolean equals(Bike bike) {
         if (bike.getId() == id) {
             return true;
@@ -182,6 +209,10 @@ public class Bike {
         return false;
     }
 
+    /**
+     * getLatestRepairRequest returns the latest Repair object in the Repair object array hold by the Bike object.
+     * @return      the latest added Repair object
+     */
     private Repair getLatestRepairRequest() {
         Repair repair = null;
         for(Repair rep : repairs) {
@@ -195,6 +226,12 @@ public class Bike {
         return repair;
     }
 
+    /**
+     * addRepairRequest takes the parameters given and creates a new Repair object. It also takes the Repair object and register it to the database directly through the startRepairRequest method in the Repair Object.
+     * @param desc      the description of the problem
+     * @param date      the date of register
+     * @return          a boolean based on the results given by the DBH object. If it got registered to the DB it returns true, otherwise it returns false
+     */
     public boolean addRepairRequest(String desc, LocalDate date) {
         if(repairs.length == 0) {
             repairs = new Repair[1];
@@ -217,6 +254,13 @@ public class Bike {
         return false;
     }
 
+    /**
+     * finishLastRepairRequest takes the parameters given and finishes the last Repair object in the Repair object array. It also register it to the database through finishRepairRequest method in the Repair object.
+     * @param   returnDesc  the description of the fixed bike
+     * @param   returnDate  the date of return
+     * @param   price       the cost of the repair
+     * @return              a boolean based on results from DBH. True = Finished request, False = Not finished request
+     */
     public boolean finishLastRepairRequest(String returnDesc, LocalDate returnDate, double price) {
         Repair rep = getLatestRepairRequest();
         if(rep.finishRepairRequest(returnDesc, returnDate, price)) {

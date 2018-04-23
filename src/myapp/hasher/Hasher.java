@@ -8,9 +8,19 @@ import java.util.Random;
 import myapp.MailHandler.*;
 import static javax.swing.JOptionPane.*;
 
+/**
+ * Hasher is a class for taking care of all there is when hashing passwords.
+ */
 public class Hasher {
     public Hasher(){}
 
+    /**
+     * hash takes in the String of password there is to be hashed. Its also require a salt to add a level of
+     * security to the password. The password hashed can not be recovered to plain text.
+     * @param passwordToHash    the password in plain text to be hashed
+     * @param salt              the hashed salt to be used with the password
+     * @return                  a hashed password
+     */
     public String hash(String passwordToHash, String salt){
         String generatedPassword = null;
         try {
@@ -29,6 +39,13 @@ public class Hasher {
         return generatedPassword;
     }
 
+    /**
+     * We recommend using this hashSalt method for hashing a string of System.currentTimeMillies() to a string of 128 character
+     * before using it with the hash method.
+     *
+     * @param salt      a string to be hashed
+     * @return          a string of 128 characters
+     */
     public String hashSalt(String salt){
         String generatedHash = null;
         try {

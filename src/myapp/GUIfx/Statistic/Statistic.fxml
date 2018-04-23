@@ -20,8 +20,8 @@
     </center>
     <bottom>
         <HBox fx:id="bottomMenu">
-            <Button text="Bike availability" onAction="#openStat1" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-            <Button text="Docking capacity" onAction="#openStat2" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button text="Bike status" onAction="#openStat1" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+            <Button text="Docking status" onAction="#openStat2" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button text="Average km" onAction="#openStat3" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button text="Average number of trips" onAction="#openStat4" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
         </HBox>

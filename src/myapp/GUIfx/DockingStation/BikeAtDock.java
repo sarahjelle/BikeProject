@@ -32,6 +32,7 @@ public class BikeAtDock extends ListCell<DockBikeData>{
 
             setGraphic(hBox);
         }
+
         else{
             setGraphic(null);
         }

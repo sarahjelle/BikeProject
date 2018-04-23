@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+<SplitPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="myapp.GUIfx.Admin.AdminController" fx:id="adminPane" visible="false"
+           dividerPositions="0.4" stylesheets="@Admin.css">
+    <SplitPane orientation="VERTICAL">
+        <BorderPane>
+            <top>
+                <VBox>
+                    <Label text="Your info" style="-fx-font-size: 20">
+                        <padding>
+                            <Insets left="10"/>
+                        </padding>
+                    </Label>
+                    <Separator orientation="HORIZONTAL"/>
+                </VBox>
+            </top>
+            <center>
+                <VBox alignment="CENTER" spacing="20">
+                    <GridPane fx:id="adminInfo" alignment="CENTER" vgap="10" hgap="10">
+                        <Label text="First name: "/>
+                        <Label fx:id="firstnameInfo" GridPane.columnIndex="1"/>
+                        <TextField fx:id="firstNameEdit" visible="false" GridPane.columnIndex="1"/>
+
+                        <Label text="Surname: " GridPane.rowIndex="1"/>
+                        <Label fx:id="surnameInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <TextField fx:id="surnameEdit" visible="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Phone: " GridPane.rowIndex="2"/>
+                        <Label fx:id="phoneInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <TextField fx:id="phoneEdit" visible="false" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="Email: " GridPane.rowIndex="3"/>
+                        <Label fx:id="emailInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <TextField fx:id="emailEdit" visible="false" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <AnchorPane>
+                        <HBox fx:id="infoButtons" alignment="CENTER" spacing="20" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                            <Button text="Edit"  onAction="#openEdit"/>
+                            <Button text="Log out" />
+                            <padding>
+                                <Insets bottom="5"/>
+                            </padding>
+                        </HBox>
+                        <HBox visible="false" fx:id="editButtons" spacing="20" alignment="CENTER" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                            <Button text="Cancel" onAction="#closeEdit"/>
+                            <Button text="Submit changes" onAction="#edit"/>
+                            <padding>
+                                <Insets bottom="5"/>
+                            </padding>
+                        </HBox>
+                    </AnchorPane>
+                </VBox>
+            </center>
+        </BorderPane>
+        <VBox spacing="15" alignment="CENTER">
+            <GridPane alignment="CENTER" vgap="10" hgap="10">
+                <Label text="Old password"/>
+                <PasswordField fx:id="oldPassword" GridPane.columnIndex="1"/>
+                <Label text="New password" GridPane.rowIndex="1"/>
+                <PasswordField fx:id="newPassword" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
+            <HBox alignment="CENTER">
+                <Button text="Change password" onAction="#changePassword"/>
+            </HBox>
+        </VBox>
+    </SplitPane>
+    <BorderPane>
+        <top>
+            <Label text="Other admins"/>
+        </top>
+        <center>
+            <ListView fx:id="adminList" onMouseClicked="#selectedRow"/>
+        </center>
+    </BorderPane>
+</SplitPane>
