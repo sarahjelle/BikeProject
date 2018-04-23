@@ -26,9 +26,12 @@
         <bottom>
             <HBox fx:id="searchMenu">
                 <TextField fx:id="searchInput"/>
-                <Button text="Search"/>
+                <Button text="Search" onAction="#search"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button text="+ new docking station" onAction="#openRegDock"/>
+                <padding>
+                    <Insets left="10" bottom="5" top="5"/>
+                </padding>
             </HBox>
         </bottom>
     </BorderPane>
@@ -55,41 +58,37 @@
 
         </top>
         <center>
-            <SplitPane>
-                <BorderPane>
-                    <center>
-                        <GridPane alignment="CENTER" hgap="20" vgap="20">
-                            <Label text="Docking ID: "/>
-                            <Label fx:id="idInfo" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <SplitPane dividerPositions="0.4">
+                <VBox alignment="CENTER" spacing="40">
+                    <GridPane alignment="CENTER" hgap="20" vgap="20">
+                        <Label text="Docking ID: "/>
+                        <Label fx:id="idInfo" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                            <Label text="Capacity: " GridPane.rowIndex="1"/>
-                            <Label fx:id="capacityInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                            <TextField fx:id="capacityEdit" visible=" false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Capacity: " GridPane.rowIndex="1"/>
+                        <Label fx:id="capacityInfo" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <TextField fx:id="capacityEdit" visible=" false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                            <Label text="Available slots: " GridPane.rowIndex="2"/>
-                            <Label fx:id="openSpacesInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="Available slots: " GridPane.rowIndex="2"/>
+                        <Label fx:id="openSpacesInfo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                            <Label text="Occupied slots: " GridPane.rowIndex="3"/>
-                            <Label fx:id="usedSpacesInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <Label text="Occupied slots: " GridPane.rowIndex="3"/>
+                        <Label fx:id="usedSpacesInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                            <Label text="Battery usage: " GridPane.rowIndex="4"/>
-                            <Label fx:id="batteryInfo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-                        </GridPane>
-                    </center>
-                    <bottom>
-                        <AnchorPane>
-                            <HBox alignment="CENTER" fx:id="infoButtonBar" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
-                                <Button text="Edit" onAction="#openEditPane" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Button text="Delete" onAction="#deleteDocking" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Button text="Cancel" onAction="#cancel" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                            </HBox>
-                            <HBox fx:id="editButtonBar" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
-                                <Button text="Submit" onAction="#editDock" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Button text="Cancel" onAction="#showInfoBack" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                            </HBox>
-                        </AnchorPane>
-                    </bottom>
-                </BorderPane>
+                        <Label text="Battery usage: " GridPane.rowIndex="4"/>
+                        <Label fx:id="batteryInfo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <AnchorPane>
+                        <HBox alignment="CENTER" fx:id="infoButtonBar"  spacing="10" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
+                            <Button text="Edit" onAction="#openEditPane" />
+                            <Button text="Delete" onAction="#deleteDocking"/>
+                            <Button text="Cancel" onAction="#cancel"/>
+                        </HBox>
+                        <HBox fx:id="editButtonBar" alignment="CENTER" spacing="10" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+                            <Button text="Submit" onAction="#editDock" />
+                            <Button text="Cancel" onAction="#showInfoBack"/>
+                        </HBox>
+                    </AnchorPane>
+                </VBox>
                 <ListView fx:id="bikeList"/>
             </SplitPane>
         </center>

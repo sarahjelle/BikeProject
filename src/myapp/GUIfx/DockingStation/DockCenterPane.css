@@ -1,27 +1,28 @@
-#topMenu{
+Button{
+    -fx-background-color: transparent;
+    -fx-border-color: #829715;
+    -fx-border-radius: 0;
+}
+
+Button:hover{
+    -fx-background-color: #b5cc18;
+}
+
+#searchMenu{
     -fx-background-color: rgba(181, 204, 24, 0.44);
 }
 
-#topMenu Button{
+#searchMenu Button{
     -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
-#topMenu Button:hover{
+#searchMenu Button:hover{
     -fx-text-fill: white;
-}
-
-#bottomMenu{
-    -fx-background-color: rgba(181, 204, 24, 0.44);
-}
-
-#bottomMenu Button{
     -fx-background-color: transparent;
-}
-
-#bottomMenu Button:hover{
-    -fx-text-fill: white;
 }
 
 #infoTop{
     -fx-font-size: 20;
+    -fx-background-color: rgba(181, 204, 24, 0.44);
 }

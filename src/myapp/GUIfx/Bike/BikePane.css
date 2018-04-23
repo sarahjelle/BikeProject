@@ -1,36 +1,59 @@
-/* Menucolor: #b5cc18*/
+Button{
+    -fx-background-color: transparent;
+    -fx-border-color: #829715;
+    -fx-border-radius: 0;
+}
+
+Button:hover{
+    -fx-background-color: #b5cc18;
+}
+
+#topIdOutput{
+    -fx-background-color: rgba(181, 204, 24, 0.44);
+}
+
+#topIdOutput Label{
+    -fx-font-size: 20;
+}
 
 #topMenu{
     -fx-background-color: rgba(181, 204, 24, 0.44);
 }
 
-#topMenu TextField{
-    -fx-text-fill: #828282;
-}
-
 #topMenu Button{
     -fx-background-color: transparent;
-    -fx-border-radius: 50;
-    /*-fx-border-color: #b5cc18;*/
-}
-
-#topMenu Button:hover{
-    -fx-border-color: white;
+    -fx-border-color: transparent;
 }
 
 #topMenu Button:hover{
     -fx-text-fill: white;
-
-}
-
-#buttomBar{
-    -fx-background-color: rgba(181, 204, 24, 0.44);
-}
-
-#buttomBar Button{
     -fx-background-color: transparent;
 }
 
-#buttomBar Button:hover{
-    -fx-text-fill: white;
+#regBottomBar Button{
+    -fx-background-color: transparent;
+    -fx-text-fill: #2640ff;
+    -fx-underline: true;
+    -fx-border-color: transparent;
+}
+
+#regBottomBar Button:hover{
+    -fx-border-color: transparent;
+    -fx-text-fill: #7490ff;
+}
+
+#editBottomBar Button{
+    -fx-background-color: transparent;
+    -fx-text-fill: #2640ff;
+    -fx-underline: true;
+    -fx-border-color: transparent;
+}
+
+#editBottomBar Button:hover{
+    -fx-border-color: transparent;
+    -fx-text-fill: #7490ff;
+}
+
+.buttonstyling{
+    -fx-background-color: transparent;
 }

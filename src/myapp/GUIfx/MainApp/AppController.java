@@ -6,21 +6,15 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import myapp.GUIfx.Admin.AdminController;
 import myapp.GUIfx.Bike.BikeController;
-import myapp.GUIfx.Bike.BikePaneController;
 import myapp.GUIfx.DockingStation.DockStationCenter;
 import myapp.GUIfx.Map.MapController;
 import myapp.GUIfx.Statistic.StatController2;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.FileReader;
-import java.io.BufferedReader;
 import myapp.data.*;
 import myapp.dbhandler.*;
 
 
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class AppController {

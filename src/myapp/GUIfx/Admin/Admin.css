@@ -1,4 +1,14 @@
-#infoButtons Button{
+Button{
+    -fx-background-color: transparent;
+    -fx-border-color: #829715;
+    -fx-border-radius: 0;
+}
+
+Button:hover{
+    -fx-background-color-color: #b5cc18;
+}
+
+/*#infoButtons Button{
     -fx-background-color: transparent;
 }
 
@@ -12,4 +22,4 @@
 
 #editButtons Button:hover{
     -fx-text-fill: grey;
-}
+}*/
