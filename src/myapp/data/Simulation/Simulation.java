@@ -348,7 +348,7 @@ public class Simulation implements Runnable{
      * This variable will be ignored if setNumberOfUsers() is called with valid argument.
      * Default value is 0.1 (10%)
      * @param percentageOfUsersToMove
-     * @return true if 0 < intput <= 1, false if not.
+     * @return true if input is between 0 and 1, false if not.
      */
     public boolean setUserPercentage(double percentageOfUsersToMove){
         if(percentageOfUsersToMove <= 1 && percentageOfUsersToMove > 0){
@@ -361,7 +361,7 @@ public class Simulation implements Runnable{
 
     /**
      * Sets the actual number of User objects stored in the database to use in the simulation.
-     * @param NumberOfUsers must be in range [0, All-Users-In-Database>.
+     * @param NumberOfUsers must be in range [0, All-Users-In-Database).
      * @return true if NumberOfUsers argument is in valid range.
      */
     public boolean setNumberOfUsers(int NumberOfUsers){
