@@ -1260,40 +1260,12 @@ public class DBH {
      * @author Fredrik Mediaa
      */
     public Docking getDockingByID(int id) {
-        PreparedStatement stmt = null;
-        try {
-            connect();
-            if(db == null) {
-                return null;
-            }
+        Docking[] docks = getAllDockingStationsWithBikes();
 
-            stmt = db.prepareStatement("SELECT * FROM docking_stations WHERE stationID = ?");
-            stmt.setInt(1, id);
-            ResultSet dockingSet = execSQLRS(stmt);
-            while(dockingSet.next()) {
-                Docking dock = new Docking(
-                        dockingSet.getInt("stationID"),
-                        dockingSet.getString("stationName"),
-                        new Location(
-                                dockingSet.getDouble("latitude"),
-                                dockingSet.getDouble("longitude")
-                        ),
-                        dockingSet.getInt("maxSlots"),
-                        dockingSet.getInt("status")
-                );
-                stmt.close();
-                db.close();
-
+        for(Docking dock : docks) {
+            if(dock.getId() == id) {
                 return dock;
             }
-
-            stmt.close();
-            db.close();
-
-            return null;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
         }
         return null;
     }
