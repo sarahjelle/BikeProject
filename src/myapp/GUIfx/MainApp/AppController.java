@@ -105,7 +105,7 @@ public class AppController {
                 addDock(dockings[i], mapPane.getEngine());
             }
             */
-            URL url = this.getClass().getResource("../Map/map.html");
+            URL url = this.getClass().getResource("/myapp/GUIfx/Map/map.html");
             mapPane.getEngine().load(url.toExternalForm());
             mapPane.getEngine().setJavaScriptEnabled(true);
             //removeAll(mapPane.getEngine());

@@ -315,7 +315,7 @@ public class BikeController implements Initializable {
             statusInfo.setText(getStatus(bike));
         }
 
-        URL url = this.getClass().getResource("../Bike/BikeMap/BikeMap.html");
+        URL url = this.getClass().getResource("/myapp/GUIfx/Bike/BikeMap/BikeMap.html");
         browser.getEngine().load(url.toExternalForm());
         browser.getEngine().setJavaScriptEnabled(true);
         browser.setVisible(true);

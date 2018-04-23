@@ -13,7 +13,7 @@ import myapp.data.User;
 public class Main extends Application{
 
     public void login(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("../SignIn/SignIn.fxml"));
+        Parent root = FXMLLoader.load(this.getClass().getResource("/myapp/GUIfx/SignIn/SignIn.fxml"));
         Scene scene = new Scene(root, 300, 300);
 
         primaryStage.setTitle("Trondheim Bike Rental");
@@ -23,7 +23,7 @@ public class Main extends Application{
 
     public void loadApp(Stage primaryStage, User loggedInUser) throws Exception{
         System.out.println("loading app");
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("App.fxml"));
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("App.fxml"));
         Parent root = (Parent) loader.load();
         AppController appctrl = loader.getController();
         appctrl.setUser(loggedInUser);
