@@ -1406,7 +1406,7 @@ public class DBH {
     }
 
     /**
-     * generateDockingSlots is a method for generating all hte slots assosiated with the Docking object
+     * generateDockingSlots is a method for generating all the slots associated with the Docking object
      *
      * @param   amount      the capacity of the station
      * @param   stationID   the stations ID
@@ -1587,31 +1587,33 @@ public class DBH {
      * @return          a boolean based on the results from the database. True = updated, False = not updated.
      */
     public boolean updateUser(User user) {
-        PreparedStatement stmt = null;
-        try {
-            connect();
-            if(db == null) {
-                return false;
-            }
+        if(!checkIfUserExist(user.getEmail())) {
+            PreparedStatement stmt = null;
+            try {
+                connect();
+                if(db == null) {
+                    return false;
+                }
 
-            stmt = db.prepareStatement("UPDATE users SET email = ?, firstname = ?, lastname = ?, phone = ? WHERE userID = ?");
-            stmt.setString(1, user.getEmail());
-            stmt.setString(2, user.getFirstname());
-            stmt.setString(3, user.getLastname());
-            stmt.setInt(4, user.getPhone());
-            stmt.setInt(5, user.getUserID());
+                stmt = db.prepareStatement("UPDATE users SET email = ?, firstname = ?, lastname = ?, phone = ? WHERE userID = ?");
+                stmt.setString(1, user.getEmail());
+                stmt.setString(2, user.getFirstname());
+                stmt.setString(3, user.getLastname());
+                stmt.setInt(4, user.getPhone());
+                stmt.setInt(5, user.getUserID());
 
-            if(!execSQLBool(stmt)) {
+                if(!execSQLBool(stmt)) {
+                    stmt.close();
+                    db.close();
+                    return false;
+                }
                 stmt.close();
                 db.close();
-                return false;
+                return true;
+            } catch(SQLException e) {
+                forceClose();
+                e.printStackTrace();
             }
-            stmt.close();
-            db.close();
-            return true;
-        } catch(SQLException e) {
-            forceClose();
-            e.printStackTrace();
         }
         return false;
     }
