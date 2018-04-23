@@ -55,7 +55,7 @@ CREATE TABLE repair_cases (
 CREATE TABLE users(
   userID INT NOT NULL AUTO_INCREMENT,
   userTypeID INT NOT NULL,
-  email varchar(30) NOT NULL UNIQUE,
+  email varchar(30) NOT NULL,
   password varchar(255) NOT NULL,
   salt varchar(255) NOT NULL,
   firstname varchar(50) NOT NULL,
