@@ -93,7 +93,7 @@ public class DockStationCenter implements Initializable{
     }
 
     //refresh information from database
-    private void refresh(){
+    @FXML private void refresh(){
         dockingList.getItems().clear();
         Thread thread = new Thread(() -> {
             stations = dbh.getAllDockingStationsWithBikes();

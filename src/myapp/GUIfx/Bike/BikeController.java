@@ -34,8 +34,14 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 
-
-
+/**
+ * The BikeController class is the controller of BikePane.fxml.
+ * This class contains methodes to add a new bike, edit/delete bikes, show status about a bike,
+ * show all repairs, show the bike in a map and a list of all bikes.
+ *
+ * @author Sara Hjelle
+ * @author Martin Moan created the map functions.
+ */
 public class BikeController implements Initializable {
     //DBH
     DBH dbh = new DBH();
@@ -154,6 +160,9 @@ public class BikeController implements Initializable {
         refresh();
     }
 
+    /**
+     * This method refreshes the list of bikes to contain the same information as the database.
+     */
     @FXML
     private void refresh() {
         bikeList.getItems().clear();
@@ -172,7 +181,10 @@ public class BikeController implements Initializable {
         thread.start();
     }
 
-
+    /**
+     * this method updates the list of repairs that belongs to a bike.
+     * @param bike the bike you would like to se the repairs on.
+     */
     @FXML
     private void refreshRepair(Bike bike) {
         repairList.getItems().clear();
@@ -195,6 +207,11 @@ public class BikeController implements Initializable {
     }
 
     //methodes for all panes
+
+    /**
+     * This method is used in AppController.java to make the bike pane visible when a user
+     * clicks on the bike button in the application.
+     */
     public void openPane() {
         refresh();
         closeAll();
@@ -202,13 +219,20 @@ public class BikeController implements Initializable {
         listPane.setVisible(true);
     }
 
+    /**
+     * Used in AppController.java to close the bike pane when a user want to go to
+     * docking, map, statistic or admin page.
+     */
     public void closePane() {
         testbikeremoveme.setVisible(false);
     }
 
+    /**
+     * closeAll() closes all the panes inside the main bike pane.
+     * This method makes it easy to open other panes, without having to set all the
+     * panes visibility to false each time.
+     */
     public void closeAll() {
-        //refresh();
-        //closePane();
         searchInput.clear();
         searchInput.setPromptText("Bikeid");
         listPane.setVisible(false);
@@ -221,14 +245,24 @@ public class BikeController implements Initializable {
         browser.setVisible(false);
     }
 
+    /**
+     * This method is used on cancel buttons, to go back to the bikelist on the "frontpage"
+     * of the bike pane.
+     */
     @FXML
     private void cancel() {
-        //refresh();
         closeAll();
         listPane.setVisible(true);
     }
 
     //methods for info
+
+    /**
+     * This method goes through the list of bikes and compares the bikeID from the list to the
+     * id that is sent in as a parameter. If there is a match this method returns the bike with the same id.
+     * @param bikeId the id you want to find the corresponding bike to.
+     * @return returns a Bike object if a match is found, null if there is no match.
+     */
     public Bike findBike(int bikeId) {
         /*for(int i = 0; i < bikes.size(); i++){
             if(bikeId == bikes.get(i).getId()){
@@ -247,13 +281,20 @@ public class BikeController implements Initializable {
         return null;
     }
 
+    /**
+     * This method is used when a row in the list is clicked.
+     * The method opens the info page about the selected bike.
+     */
     @FXML
     private void selectedRow() {
-        //Bike bike = (Bike) bikeList.getItems().get(bikeList.getSelectionModel().getSelectedIndex());
         Bike bike = bikeList.getSelectionModel().getSelectedItem();
         showInfo(bike);
     }
 
+    /**
+     * This method lets the user search for a bikeID and opens the info page
+     * about the bike that has the id.
+     */
     @FXML
     private void search() {
         String bikeID = searchInput.getText();
@@ -273,6 +314,13 @@ public class BikeController implements Initializable {
         }
     }
 
+    /**
+     * This method used most as a help method, to show the information.
+     * It takes in a Bike object and set the labels to the information that belongs
+     * to the certain bike.
+     * This method is used in search and selected row.
+     * @param bike the Bike object you want to see information about.
+     */
     @FXML
     private void showInfo(Bike bike) {
         //Update attributes for bike chosen
@@ -322,6 +370,12 @@ public class BikeController implements Initializable {
         }
     }
 
+    /**
+     * Help method to get the status of a certain bike as a String.
+     * Used to present the bikes status.
+     * @param bike the Bike object you want to get the status of.
+     * @return returns the status of the bike as a presentable String.
+     */
     private String getStatus(Bike bike) {
         int status = bike.getStatus();
         String res = "";
@@ -343,14 +397,21 @@ public class BikeController implements Initializable {
         return res;
     }
 
+    /**
+     * Used on cancel buttons to go back to the selected bike,
+     * instead of going back to the bikelist.
+     */
     @FXML
     private void showInfoBack() {
-        //refresh();
         Bike bike = findBike(id);
         showInfo(bike);
     }
 
-
+    /**
+     * This method shows more information about the repair a user chose from
+     * the list of repairs.
+     * If the repair is not finished a button to complete the repair is visible.
+     */
     @FXML private void showRepair(){
         Repair repair = repairList.getSelectionModel().getSelectedItem();
         dateSentRepInfo.setText(repair.getRequestDate().toString());
@@ -376,12 +437,22 @@ public class BikeController implements Initializable {
 
     }
 
+    /**
+     * Used to show all the repairs again after seeing more information about one.
+     */
     @FXML private void showAllRepairs(){
         repairListPane.setVisible(true);
         repairInfoPane.setVisible(false);
     }
 
     //methods for repair
+
+    /**
+     * openRepairPane is used to open the right repair page.
+     * If the bike is at repair when the button is clicked the user will be sent
+     * directly to the page where you can finish the repair.
+     * Else the user will be sent to the page where he/she can create a repair request.
+     */
     @FXML
     private void openRepairPane() {
         closeAll();
@@ -408,26 +479,33 @@ public class BikeController implements Initializable {
         }
     }
 
-    //Register repair before sent
+    /**
+     * Method to create a repair request
+     * A repair request can only be added if the bike is available.
+     */
     @FXML
     private void beforeRepair() {
         LocalDate date = dateSent.getValue();
         String description = descriptionBefore.getText();
         Bike bike = findBike(id);
 
-        boolean ok = bike.addRepairRequest(description, date);
-
-        if(ok){
-            refresh();
-            dw.informationWindow("Repair request were added and the bike will not be able to rent. ", "Repair is added");
-            showInfo(findBike(id));
-        }
-        else{
-            dw.informationWindow("Could not add repair request to the database", "BikeID: " + id);
+        if(bike.getStatus() == Bike.AVAILABLE) {
+            boolean ok = bike.addRepairRequest(description, date);
+            if (ok) {
+                refresh();
+                dw.informationWindow("Repair request were added and the bike will not be able to rent. ", "Repair is added");
+                showInfo(findBike(id));
+            } else {
+                dw.informationWindow("Could not add repair request to the database", "BikeID: " + id);
+            }
         }
     }
 
-    //Register repair on return
+    /**
+     * The afterRepair() method opens the page to register a description, date and
+     * price to an already existing repair request.
+     * This only opens if the status of the bike is "on repair".
+     */
     @FXML
     private void afterRepair() {
         Bike bike = findBike(id);
@@ -457,7 +535,9 @@ public class BikeController implements Initializable {
         }
     }
 
-    //methodes for edit
+    /**
+     * openEditPane() opens the pane where a user can edit some of the information about a bike.
+     */
     @FXML
     private void openEditPane() {
         Bike bike = findBike(id);
@@ -477,6 +557,13 @@ public class BikeController implements Initializable {
         editPane.setVisible(true);
     }
 
+    /**
+     * The edit() method registers the new information about a bike.
+     * It is only possible to edit the information a user can register
+     * about a bike (purchase date, type, make, price).
+     * If the user does not write anything/the value is invalid,
+     * the value is set to be the same as it was before.
+     */
     @FXML private void edit(){
         if(!makeEdit.getText().trim().isEmpty()){
             makeTmp = makeEdit.getText().trim();
@@ -524,13 +611,20 @@ public class BikeController implements Initializable {
         }
     }
 
-
+    /**
+     * This method gets all the registered bikes from the database.
+     * @return returns an arraylist with Strings, the Strings are different types.
+     */
     private ArrayList<String> getTypes() {
         //return dbh.getTypes();
         ArrayList<String> types = dbh.getBikeTypes();
         return types;
     }
 
+    /**
+     * The newType() method is used when a user wants to add a new type
+     * to the list of type he/she can chose between.
+     */
     @FXML private void newType(){
         String newType = dw.inputDialog("Type name: ", "New type");
 
@@ -548,6 +642,10 @@ public class BikeController implements Initializable {
 
     }
 
+    /**
+     * The deleteType() method is used when a user wants to delete
+     * a type from the list of types.
+     */
     @FXML private void deleteType(){
         ArrayList<String> types = getTypes();
         String typeToDelete = dw.choiceDialog("Which type do you want to delete? ", "Delete type", types);
@@ -561,8 +659,12 @@ public class BikeController implements Initializable {
         }
     }
 
-
-    //methods for bike registration
+    /**
+     * getDockingStationName() is used to get a list of all the registered
+     * docking station. It is used on the registration page, so the user can chose
+     * a location for the new bike.
+     * @return returns a list of all the docking station names.
+     */
     private ArrayList<String> getDockingStationNames(){
         ArrayList<String> stationNames = new ArrayList<>();
         Docking[] stations = dbh.getAllDockingStationsWithBikes();
@@ -576,6 +678,10 @@ public class BikeController implements Initializable {
         return stationNames;
     }
     @FXML
+
+    /**
+     * Opens the page where a user can register a new bike.
+     */
     private void openRegBike() {
         typeReg.getItems().clear();
         locationReg.getItems().clear();
@@ -598,6 +704,11 @@ public class BikeController implements Initializable {
         registerPane.setVisible(true);
     }
 
+    /**
+     * This method checks if the information a user wants to register is valid,
+     * or empty.
+     * @return true = all information is valid, and all fields are filled with information.
+     */
     @FXML
     private boolean regBikeOk() {
         boolean ok = true;
@@ -637,6 +748,11 @@ public class BikeController implements Initializable {
         return ok;
     }
 
+    /**
+     * regBike() is used to register a new bike in the database.
+     * The method uses only register the information if regBikeOk
+     * returns true.
+     */
     @FXML
     private void regBike() {
         if (regBikeOk()) {
@@ -664,7 +780,10 @@ public class BikeController implements Initializable {
         }
     }
 
-    //methods for deleting bikes
+    /**
+     * deleteBike() is uses to delete a bike.
+     * The bike is only deleted if the user confirms in a dialog window.
+     */
     @FXML
     private void deleteBike() {
         Bike bike = findBike(id);

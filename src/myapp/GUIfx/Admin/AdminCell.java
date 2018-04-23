@@ -32,8 +32,6 @@ public class AdminCell extends ListCell<User> {
         userId.setPrefWidth(10);
         firstName = new Label();
         firstName.setPrefWidth(100);
-        surname = new Label();
-        surname.setPrefWidth(50);
         phone = new Label();
         phone.setPrefWidth(70);
         email = new Label();
@@ -42,21 +40,23 @@ public class AdminCell extends ListCell<User> {
     }
 
     /**
-     * 
-     * @param user
-     * @param empty
+     * This method fills a cell with the user object, that is sent in if
+     * the boolean is true.
+     * @param user the new object for the cell.
+     * @param empty this is whether or not this cell represent any domain data.
      */
     @Override
     public void updateItem(User user, boolean empty){
         super.updateItem(user, empty);
         if(user != null && !empty){
-            //userId.setText(Integer.toString(user.getUserID()));
             firstName.setText(user.getFirstname() + " " + user.getLastname());
-            //surname.setText(user.getLastname());
             phone.setText(Integer.toString(user.getPhone()));
             email.setText(user.getEmail());
 
             setGraphic(hbox);
+        }
+        else{
+            setGraphic(null);
         }
     }
 }
