@@ -8,12 +8,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/*
- Status:
-         1 = Available;
-         2 = In Trip;
-         3 = In Repair;
-*/
+/**
+ * This class connects to the database through a DBH-object. From the database, an arraylist with all bikes
+ * are generated and an araylist with all docking stations and the docked bikes.
+ */
 
 public class GenerateStats {
     private DBH dbh;
@@ -32,7 +30,11 @@ public class GenerateStats {
         duThread.start();
     }
 
-    // Uses the ArrayList containing all docking stations and for each station returns name, capacity and taken slots.
+    /**
+     * A method to create a matrix of Objects that represents all docking stations, with the corresponding
+     * capacity and occupied slots on that docking station.
+     * @return Object[][] list of lists with docking station name, capacity and occupied slots.
+     */
     public Object[][] dockingStatistics() {
         Object[][] stat1list = new Object[3][docks.size()];
         for (int i = 0; i < docks.size(); i++) {
@@ -43,6 +45,11 @@ public class GenerateStats {
         return stat1list;
     }
 
+    /**
+     * A method that loops through all bikes in the bike-Arraylist and count the number of bikes with status
+     * on trip, in repair or available.
+     * @return int[] a list of the number of bikes that are on trip, in repair or available
+     */
     public int[] bikeAvailability(){
         int[] availStats = new int[3];
         for (Bike b : bikes){
@@ -62,6 +69,12 @@ public class GenerateStats {
         return availStats;
     }
 
+    /**
+     * A method that calculates the average number of total km travelled by the bikes and the average number of trips
+     * taken by the bikes docked at each docking station.
+     * @return Object[][] a list of lists containing all docking stations and the average number of total km and
+     * number of trips taken by the bikes at each station.
+     */
     public Object[][] bikeStats(){
         Object[][] bikeStatistics = new Object[3][docks.size()];
         int totkm=0;
