@@ -270,9 +270,9 @@
                     <bottom>
                         <HBox alignment="CENTER" fx:id="editBottomBar">
                             <Label text="Type: "/>
-                            <Button text="New type"/>
+                            <Button text="New type" onAction="#newType"/>
                             <Separator orientation="VERTICAL"/>
-                            <Button text="Delete type"/>
+                            <Button text="Delete type" onAction="#deleteType"/>
                             <padding>
                                 <Insets bottom="5"/>
                             </padding>
