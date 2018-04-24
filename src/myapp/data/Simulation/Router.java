@@ -207,7 +207,7 @@ public class Router implements Runnable{
                     bikeToMove.setLocation(newLoc);
 
 
-                    int dist = (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng)) / 1000;
+                    int dist = (int) getDistance(new Location(latAt, lngAt), new Location(newLat, newLng));
                     Random rand = new Random();
                     double batteryLeft = bikeToMove.getBatteryPercentage() - (POWER_USAGE_PER_S * rand.nextDouble());
                     bikeToMove.setDistanceTraveled(dist);
