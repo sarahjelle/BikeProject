@@ -8,6 +8,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
 import javafx.scene.control.*;
+import java.text.DecimalFormat;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import static myapp.data.Bike.*;
@@ -344,7 +345,8 @@ public class BikeController implements Initializable {
         dateInfo.setText(dateTmp.toString());
 
         double battery = bike.getBatteryPercentage()*100;
-        batteryInfo.setText(Double.toString(battery) + "%");
+        DecimalFormat formatter = new DecimalFormat("##.##");
+        batteryInfo.setText(formatter.format(battery) + "%");
         distanceInfo.setText(Integer.toString(bike.getDistanceTraveled()));
         System.out.println(bike.getTotalTrips());
         if(bike == null){
