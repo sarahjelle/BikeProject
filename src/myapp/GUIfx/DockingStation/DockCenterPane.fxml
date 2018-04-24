@@ -75,7 +75,7 @@
                         <Label text="Occupied slots: " GridPane.rowIndex="3"/>
                         <Label fx:id="usedSpacesInfo" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                        <Label text="Battery usage: " GridPane.rowIndex="4"/>
+                        <Label text="Energy usage: " GridPane.rowIndex="4"/>
                         <Label fx:id="batteryInfo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
                     </GridPane>
                     <AnchorPane>

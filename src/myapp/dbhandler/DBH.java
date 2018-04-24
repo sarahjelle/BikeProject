@@ -1256,6 +1256,35 @@ public class DBH {
         }
     }
 
+    public int getEnergyUsage(Docking dock){
+        PreparedStatement stmt = null;
+        try{
+            connect();
+            if(db == null){
+                return -1;
+            }
+            stmt = db.prepareStatement("SELECT energyUsage FROM docking_log WHERE stationID = ? ORDER BY logTime DESC LIMIT 1");
+            stmt.setInt(1, dock.getId());
+
+            ResultSet res = execSQLRS(stmt);
+            int out = -1;
+            if(res.next()){
+                out = res.getInt("energyUsage");
+                stmt.close();
+                db.close();
+                return out;
+            } else{
+                stmt.close();
+                db.close();
+                return -1;
+            }
+        } catch(Exception e){
+            forceClose();
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     /**
      * getDockingByID takes in the ID of the docking station to be found and returns it in the form of a Docking object
      *

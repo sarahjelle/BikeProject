@@ -14,6 +14,7 @@ import myapp.data.Docking;
 import myapp.dbhandler.DBH;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
@@ -168,7 +169,7 @@ public class DockStationCenter implements Initializable{
         capacityInfo.setText(Integer.toString(dock.getCapacity()));
         openSpacesInfo.setText(Integer.toString(dock.getFreeSpaces()));
         usedSpacesInfo.setText(Integer.toString(dock.getUsedSpaces()));
-        batteryInfo.setText(Double.toString(dock.getPowerUsage()));
+        batteryInfo.setText(dbh.getEnergyUsage(dock) + " W");
         capacityInfo.setVisible(true);
         capacityEdit.setVisible(false);
         editButtonBar.setVisible(false);
